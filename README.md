@@ -39,8 +39,8 @@ administración para gestionar noticias, gimnastas y competiciones.
 
 ## Acceso al panel de administración
 
-- Usuario: `admin`
-- Contraseña: `sakoneta2026`
+- Usuario: XXXX
+- Contraseña: XXXXX
 
 **Cambia la contraseña antes de publicar el sitio.** Genera un nuevo
 hash con:
