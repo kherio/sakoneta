@@ -15,6 +15,7 @@ $guardado = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $error = 'La foto es demasiado grande para el límite de subida configurado en el servidor. Prueba con una imagen más ligera (o pide que se aumenten "upload_max_filesize" y "post_max_size" en la configuración de PHP del servidor).';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  try {
     exigirCsrf();
     $splashActivo = isset($_POST['splash_activo']) ? 1 : 0;
     $inicioImagenTitulo = trim($_POST['inicio_imagen_titulo'] ?? '');
@@ -23,6 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $heroKicker = trim($_POST['hero_kicker'] ?? '');
     $heroTitulo = trim($_POST['hero_titulo'] ?? '');
     $heroTexto = trim($_POST['hero_texto'] ?? '');
+    $nombreSitioNuevo = trim($_POST['nombre_sitio'] ?? '');
+    $esloganSitioNuevo = trim($_POST['eslogan_sitio'] ?? '');
+    $estadisticas = [];
+    foreach ([1, 2, 3, 4] as $n) {
+        $valor = trim($_POST["est{$n}_valor"] ?? '');
+        $texto = trim($_POST["est{$n}_texto"] ?? '');
+        $estadisticas["est{$n}_valor"] = $valor !== '' ? (int)$valor : null;
+        $estadisticas["est{$n}_texto"] = $texto !== '' ? $texto : null;
+    }
 
     $errorSplash = null;
     $nuevoSplash = procesarImagenSubida('splash_imagen', $errorSplash);
@@ -42,8 +52,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=? WHERE id=1');
-            $stmt->execute([$splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null, $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null]);
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt->execute([
+                $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
+                $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null,
+                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null,
+                $estadisticas['est1_valor'], $estadisticas['est1_texto'],
+                $estadisticas['est2_valor'], $estadisticas['est2_texto'],
+                $estadisticas['est3_valor'], $estadisticas['est3_texto'],
+                $estadisticas['est4_valor'], $estadisticas['est4_texto'],
+            ]);
             redirigir('ajustes.php?ok=1');
         }
     }
@@ -56,9 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['hero_kicker'] = $heroKicker;
     $ajustes['hero_titulo'] = $heroTitulo;
     $ajustes['hero_texto'] = $heroTexto;
+    $ajustes['nombre_sitio'] = $nombreSitioNuevo;
+    $ajustes['eslogan_sitio'] = $esloganSitioNuevo;
+    foreach ($estadisticas as $clave => $valor) { $ajustes[$clave] = $valor; }
+  } catch (Throwable $e) {
+    error_log('Error al guardar ajustes.php: ' . $e->getMessage());
+    $error = 'No se han podido guardar los ajustes por un error interno. Si acabas de actualizar el código del sitio, recarga esta página una vez más (la base de datos se actualiza sola en la primera visita tras cada cambio). Si el problema sigue, revisa el registro de errores del servidor: ahí queda anotado el motivo exacto ("' . get_class($e) . '").';
+  }
 }
 
 require __DIR__ . '/includes/layout_header.php';
+
+$defectoEst = [
+    1 => ['valor' => (int)$pdo->query('SELECT COUNT(*) FROM gimnastas')->fetchColumn(), 'texto' => 'Gimnastas en el club'],
+    2 => ['valor' => (int)$pdo->query('SELECT COUNT(*) FROM competiciones WHERE disputada = 1')->fetchColumn(), 'texto' => 'Competiciones disputadas'],
+    3 => ['valor' => (int)$pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn(), 'texto' => 'Categorías, de base a senior'],
+    4 => ['valor' => 5, 'texto' => 'Aparatos: aro, pelota, mazas, cinta y cuerda'],
+];
 ?>
 
 <h1>Ajustes del sitio</h1>
@@ -72,6 +104,20 @@ require __DIR__ . '/includes/layout_header.php';
 
 <form method="post" enctype="multipart/form-data">
   <?= campoCsrf() ?>
+
+  <h3 style="margin-top:0;">Identidad del sitio</h3>
+  <div class="fila-2">
+    <div class="campo">
+      <label for="nombre_sitio">Nombre del club</label>
+      <input type="text" id="nombre_sitio" name="nombre_sitio" value="<?= e($ajustes['nombre_sitio'] ?? '') ?>" placeholder="<?= e(SITE_NAME) ?>">
+    </div>
+    <div class="campo">
+      <label for="eslogan_sitio">Lema</label>
+      <input type="text" id="eslogan_sitio" name="eslogan_sitio" value="<?= e($ajustes['eslogan_sitio'] ?? '') ?>" placeholder="<?= e(SITE_CLAIM) ?>">
+    </div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
   <h3 style="margin-top:0;">Pantalla de bienvenida (splash)</h3>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
@@ -154,6 +200,27 @@ require __DIR__ . '/includes/layout_header.php';
     <label for="sobre_palmares">Palmarés (un logro por línea)</label>
     <textarea id="sobre_palmares" name="sobre_palmares" placeholder="Ej: Bronce por equipos, Campeonato de Euskadi 2025"><?= e($ajustes['sobre_palmares'] ?? '') ?></textarea>
   </div>
+
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+
+  <h3>Estadísticas de la portada</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    La franja de números que aparece bajo el titular. Deja el número o
+    el texto en blanco para usar el valor calculado automáticamente
+    (se muestra como referencia en cada campo).
+  </p>
+  <?php foreach ([1, 2, 3, 4] as $n): ?>
+  <div class="fila-2">
+    <div class="campo">
+      <label for="est<?= $n ?>_valor">Número <?= $n ?></label>
+      <input type="number" id="est<?= $n ?>_valor" name="est<?= $n ?>_valor" value="<?= e($ajustes["est{$n}_valor"] ?? '') ?>" placeholder="<?= $defectoEst[$n]['valor'] ?>">
+    </div>
+    <div class="campo">
+      <label for="est<?= $n ?>_texto">Texto <?= $n ?></label>
+      <input type="text" id="est<?= $n ?>_texto" name="est<?= $n ?>_texto" value="<?= e($ajustes["est{$n}_texto"] ?? '') ?>" placeholder="<?= e($defectoEst[$n]['texto']) ?>">
+    </div>
+  </div>
+  <?php endforeach; ?>
 
   <button type="submit" class="btn">Guardar ajustes</button>
 </form>

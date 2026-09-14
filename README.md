@@ -66,12 +66,16 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   vez disputada, y un texto libre para contar cómo fue.
 - **Mensajes de contacto**: los mensajes enviados desde el
   formulario público quedan guardados y visibles aquí.
-- **Ajustes del sitio**: subir una foto para la pantalla de bienvenida
-  (splash) a pantalla completa que se muestra al entrar a la web, y
-  otra foto para la portada, con pie de foto opcional. Las imágenes
-  subidas se guardan en `img/subidas/`. También se edita aquí el
-  texto de la portada (entradilla, titular grande y párrafo de
-  presentación); si se deja en blanco, se usa el texto por defecto.
+- **Ajustes del sitio**: nombre del club y lema, editables (si se dejan
+  en blanco, se usan los definidos en `config.php`); subir una foto
+  para la pantalla de bienvenida (splash) a pantalla completa que se
+  muestra al entrar a la web, y otra foto para la portada, con pie de
+  foto opcional. Las imágenes subidas se guardan en `img/subidas/`.
+  También se edita aquí el texto de la portada (entradilla, titular
+  grande y párrafo de presentación) y **las 4 estadísticas** que
+  aparecen bajo el titular (número y texto de cada una); si se dejan
+  en blanco, se calculan solas (gimnastas, competiciones disputadas,
+  categorías) o usan el valor por defecto.
 - **Categorías**: crear, renombrar, reordenar y borrar las categorías
   (Base, Alevín, Infantil...) que luego se eligen al dar de alta
   gimnastas y competiciones. También admiten varias fotos propias y
@@ -85,6 +89,16 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   campo de texto libre (párrafos separados por una línea en blanco)
   que aparece en su página de detalle pública, junto con la galería
   de fotos.
+- **Patrocinadores**: gestión desde el panel (nombre, logo y enlace
+  opcional). Aparecen en el pie de página de toda la web como un
+  **carrusel** de desplazamiento continuo (se pausa al pasar el
+  ratón por encima, y no se anima si el sistema tiene activado
+  "reducir movimiento").
+- **Suscripción por email**: formulario en el pie de todas las
+  páginas para recibir avisos de noticias nuevas. Los correos
+  quedan guardados en el panel (sección "Suscriptores"), con opción
+  de descargarlos en CSV — la web no los envía por sí sola, es una
+  lista para usar con tu propio correo o herramienta de newsletter.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una y con
   opción de borrarlas (también se puede borrar una foto puntual desde
@@ -232,6 +246,25 @@ PHP-FPM está detrás de un proxy, el `proxy_read_timeout`.
 directorio), sube `comprobar-limite.php` a la raíz del sitio, ábrelo
 en el navegador y bórralo en cuanto lo hayas comprobado — no debe
 quedar publicado de forma permanente.
+
+## Base de datos y actualizaciones (importante)
+
+Las tablas y columnas de la base de datos se crean y se actualizan
+**solas**, en la primera petición tras cada `git pull` (desde
+`includes/db.php`). Ya no hace falta ejecutar `init_db.php` a mano
+después de cada actualización de código — solo la primera vez que
+instalas el sitio, para cargar los datos de ejemplo.
+
+Esto solucionó un error real: si el código de una página esperaba una
+columna que la base de datos todavía no tenía (por ejemplo, tras
+añadir el texto editable de la portada), se producía un
+**Error 500** al guardar. Ahora es imposible que eso vuelva a pasar
+por ese motivo, porque la migración se aplica sola en cuanto se
+recibe la primera visita con el código nuevo. Además, la página de
+Ajustes tiene ahora un `try/catch` general: cualquier fallo al
+guardar (sea cual sea la causa) se muestra como un aviso legible en
+vez de una pantalla en blanco de error 500, y el motivo exacto queda
+anotado en el registro de errores de PHP del servidor.
 
 ## Antes de publicarlo en un servidor real
 

@@ -1,142 +1,14 @@
 <?php
-// Ejecuta este script UNA VEZ (desde el navegador o con "php init_db.php")
-// para crear la base de datos SQLite y cargar contenido de ejemplo.
+// Ejecuta este script UNA VEZ, la primera vez que instales el sitio
+// (desde el navegador o con "php init_db.php"), para cargar los
+// datos de ejemplo. La creación de tablas y las migraciones de
+// columnas nuevas ya NO dependen de este script: se ejecutan solas
+// en cada petición desde includes/db.php, así que un simple
+// "git pull" con código nuevo ya deja la base de datos al día.
 
 require_once __DIR__ . '/includes/db.php';
 
-$pdo = getDb();
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS noticias (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titulo TEXT NOT NULL,
-    resumen TEXT NOT NULL,
-    contenido TEXT NOT NULL,
-    imagen TEXT,
-    fecha TEXT NOT NULL,
-    publicado INTEGER NOT NULL DEFAULT 1
-)");
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    categoria TEXT NOT NULL,
-    modalidad TEXT NOT NULL,
-    aparato TEXT,
-    foto TEXT,
-    orden INTEGER DEFAULT 0
-)");
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS categorias (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL UNIQUE,
-    orden INTEGER DEFAULT 0,
-    imagen_portada TEXT
-)");
-$columnasCategorias = $pdo->query("PRAGMA table_info(categorias)")->fetchAll();
-if (!in_array('imagen_portada', array_column($columnasCategorias, 'name'), true)) {
-    $pdo->exec("ALTER TABLE categorias ADD COLUMN imagen_portada TEXT");
-}
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    categoria TEXT NOT NULL,
-    lugar TEXT NOT NULL,
-    fecha TEXT NOT NULL,
-    resultado TEXT,
-    disputada INTEGER NOT NULL DEFAULT 0,
-    imagen_portada TEXT,
-    descripcion TEXT
-)");
-
-// Migración: añade la columna imagen_portada si la base de datos ya existía sin ella
-$columnasCompeticiones = $pdo->query("PRAGMA table_info(competiciones)")->fetchAll();
-$tienePortada = false;
-$tieneDescripcion = false;
-foreach ($columnasCompeticiones as $columna) {
-    if ($columna['name'] === 'imagen_portada') { $tienePortada = true; }
-    if ($columna['name'] === 'descripcion') { $tieneDescripcion = true; }
-}
-if (!$tienePortada) {
-    $pdo->exec("ALTER TABLE competiciones ADD COLUMN imagen_portada TEXT");
-}
-if (!$tieneDescripcion) {
-    $pdo->exec("ALTER TABLE competiciones ADD COLUMN descripcion TEXT");
-}
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS competicion_fotos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    competicion_id INTEGER NOT NULL,
-    archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0,
-    tipo TEXT NOT NULL DEFAULT 'imagen'
-)");
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS noticia_fotos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    noticia_id INTEGER NOT NULL,
-    archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0,
-    tipo TEXT NOT NULL DEFAULT 'imagen'
-)");
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS gimnasta_fotos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    gimnasta_id INTEGER NOT NULL,
-    archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0,
-    tipo TEXT NOT NULL DEFAULT 'imagen'
-)");
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS categoria_fotos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    categoria_id INTEGER NOT NULL,
-    archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0,
-    tipo TEXT NOT NULL DEFAULT 'imagen'
-)");
-
-// Migración: añade la columna "tipo" a las galerías que ya existieran sin ella
-foreach (['competicion_fotos', 'noticia_fotos', 'gimnasta_fotos', 'categoria_fotos'] as $tablaGaleria) {
-    $columnasGaleria = $pdo->query("PRAGMA table_info($tablaGaleria)")->fetchAll();
-    if (!in_array('tipo', array_column($columnasGaleria, 'name'), true)) {
-        $pdo->exec("ALTER TABLE $tablaGaleria ADD COLUMN tipo TEXT NOT NULL DEFAULT 'imagen'");
-    }
-}
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS ajustes (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    splash_activo INTEGER NOT NULL DEFAULT 0,
-    splash_imagen TEXT,
-    inicio_imagen TEXT,
-    inicio_imagen_titulo TEXT
-)");
-$pdo->exec("INSERT OR IGNORE INTO ajustes (id, splash_activo, splash_imagen, inicio_imagen, inicio_imagen_titulo)
-            VALUES (1, 0, NULL, NULL, NULL)");
-
-// Migración: columnas de "Sobre el club" si la base de datos ya existía sin ellas
-$columnasAjustes = $pdo->query("PRAGMA table_info(ajustes)")->fetchAll();
-$nombresColumnas = array_column($columnasAjustes, 'name');
-if (!in_array('sobre_historia', $nombresColumnas, true)) {
-    $pdo->exec("ALTER TABLE ajustes ADD COLUMN sobre_historia TEXT");
-}
-if (!in_array('sobre_palmares', $nombresColumnas, true)) {
-    $pdo->exec("ALTER TABLE ajustes ADD COLUMN sobre_palmares TEXT");
-}
-foreach (['hero_kicker', 'hero_titulo', 'hero_texto'] as $columnaHero) {
-    if (!in_array($columnaHero, $nombresColumnas, true)) {
-        $pdo->exec("ALTER TABLE ajustes ADD COLUMN $columnaHero TEXT");
-    }
-}
-
-$pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    email TEXT NOT NULL,
-    mensaje TEXT NOT NULL,
-    fecha TEXT NOT NULL,
-    leido INTEGER NOT NULL DEFAULT 0
-)");
+$pdo = getDb(); // getDb() ya crea las tablas y aplica migraciones al abrir la conexión
 
 // --- Datos de ejemplo, solo si las tablas están vacías ---
 

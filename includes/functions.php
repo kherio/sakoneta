@@ -17,6 +17,120 @@ function redirigir(string $ruta): void {
 }
 
 /**
+ * Crea las tablas si no existen y añade cualquier columna nueva que
+ * falte (migraciones). Se llama automáticamente en cada petición
+ * desde getDb(), así que la base de datos se pone al día sola en
+ * cuanto se sube código nuevo, sin depender de que alguien recuerde
+ * ejecutar init_db.php a mano.
+ */
+function ejecutarMigracionesEsquema(PDO $pdo): void {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS noticias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        resumen TEXT NOT NULL,
+        contenido TEXT NOT NULL,
+        imagen TEXT,
+        fecha TEXT NOT NULL,
+        publicado INTEGER NOT NULL DEFAULT 1
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        categoria TEXT NOT NULL,
+        modalidad TEXT NOT NULL,
+        aparato TEXT,
+        foto TEXT,
+        orden INTEGER DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS categorias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL UNIQUE,
+        orden INTEGER DEFAULT 0,
+        imagen_portada TEXT
+    )");
+    agregarColumnaSiFalta($pdo, 'categorias', 'imagen_portada', 'TEXT');
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        categoria TEXT NOT NULL,
+        lugar TEXT NOT NULL,
+        fecha TEXT NOT NULL,
+        resultado TEXT,
+        disputada INTEGER NOT NULL DEFAULT 0,
+        imagen_portada TEXT,
+        descripcion TEXT
+    )");
+    agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_portada', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
+
+    foreach (['competicion_fotos' => 'competicion_id', 'noticia_fotos' => 'noticia_id', 'gimnasta_fotos' => 'gimnasta_id', 'categoria_fotos' => 'categoria_id'] as $tabla => $columnaId) {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS $tabla (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnaId INTEGER NOT NULL,
+            archivo TEXT NOT NULL,
+            orden INTEGER DEFAULT 0,
+            tipo TEXT NOT NULL DEFAULT 'imagen'
+        )");
+        agregarColumnaSiFalta($pdo, $tabla, 'tipo', "TEXT NOT NULL DEFAULT 'imagen'");
+    }
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ajustes (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        splash_activo INTEGER NOT NULL DEFAULT 0,
+        splash_imagen TEXT,
+        inicio_imagen TEXT,
+        inicio_imagen_titulo TEXT
+    )");
+    $pdo->exec("INSERT OR IGNORE INTO ajustes (id, splash_activo, splash_imagen, inicio_imagen, inicio_imagen_titulo)
+                VALUES (1, 0, NULL, NULL, NULL)");
+    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto', 'nombre_sitio', 'eslogan_sitio'] as $columnaAjuste) {
+        agregarColumnaSiFalta($pdo, 'ajustes', $columnaAjuste, 'TEXT');
+    }
+    foreach ([1, 2, 3, 4] as $n) {
+        agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_valor", 'INTEGER');
+        agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_texto", 'TEXT');
+    }
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        email TEXT NOT NULL,
+        mensaje TEXT NOT NULL,
+        fecha TEXT NOT NULL,
+        leido INTEGER NOT NULL DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS patrocinadores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        logo TEXT,
+        url TEXT,
+        orden INTEGER DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS suscriptores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        fecha TEXT NOT NULL
+    )");
+}
+
+/**
+ * Añade una columna a una tabla si todavía no existe. Usado por
+ * ejecutarMigracionesEsquema() para no repetir la misma comprobación
+ * una y otra vez.
+ */
+function agregarColumnaSiFalta(PDO $pdo, string $tabla, string $columna, string $definicionSql): void {
+    $columnas = $pdo->query("PRAGMA table_info($tabla)")->fetchAll();
+    if (!in_array($columna, array_column($columnas, 'name'), true)) {
+        $pdo->exec("ALTER TABLE $tabla ADD COLUMN $columna $definicionSql");
+    }
+}
+
+/**
  * Recorta un texto a una longitud máxima sin depender de la extensión
  * mbstring (no siempre está instalada). Corta por espacio para no
  * partir una palabra a la mitad.
@@ -173,6 +287,7 @@ function contarUsosArchivo(PDO $pdo, string $ruta): int {
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competiciones WHERE imagen_portada = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competicion_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM ajustes WHERE splash_imagen = ? OR inicio_imagen = ?'); $stmt->execute([$ruta, $ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM patrocinadores WHERE logo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     return $total;
 }
 
@@ -215,6 +330,9 @@ function descripcionUsosArchivo(PDO $pdo, string $ruta): array {
         if ($ajustes['splash_imagen'] === $ruta) $usos[] = 'Pantalla de bienvenida (splash)';
         if ($ajustes['inicio_imagen'] === $ruta) $usos[] = 'Foto de portada de inicio';
     }
+
+    $stmt = $pdo->prepare('SELECT nombre FROM patrocinadores WHERE logo = ?'); $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Logo de patrocinador: ' . $n;
 
     return $usos;
 }
@@ -276,6 +394,32 @@ function redimensionarImagenSiHaceFalta(string $rutaCompleta, string $extension,
 
     imagedestroy($origen);
     imagedestroy($destino);
+}
+
+/**
+ * Nombre del sitio: el que se haya guardado en Ajustes, o si no hay
+ * ninguno, el nombre por defecto definido en config.php.
+ */
+function nombreSitio(): string {
+    static $nombre = null;
+    if ($nombre === null) {
+        $ajustes = obtenerAjustes(getDb());
+        $nombre = $ajustes['nombre_sitio'] ?: SITE_NAME;
+    }
+    return $nombre;
+}
+
+/**
+ * Lema del sitio: el que se haya guardado en Ajustes, o si no hay
+ * ninguno, el lema por defecto definido en config.php.
+ */
+function claimSitio(): string {
+    static $claim = null;
+    if ($claim === null) {
+        $ajustes = obtenerAjustes(getDb());
+        $claim = $ajustes['eslogan_sitio'] ?: SITE_CLAIM;
+    }
+    return $claim;
 }
 
 function obtenerAjustes(PDO $pdo): array {
