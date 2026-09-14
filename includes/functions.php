@@ -17,6 +17,102 @@ function redirigir(string $ruta): void {
 }
 
 /**
+ * Crea las tablas si no existen y añade cualquier columna nueva que
+ * falte (migraciones). Se llama automáticamente en cada petición
+ * desde getDb(), así que la base de datos se pone al día sola en
+ * cuanto se sube código nuevo, sin depender de que alguien recuerde
+ * ejecutar init_db.php a mano.
+ */
+function ejecutarMigracionesEsquema(PDO $pdo): void {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS noticias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        resumen TEXT NOT NULL,
+        contenido TEXT NOT NULL,
+        imagen TEXT,
+        fecha TEXT NOT NULL,
+        publicado INTEGER NOT NULL DEFAULT 1
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        categoria TEXT NOT NULL,
+        modalidad TEXT NOT NULL,
+        aparato TEXT,
+        foto TEXT,
+        orden INTEGER DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS categorias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL UNIQUE,
+        orden INTEGER DEFAULT 0,
+        imagen_portada TEXT
+    )");
+    agregarColumnaSiFalta($pdo, 'categorias', 'imagen_portada', 'TEXT');
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        categoria TEXT NOT NULL,
+        lugar TEXT NOT NULL,
+        fecha TEXT NOT NULL,
+        resultado TEXT,
+        disputada INTEGER NOT NULL DEFAULT 0,
+        imagen_portada TEXT,
+        descripcion TEXT
+    )");
+    agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_portada', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
+
+    foreach (['competicion_fotos' => 'competicion_id', 'noticia_fotos' => 'noticia_id', 'gimnasta_fotos' => 'gimnasta_id', 'categoria_fotos' => 'categoria_id'] as $tabla => $columnaId) {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS $tabla (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnaId INTEGER NOT NULL,
+            archivo TEXT NOT NULL,
+            orden INTEGER DEFAULT 0,
+            tipo TEXT NOT NULL DEFAULT 'imagen'
+        )");
+        agregarColumnaSiFalta($pdo, $tabla, 'tipo', "TEXT NOT NULL DEFAULT 'imagen'");
+    }
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ajustes (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        splash_activo INTEGER NOT NULL DEFAULT 0,
+        splash_imagen TEXT,
+        inicio_imagen TEXT,
+        inicio_imagen_titulo TEXT
+    )");
+    $pdo->exec("INSERT OR IGNORE INTO ajustes (id, splash_activo, splash_imagen, inicio_imagen, inicio_imagen_titulo)
+                VALUES (1, 0, NULL, NULL, NULL)");
+    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto'] as $columnaAjuste) {
+        agregarColumnaSiFalta($pdo, 'ajustes', $columnaAjuste, 'TEXT');
+    }
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        email TEXT NOT NULL,
+        mensaje TEXT NOT NULL,
+        fecha TEXT NOT NULL,
+        leido INTEGER NOT NULL DEFAULT 0
+    )");
+}
+
+/**
+ * Añade una columna a una tabla si todavía no existe. Usado por
+ * ejecutarMigracionesEsquema() para no repetir la misma comprobación
+ * una y otra vez.
+ */
+function agregarColumnaSiFalta(PDO $pdo, string $tabla, string $columna, string $definicionSql): void {
+    $columnas = $pdo->query("PRAGMA table_info($tabla)")->fetchAll();
+    if (!in_array($columna, array_column($columnas, 'name'), true)) {
+        $pdo->exec("ALTER TABLE $tabla ADD COLUMN $columna $definicionSql");
+    }
+}
+
+/**
  * Recorta un texto a una longitud máxima sin depender de la extensión
  * mbstring (no siempre está instalada). Corta por espacio para no
  * partir una palabra a la mitad.

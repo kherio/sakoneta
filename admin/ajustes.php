@@ -42,9 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=? WHERE id=1');
-            $stmt->execute([$splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null, $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null]);
-            redirigir('ajustes.php?ok=1');
+            try {
+                $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=? WHERE id=1');
+                $stmt->execute([$splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null, $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null]);
+                redirigir('ajustes.php?ok=1');
+            } catch (PDOException $e) {
+                $error = 'No se han podido guardar los ajustes (error de base de datos). Si acabas de actualizar el código del sitio, recarga esta página una vez más: la base de datos se actualiza sola en la primera visita tras cada cambio.';
+            }
         }
     }
 

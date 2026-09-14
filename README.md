@@ -233,6 +233,21 @@ directorio), sube `comprobar-limite.php` a la raíz del sitio, ábrelo
 en el navegador y bórralo en cuanto lo hayas comprobado — no debe
 quedar publicado de forma permanente.
 
+## Base de datos y actualizaciones (importante)
+
+Las tablas y columnas de la base de datos se crean y se actualizan
+**solas**, en la primera petición tras cada `git pull` (desde
+`includes/db.php`). Ya no hace falta ejecutar `init_db.php` a mano
+después de cada actualización de código — solo la primera vez que
+instalas el sitio, para cargar los datos de ejemplo.
+
+Esto solucionó un error real: si el código de una página esperaba una
+columna que la base de datos todavía no tenía (por ejemplo, tras
+añadir el texto editable de la portada), se producía un
+**Error 500** al guardar. Ahora es imposible que eso vuelva a pasar
+por ese motivo, porque la migración se aplica sola en cuanto se
+recibe la primera visita con el código nuevo.
+
 ## Antes de publicarlo en un servidor real
 
 - Cambia la contraseña de administración (ver arriba).
