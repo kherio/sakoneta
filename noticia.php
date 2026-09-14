@@ -34,7 +34,9 @@ require __DIR__ . '/includes/header.php';
     <article class="detalle-noticia">
       <div class="fecha"><?= e(formatearFecha($noticia['fecha'])) ?></div>
       <h1><?= e($noticia['titulo']) ?></h1>
-      <img src="img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>" alt="">
+      <div class="marco-parallax marco-parallax-noticia">
+        <img src="img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.06" data-parallax-limite="26">
+      </div>
       <div class="cuerpo">
         <?php foreach (explode("\n\n", $noticia['contenido']) as $parrafo): ?>
           <?php if (trim($parrafo) !== ''): ?>

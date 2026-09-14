@@ -88,6 +88,15 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
 - **Foto de portada fundida con el texto**: la foto de portada de
   inicio ahora ocupa todo el ancho con un degradado que la funde con
   el título, en vez de mostrarse como una tarjeta aparte.
+- **Página de cada competición** con su propia URL (antes las fotos
+  extra subidas a una competición no se veían en ningún sitio, solo
+  servían para elegir la portada): banner grande con parallax usando
+  la foto de portada, y debajo una galería con el resto de fotos, cada
+  una con su propio parallax al hacer scroll. Se accede haciendo clic
+  en cualquier tarjeta de Competiciones.
+- Las miniaturas de Competiciones combinan el parallax con el zoom al
+  pasar el ratón que ya tenían.
+- La foto de cada noticia también tiene ahora un ligero parallax.
 - **Countdown** a la próxima competición en la portada.
 - **Parallax suave** en la foto de portada al hacer scroll.
 - **Pestañas por categoría** en Gimnastas y Competiciones (filtran sin

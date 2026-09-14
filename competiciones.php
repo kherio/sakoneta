@@ -38,13 +38,13 @@ require __DIR__ . '/includes/header.php';
     <div class="grid-competiciones" id="grid-filtrable-competiciones">
       <?php foreach ($competiciones as $c): ?>
       <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categoria']) ?>">
-        <div class="tarjeta-competicion-foto">
-          <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="">
+        <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
+          <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.05" data-parallax-limite="16">
           <span class="tarjeta-competicion-categoria"><?= e($c['categoria']) ?></span>
-        </div>
+        </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
-          <h3><?= e($c['nombre']) ?></h3>
+          <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
           <p class="lugar"><?= e($c['lugar']) ?></p>
           <?php if ($c['disputada']): ?>
             <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>

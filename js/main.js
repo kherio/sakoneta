@@ -87,15 +87,19 @@ document.addEventListener('DOMContentLoaded', function () {
   if (capasParallax.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var actualizarParallax = function () {
       capasParallax.forEach(function (capa) {
-        var rect = capa.parentElement.getBoundingClientRect();
+        var contenedor = capa.closest('.marco-parallax') || capa.parentElement;
+        var rect = contenedor.getBoundingClientRect();
         var centro = rect.top + rect.height / 2 - window.innerHeight / 2;
-        var desplazamiento = Math.max(-30, Math.min(30, centro * -0.06));
-        capa.style.transform = 'translateY(' + desplazamiento + 'px)';
+        var intensidad = parseFloat(capa.getAttribute('data-parallax')) || 0.06;
+        var limite = parseFloat(capa.getAttribute('data-parallax-limite')) || 30;
+        var desplazamiento = Math.max(-limite, Math.min(limite, centro * -intensidad));
+        capa.style.setProperty('--py', desplazamiento + 'px');
       });
     };
     document.addEventListener('scroll', function () {
       window.requestAnimationFrame(actualizarParallax);
     }, { passive: true });
+    window.addEventListener('resize', actualizarParallax);
     actualizarParallax();
   }
 

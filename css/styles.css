@@ -342,7 +342,7 @@ nav.principal a.activo {
 .detalle-noticia { max-width: 720px; margin: 0 auto; }
 .detalle-noticia .fecha { color: var(--fucsia); font-size: 14px; }
 .detalle-noticia h1 { font-size: 34px; margin-top: 8px; }
-.detalle-noticia img { border-radius: var(--radio); margin: 24px 0; aspect-ratio: 16/9; object-fit: cover; }
+.detalle-noticia .marco-parallax-noticia { border-radius: var(--radio); margin: 24px 0; aspect-ratio: 16/9; box-shadow: var(--sombra); }
 .detalle-noticia .cuerpo p { color: #333; font-size: 16.5px; }
 
 /* Gimnastas */
@@ -385,9 +385,17 @@ nav.principal a.activo {
   transition: transform var(--paso), box-shadow var(--paso);
 }
 .tarjeta-competicion:hover { transform: translateY(-6px); box-shadow: var(--sombra); }
-.tarjeta-competicion-foto { position: relative; aspect-ratio: 16/10; overflow: hidden; }
-.tarjeta-competicion-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--paso); }
-.tarjeta-competicion:hover .tarjeta-competicion-foto img { transform: scale(1.08); }
+.tarjeta-competicion-foto { position: relative; aspect-ratio: 16/10; overflow: hidden; display: block; }
+.tarjeta-competicion-foto img {
+  position: absolute; top: -14%; left: 0;
+  width: 100%; height: 128%;
+  object-fit: cover;
+  --py: 0px; --s: 1;
+  transform: translateY(var(--py)) scale(var(--s));
+  transition: transform .5s var(--paso);
+  will-change: transform;
+}
+.tarjeta-competicion:hover .tarjeta-competicion-foto img { --s: 1.08; }
 .tarjeta-competicion-categoria {
   position: absolute; top: 12px; left: 12px;
   background: rgba(42,15,54,.75);
@@ -535,6 +543,8 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   background-size: cover;
   background-position: center;
   will-change: transform;
+  --py: 0px;
+  transform: translateY(var(--py));
 }
 .franja-portada::after {
   content: "";
@@ -553,6 +563,30 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 }
 .franja-portada-texto h2 { color: #fff; font-size: clamp(24px, 3vw, 34px); margin-bottom: 6px; }
 .franja-portada-texto p { color: var(--acento-suave); font-style: italic; margin: 0; }
+.franja-competicion { min-height: 380px; }
+
+/* ---------- Galería de fotos con parallax (detalle de competición) ---------- */
+.galeria-parallax {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.marco-parallax {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-chica);
+  aspect-ratio: 4/3;
+}
+.marco-parallax img {
+  position: absolute;
+  top: -16%; left: 0;
+  width: 100%;
+  height: 132%;
+  object-fit: cover;
+  will-change: transform;
+  transform: translateY(var(--py, 0px));
+}
 
 /* ---------- Countdown a la próxima competición ---------- */
 .cuenta-atras { margin-top: 16px; display: flex; gap: 10px; }
@@ -680,6 +714,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   .grid-noticias { grid-template-columns: 1fr; }
   .pagina-noticias { grid-template-columns: repeat(2, 1fr); }
   .grid-competiciones { grid-template-columns: repeat(2, 1fr); }
+  .galeria-parallax { grid-template-columns: 1fr; }
   .grid-plantilla { grid-template-columns: repeat(2, 1fr); }
   .grid-contacto { grid-template-columns: 1fr; }
   footer .contenedor { grid-template-columns: 1fr; }
