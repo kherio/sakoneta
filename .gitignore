@@ -1,0 +1,6 @@
+# Base de datos generada por init_db.php (no se versiona)
+data/club.sqlite
+
+# Fotos subidas desde el panel (contenido, no código)
+img/subidas/*
+!img/subidas/.htaccess
