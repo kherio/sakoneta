@@ -6,20 +6,20 @@ exigirAutenticacion();
 
 $pdo = getDb();
 $seccionActual = 'medios';
-$tituloPagina = 'Fotos subidas';
+$tituloPagina = 'Fotos y vídeos subidos';
 
 $carpeta = __DIR__ . '/../img/subidas';
-$archivos = is_dir($carpeta) ? glob($carpeta . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE) : [];
+$archivos = is_dir($carpeta) ? glob($carpeta . '/*.{jpg,jpeg,png,webp,mp4,webm,mov}', GLOB_BRACE) : [];
 usort($archivos, fn($a, $b) => filemtime($b) <=> filemtime($a));
 
 require __DIR__ . '/includes/layout_header.php';
 ?>
 
-<h1>Fotos subidas</h1>
+<h1>Fotos y vídeos subidos</h1>
 <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-14px;">
-  Todas las fotos que se han subido desde noticias, gimnastas, competiciones y
-  ajustes del sitio. Puedes borrar aquí las que ya no necesites; si una foto
-  está en uso en algún sitio, al borrarla se quitará también de allí.
+  Todo lo que se ha subido desde noticias, gimnastas, categorías, competiciones y
+  ajustes del sitio. Puedes borrar aquí lo que ya no necesites; si un archivo
+  está en uso en algún sitio, al borrarlo se quitará también de allí.
 </p>
 
 <?php if (isset($_GET['ok'])): ?>

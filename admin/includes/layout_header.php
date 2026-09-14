@@ -10,7 +10,7 @@
 <div class="admin-shell">
   <aside class="admin-menu">
     <div class="marca">
-      <img src="../img/escudo.svg" alt="">
+      <img src="../img/logo-sakoneta.png" alt="">
       <strong><?= htmlspecialchars(SITE_SHORT) ?></strong>
     </div>
     <a href="dashboard.php" class="<?= ($seccionActual ?? '') === 'dashboard' ? 'activo' : '' ?>">Resumen</a>

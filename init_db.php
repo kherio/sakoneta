@@ -68,29 +68,41 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_fotos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     competicion_id INTEGER NOT NULL,
     archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0
+    orden INTEGER DEFAULT 0,
+    tipo TEXT NOT NULL DEFAULT 'imagen'
 )");
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS noticia_fotos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     noticia_id INTEGER NOT NULL,
     archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0
+    orden INTEGER DEFAULT 0,
+    tipo TEXT NOT NULL DEFAULT 'imagen'
 )");
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS gimnasta_fotos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     gimnasta_id INTEGER NOT NULL,
     archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0
+    orden INTEGER DEFAULT 0,
+    tipo TEXT NOT NULL DEFAULT 'imagen'
 )");
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS categoria_fotos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     categoria_id INTEGER NOT NULL,
     archivo TEXT NOT NULL,
-    orden INTEGER DEFAULT 0
+    orden INTEGER DEFAULT 0,
+    tipo TEXT NOT NULL DEFAULT 'imagen'
 )");
+
+// Migración: añade la columna "tipo" a las galerías que ya existieran sin ella
+foreach (['competicion_fotos', 'noticia_fotos', 'gimnasta_fotos', 'categoria_fotos'] as $tablaGaleria) {
+    $columnasGaleria = $pdo->query("PRAGMA table_info($tablaGaleria)")->fetchAll();
+    if (!in_array('tipo', array_column($columnasGaleria, 'name'), true)) {
+        $pdo->exec("ALTER TABLE $tablaGaleria ADD COLUMN tipo TEXT NOT NULL DEFAULT 'imagen'");
+    }
+}
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS ajustes (
     id INTEGER PRIMARY KEY CHECK (id = 1),

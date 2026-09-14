@@ -24,7 +24,7 @@ if ($id) {
         $stmtComp = $pdo->prepare('SELECT imagen_portada FROM competiciones WHERE id = ?');
         $stmtComp->execute([$foto['competicion_id']]);
         if ($stmtComp->fetchColumn() === $foto['archivo']) {
-            $siguiente = $pdo->prepare('SELECT archivo FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC LIMIT 1');
+            $siguiente = $pdo->prepare("SELECT archivo FROM competicion_fotos WHERE competicion_id = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
             $siguiente->execute([$foto['competicion_id']]);
             $nuevaPortada = $siguiente->fetchColumn() ?: null;
             $pdo->prepare('UPDATE competiciones SET imagen_portada = ? WHERE id = ?')->execute([$nuevaPortada, $foto['competicion_id']]);

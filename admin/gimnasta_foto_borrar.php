@@ -22,7 +22,7 @@ if ($id) {
         $stmtGimnasta = $pdo->prepare('SELECT foto FROM gimnastas WHERE id = ?');
         $stmtGimnasta->execute([$foto['gimnasta_id']]);
         if ($stmtGimnasta->fetchColumn() === $foto['archivo']) {
-            $siguiente = $pdo->prepare('SELECT archivo FROM gimnasta_fotos WHERE gimnasta_id = ? ORDER BY orden ASC LIMIT 1');
+            $siguiente = $pdo->prepare("SELECT archivo FROM gimnasta_fotos WHERE gimnasta_id = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
             $siguiente->execute([$foto['gimnasta_id']]);
             $nuevaPortada = $siguiente->fetchColumn() ?: null;
             $pdo->prepare('UPDATE gimnastas SET foto = ? WHERE id = ?')->execute([$nuevaPortada, $foto['gimnasta_id']]);

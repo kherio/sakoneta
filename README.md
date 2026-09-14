@@ -3,12 +3,16 @@
 Sitio web de ejemplo para un club de gimnasia rítmica, con panel de
 administración para gestionar noticias, gimnastas y competiciones.
 
-> **Importante sobre la identidad visual**: el logo, los colores y los
-> textos de este sitio son un diseño **original**, creado para este
-> proyecto. No reproducen el logo ni el diseño real de ningún club.
-> Si tienes el logo oficial del club, sustituye `img/escudo.svg` por
-> tu propio archivo (por ejemplo `escudo.png`) y actualiza la ruta en
-> `includes/header.php` y `admin/index.php`.
+> **Sobre el logo y los colores**: el logo (`img/logo-sakoneta.png`)
+> es el logo real del club, a partir de una foto que nos pasasteis;
+> lo hemos recortado, quitado el fondo y afilado un poco, pero la
+> imagen original era de baja resolución, así que no hay milagros: si
+> algún día tenéis el archivo original en alta calidad (o un diseñador
+> os lo vectoriza), sustituir `img/logo-sakoneta.png` por esa versión
+> mejorará bastante la nitidez en pantallas grandes. Los colores del
+> sitio son azul eléctrico; si preferís otra paleta, las variables
+> están todas centralizadas al principio de `css/styles.css` y
+> `admin/css/admin.css` (busca `--acento`, `--morado`, etc.).
 
 ## Requisitos
 
@@ -80,6 +84,11 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   opción de borrarlas (también se puede borrar una foto puntual desde
   la propia galería de la noticia, gimnasta, categoría o competición
   donde se subió).
+- **Vídeos**: además de fotos, el mismo selector de noticias,
+  gimnastas, categorías y competiciones admite vídeo (MP4, WEBM o
+  MOV, hasta 80 MB). Los vídeos se muestran con su propio reproductor
+  en la galería pública, pero no se pueden usar como foto principal
+  o portada (esa siempre tiene que ser una imagen).
 - **Buscador y filtros**: en Noticias, Gimnastas y Competiciones se
   puede buscar por texto, y en Gimnastas/Competiciones también filtrar
   por categoría.
@@ -127,27 +136,6 @@ del sistema operativo, y se degradan sin errores en navegadores que
 no soporten alguna característica (por ejemplo, las transiciones de
 página con View Transitions).
 
-## Límite de tamaño de las fotos
-
-La web admite fotos de hasta 6 MB, pero **PHP tiene su propio límite
-por debajo de eso en muchas instalaciones por defecto** (a menudo
-`upload_max_filesize = 2M`). Si una foto de un tamaño normal "no se
-sube" sin más explicación, es casi seguro que es esto.
-
-Para solucionarlo de raíz, el proyecto incluye dentro de `admin/`:
-- `.htaccess` (efecto si el servidor usa **mod_php** en Apache)
-- `.user.ini` (efecto si el servidor usa **PHP-FPM**)
-
-Ambos suben el límite a 8-10 MB automáticamente; solo hace falta que
-`AllowOverride All` esté activo para que el `.htaccess` funcione (ver
-el apartado de despliegue en Debian más abajo). Si aun así seguís
-viendo el problema, comprobad directamente los valores de
-`upload_max_filesize` y `post_max_size` en el `php.ini` del servidor.
-
-Cuando una foto supera el límite, ahora se muestra un aviso claro
-indicando el problema, en vez de que el formulario parezca no hacer
-nada.
-
 ## Seguridad
 
 Antes de esta versión el panel no tenía protección contra CSRF ni
@@ -189,25 +177,35 @@ admin/                    Panel de administración (requiere login)
 data/club.sqlite          Base de datos (se genera con init_db.php)
 ```
 
-## Límite de tamaño de las fotos subidas
+## Límite de tamaño de fotos y vídeos subidos
 
 Por defecto, PHP suele traer `upload_max_filesize` en solo 2 MB, algo
 muy fácil de superar con una foto de móvil normal (las cámaras de
-gama alta pueden dar JPEG de 10-20 MB). Para evitarlo, el proyecto
-incluye dos ficheros en la raíz que elevan ese límite a 20 MB por
-foto (60 MB por envío, para cuando se suben varias fotos a la vez en
-una competición):
+gama alta pueden dar JPEG de 10-20 MB) y, sobre todo, con un vídeo.
+Para evitarlo, el proyecto incluye dos ficheros en la raíz que elevan
+ese límite a 90 MB por archivo (200 MB por envío, para cuando se
+suben varias fotos o vídeos a la vez):
 
 - **`.htaccess`**: funciona si PHP corre como módulo de Apache (mod_php).
+  También sube `max_execution_time` y `max_input_time` a 300 segundos,
+  necesario para que dé tiempo a subir un vídeo con buena conexión.
 - **`.user.ini`**: funciona con PHP-FPM (no lee `.htaccess`). Puede
   tardar unos minutos en aplicarse, o necesitar recargar el servicio:
   `sudo systemctl reload php8.2-fpm` (ajusta la versión de PHP instalada;
   averigua el nombre exacto del servicio con
   `systemctl list-units --type=service --all | grep -i php`).
 
-Si aun así una foto no se sube, el propio formulario ahora muestra un
-aviso explicando el motivo (por ejemplo, si el límite del servidor
-sigue siendo demasiado bajo) en vez de fallar en silencio.
+La propia aplicación limita las fotos a 20 MB y los vídeos a 80 MB
+cada uno; si el servidor no llega a aplicar los 90 MB de arriba (por
+ejemplo, por no tener `AllowOverride All`), esos límites de PHP
+mandan igualmente y el formulario mostrará un aviso explicando el
+motivo en vez de fallar en silencio.
+
+Si usas Nginx con PHP-FPM en lugar de Apache, `.htaccess` no sirve de
+nada (Nginx no lo lee): en ese caso el `.user.ini` sigue funcionando,
+pero además puede que tengas que subir el límite de tamaño de subida
+en la propia configuración de Nginx (`client_max_body_size`) y, si el
+PHP-FPM está detrás de un proxy, el `proxy_read_timeout`.
 
 **Para comprobar qué límite está aplicando tu servidor de verdad**
 (no lo que digan los ficheros, sino el valor real que usa PHP en ese

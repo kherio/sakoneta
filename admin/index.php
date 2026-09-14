@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="login-pantalla">
   <form method="post" class="login-caja">
     <?= campoCsrf() ?>
-    <img src="../img/escudo.svg" alt="">
+    <img src="../img/logo-sakoneta.png" alt="">
     <h1>Panel de administración</h1>
     <p class="subt"><?= htmlspecialchars(SITE_NAME) ?></p>
 

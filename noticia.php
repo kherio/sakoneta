@@ -58,9 +58,15 @@ require __DIR__ . '/includes/header.php';
         <h3><?= t('seccion_galeria') ?></h3>
         <div class="galeria-parallax galeria-parallax-noticia">
           <?php foreach ($otrasFotosNoticia as $f): ?>
-            <div class="galeria-parallax-item marco-parallax animar-scroll">
-              <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.06" data-parallax-limite="18">
-            </div>
+            <?php if ($f['tipo'] === 'video'): ?>
+              <div class="galeria-video">
+                <video controls preload="metadata"><source src="img/<?= e($f['archivo']) ?>"></video>
+              </div>
+            <?php else: ?>
+              <div class="galeria-parallax-item marco-parallax animar-scroll">
+                <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.06" data-parallax-limite="18">
+              </div>
+            <?php endif; ?>
           <?php endforeach; ?>
         </div>
       </div>

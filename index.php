@@ -20,13 +20,17 @@ $ajustes = obtenerAjustes($pdo);
 $mostrarSplash = !empty($ajustes['splash_activo']) && !empty($ajustes['splash_imagen']);
 $splashImagen = $ajustes['splash_imagen'] ?? null;
 
+$numGimnastasStats = (int)$pdo->query('SELECT COUNT(*) FROM gimnastas')->fetchColumn();
+$numCompeticionesStats = (int)$pdo->query('SELECT COUNT(*) FROM competiciones WHERE disputada = 1')->fetchColumn();
+$numCategoriasStats = (int)$pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
+
 require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="hero">
   <div class="contenedor">
     <div>
-      <div class="hero-eyebrow">Temporada 2026/27</div>
+      <div class="hero-eyebrow"><span class="hero-kicker">★</span> Equipo de referencia en gimnasia rítmica</div>
       <h1><?= t('hero_titulo') ?></h1>
       <p><?= t('hero_texto') ?></p>
       <div class="hero-cta">
@@ -49,6 +53,27 @@ require __DIR__ . '/includes/header.php';
       </div>
     </div>
     <?php endif; ?>
+  </div>
+</section>
+
+<section class="franja-stats animar-scroll">
+  <div class="contenedor stats-grid">
+    <div class="stat-item">
+      <span class="stat-numero" data-hasta="<?= $numGimnastasStats ?>">0</span>
+      <span class="stat-etiqueta">Gimnastas en el club</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero" data-hasta="<?= $numCompeticionesStats ?>">0</span>
+      <span class="stat-etiqueta">Competiciones disputadas</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero" data-hasta="<?= $numCategoriasStats ?>">0</span>
+      <span class="stat-etiqueta">Categorías, de base a senior</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero" data-hasta="5">0</span>
+      <span class="stat-etiqueta">Aparatos: aro, pelota, mazas, cinta y cuerda</span>
+    </div>
   </div>
 </section>
 

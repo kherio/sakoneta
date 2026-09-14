@@ -48,61 +48,97 @@ function esImagenValida(string $rutaTemporal, string $extensionEsperada): bool {
 }
 
 /**
- * Procesa varias imágenes subidas desde un campo <input type="file" multiple>.
- * Devuelve un array con las rutas relativas guardadas (puede estar vacío).
- * Los archivos no válidos se ignoran silenciosamente salvo que $errores
- * se pase por referencia, en cuyo caso se añaden los mensajes de error.
+ * Comprueba que un archivo temporal es realmente un vídeo del tipo esperado,
+ * a partir de su tipo MIME real (no solo la extensión del nombre).
+ */
+function esVideoValido(string $rutaTemporal, array $mimesValidos): bool {
+    if (!function_exists('finfo_open')) {
+        // Sin la extensión fileinfo no podemos comprobar el contenido real;
+        // en ese caso confiamos en la validación de extensión ya hecha antes.
+        return true;
+    }
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $rutaTemporal);
+    finfo_close($finfo);
+    return in_array($mime, $mimesValidos, true);
+}
+
+/**
+ * Procesa varias fotos y/o vídeos subidos desde un campo
+ * <input type="file" multiple>. Devuelve un array de arrays
+ * ['archivo' => 'subidas/xxx.jpg', 'tipo' => 'imagen'|'video']
+ * (puede estar vacío). Los archivos no válidos se ignoran salvo que
+ * $errores se pase por referencia, en cuyo caso se añaden los mensajes.
  */
 function procesarImagenesMultiples(string $campo, array &$errores = []): array {
     if (empty($_FILES[$campo]) || !is_array($_FILES[$campo]['name'])) {
         return [];
     }
 
-    $extensionesValidas = ['jpg' => 'jpg', 'jpeg' => 'jpg', 'png' => 'png', 'webp' => 'webp'];
+    $extensionesImagen = ['jpg' => 'jpg', 'jpeg' => 'jpg', 'png' => 'png', 'webp' => 'webp'];
+    $extensionesVideo = ['mp4' => 'mp4', 'webm' => 'webm', 'mov' => 'mov'];
+    $mimesVideo = [
+        'mp4' => ['video/mp4'],
+        'webm' => ['video/webm'],
+        'mov' => ['video/quicktime', 'video/mp4'],
+    ];
+
     $carpetaDestino = __DIR__ . '/../img/subidas';
     if (!is_dir($carpetaDestino)) {
         mkdir($carpetaDestino, 0775, true);
     }
 
-    $guardadas = [];
+    $guardados = [];
     $total = count($_FILES[$campo]['name']);
 
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
 
         if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_INI_SIZE || $_FILES[$campo]['error'][$i] === UPLOAD_ERR_FORM_SIZE) {
-            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" supera el límite de subida configurado en el servidor (revisa "upload_max_filesize" en PHP).';
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" supera el límite de subida configurado en el servidor (revisa "upload_max_filesize" y "post_max_size" en PHP).';
             continue;
         }
         if ($_FILES[$campo]['error'][$i] !== UPLOAD_ERR_OK) {
             $errores[] = 'No se ha podido subir "' . $_FILES[$campo]['name'][$i] . '".';
             continue;
         }
-        if ($_FILES[$campo]['size'][$i] > 20 * 1024 * 1024) {
-            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" pesa demasiado (máximo 20 MB).';
+
+        $extension = strtolower(pathinfo($_FILES[$campo]['name'][$i], PATHINFO_EXTENSION));
+        $esImagen = isset($extensionesImagen[$extension]);
+        $esVideo = isset($extensionesVideo[$extension]);
+
+        if (!$esImagen && !$esVideo) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" no es un formato admitido (JPG, PNG, WEBP para fotos; MP4, WEBM o MOV para vídeo).';
             continue;
         }
-        $extensionOriginal = strtolower(pathinfo($_FILES[$campo]['name'][$i], PATHINFO_EXTENSION));
-        if (!isset($extensionesValidas[$extensionOriginal])) {
-            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" no es JPG, PNG o WEBP.';
+
+        $limiteMb = $esVideo ? 80 : 20;
+        if ($_FILES[$campo]['size'][$i] > $limiteMb * 1024 * 1024) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" pesa demasiado (máximo ' . $limiteMb . ' MB).';
             continue;
         }
-        if (!esImagenValida($_FILES[$campo]['tmp_name'][$i], $extensionesValidas[$extensionOriginal])) {
+
+        if ($esImagen && !esImagenValida($_FILES[$campo]['tmp_name'][$i], $extensionesImagen[$extension])) {
             $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" no es una imagen válida.';
             continue;
         }
+        if ($esVideo && !esVideoValido($_FILES[$campo]['tmp_name'][$i], $mimesVideo[$extension])) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" no es un archivo de vídeo válido.';
+            continue;
+        }
 
-        $nombreFinal = 'subida-' . date('Ymd-His') . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . $extensionesValidas[$extensionOriginal];
+        $extensionFinal = $esImagen ? $extensionesImagen[$extension] : $extensionesVideo[$extension];
+        $nombreFinal = 'subida-' . date('Ymd-His') . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . $extensionFinal;
         $rutaFinal = $carpetaDestino . '/' . $nombreFinal;
 
         if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
-            $guardadas[] = 'subidas/' . $nombreFinal;
+            $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
         } else {
             $errores[] = 'No se ha podido guardar "' . $_FILES[$campo]['name'][$i] . '".';
         }
     }
 
-    return $guardadas;
+    return $guardados;
 }
 
 /**

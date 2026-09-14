@@ -38,17 +38,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 
             if ($fotosNuevas) {
                 $maxOrden = (int)$pdo->query('SELECT COALESCE(MAX(orden), 0) m FROM categoria_fotos WHERE categoria_id = ' . (int)$id)->fetch()['m'];
-                $stmtFoto = $pdo->prepare('INSERT INTO categoria_fotos (categoria_id, archivo, orden) VALUES (?, ?, ?)');
-                foreach ($fotosNuevas as $i => $ruta) {
-                    $stmtFoto->execute([$id, $ruta, $maxOrden + $i + 1]);
+                $stmtFoto = $pdo->prepare('INSERT INTO categoria_fotos (categoria_id, archivo, orden, tipo) VALUES (?, ?, ?, ?)');
+                foreach ($fotosNuevas as $i => $media) {
+                    $stmtFoto->execute([$id, $media['archivo'], $maxOrden + $i + 1, $media['tipo']]);
                 }
             }
 
+            $primeraImagenNueva = null;
+            foreach ($fotosNuevas as $media) {
+                if ($media['tipo'] === 'imagen') { $primeraImagenNueva = $media['archivo']; break; }
+            }
             $portadaElegida = trim($_POST['portada_existente'] ?? '');
             if ($portadaElegida !== '') {
                 $pdo->prepare('UPDATE categorias SET imagen_portada = ? WHERE id = ?')->execute([$portadaElegida, $id]);
-            } elseif (empty($categoria['imagen_portada']) && $fotosNuevas) {
-                $pdo->prepare('UPDATE categorias SET imagen_portada = ? WHERE id = ?')->execute([$fotosNuevas[0], $id]);
+            } elseif (empty($categoria['imagen_portada']) && $primeraImagenNueva) {
+                $pdo->prepare('UPDATE categorias SET imagen_portada = ? WHERE id = ?')->execute([$primeraImagenNueva, $id]);
             }
 
             if ($erroresFotos) {
@@ -97,32 +101,41 @@ require __DIR__ . '/includes/layout_header.php';
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
-  <h3 style="margin-top:0;">Fotos de la categoría</h3>
+  <h3 style="margin-top:0;">Fotos y vídeos de la categoría</h3>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
     Aparecen en la página pública de esta categoría
     (<a href="../categoria.php?nombre=<?= urlencode($categoria['nombre']) ?>" target="_blank">verla</a>).
+    Los vídeos no se pueden usar como portada.
   </p>
 
   <?php if ($fotos): ?>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-bottom:18px;">
       <?php foreach ($fotos as $f): ?>
         <div style="border:1.5px solid var(--borde);border-radius:8px;padding:8px;text-align:center;">
-          <img src="../img/<?= e($f['archivo']) ?>" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;margin-bottom:6px;">
+          <?php if ($f['tipo'] === 'video'): ?>
+            <video src="../img/<?= e($f['archivo']) ?>" controls style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;margin-bottom:6px;background:#000;"></video>
+          <?php else: ?>
+            <img src="../img/<?= e($f['archivo']) ?>" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;margin-bottom:6px;">
+          <?php endif; ?>
+          <?php if ($f['tipo'] === 'imagen'): ?>
           <label style="font-size:12.5px;display:flex;align-items:center;gap:5px;justify-content:center;">
             <input type="radio" name="portada_existente" value="<?= e($f['archivo']) ?>" style="width:auto;" <?= $categoria['imagen_portada'] === $f['archivo'] ? 'checked' : '' ?>>
             Usar como portada
           </label>
-          <a href="categoria_foto_borrar.php?id=<?= (int)$f['id'] ?>&categoria_id=<?= (int)$id ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;" onclick="return confirm('¿Borrar esta foto?');">Borrar foto</a>
+          <?php else: ?>
+          <p style="font-size:11.5px;color:var(--gris);margin:4px 0;">Vídeo</p>
+          <?php endif; ?>
+          <a href="categoria_foto_borrar.php?id=<?= (int)$f['id'] ?>&categoria_id=<?= (int)$id ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;" onclick="return confirm('¿Borrar este archivo?');">Borrar</a>
         </div>
       <?php endforeach; ?>
     </div>
   <?php else: ?>
-    <p style="font-size:14px;color:var(--gris);">Todavía no has subido ninguna foto para esta categoría.</p>
+    <p style="font-size:14px;color:var(--gris);">Todavía no has subido ninguna foto ni vídeo para esta categoría.</p>
   <?php endif; ?>
 
   <div class="campo">
-    <label for="fotos">Añadir foto(s) nueva(s) (JPG, PNG o WEBP, máx. 20 MB cada una)</label>
-    <input type="file" id="fotos" name="fotos[]" accept="image/jpeg,image/png,image/webp" multiple>
+    <label for="fotos">Añadir foto(s) o vídeo(s) nuevos (JPG, PNG, WEBP hasta 20 MB; MP4, WEBM o MOV hasta 80 MB)</label>
+    <input type="file" id="fotos" name="fotos[]" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple>
   </div>
 
   <button type="submit" class="btn">Guardar</button>

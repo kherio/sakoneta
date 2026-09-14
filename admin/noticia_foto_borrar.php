@@ -22,7 +22,7 @@ if ($id) {
         $stmtNoticia = $pdo->prepare('SELECT imagen FROM noticias WHERE id = ?');
         $stmtNoticia->execute([$foto['noticia_id']]);
         if ($stmtNoticia->fetchColumn() === $foto['archivo']) {
-            $siguiente = $pdo->prepare('SELECT archivo FROM noticia_fotos WHERE noticia_id = ? ORDER BY orden ASC LIMIT 1');
+            $siguiente = $pdo->prepare("SELECT archivo FROM noticia_fotos WHERE noticia_id = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
             $siguiente->execute([$foto['noticia_id']]);
             $nuevaPortada = $siguiente->fetchColumn() ?: null;
             $pdo->prepare('UPDATE noticias SET imagen = ? WHERE id = ?')->execute([$nuevaPortada, $foto['noticia_id']]);

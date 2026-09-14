@@ -54,6 +54,31 @@ document.addEventListener('DOMContentLoaded', function () {
     elementos.forEach(function (el) { observador.observe(el); });
   }
 
+  // --- Contador ascendente en la barra de estadísticas ---
+  var numeros = document.querySelectorAll('.stat-numero[data-hasta]');
+  if (numeros.length) {
+    var animado = new WeakSet();
+    var observadorNumeros = new IntersectionObserver(function (entradas, obs) {
+      entradas.forEach(function (entrada) {
+        if (!entrada.isIntersecting || animado.has(entrada.target)) return;
+        animado.add(entrada.target);
+        var elemento = entrada.target;
+        var meta = parseInt(elemento.getAttribute('data-hasta'), 10) || 0;
+        var duracion = 1200;
+        var inicio = null;
+        var paso = function (marca) {
+          if (!inicio) inicio = marca;
+          var progreso = Math.min((marca - inicio) / duracion, 1);
+          elemento.textContent = Math.round(progreso * meta);
+          if (progreso < 1) window.requestAnimationFrame(paso);
+        };
+        window.requestAnimationFrame(paso);
+        obs.unobserve(elemento);
+      });
+    }, { threshold: 0.4 });
+    numeros.forEach(function (n) { observadorNumeros.observe(n); });
+  }
+
   // --- Countdown a la próxima competición ---
   var cuentasAtras = document.querySelectorAll('.cuenta-atras[data-fecha]');
   if (cuentasAtras.length) {

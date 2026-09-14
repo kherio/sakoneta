@@ -1,17 +1,17 @@
 :root {
-  --morado-oscuro: #3A1A57;
-  --morado: #5B2A86;
-  --acento: #D6187A;
-  --acento-suave: #F5A9CE;
-  --papel: #FBF5F9;
-  --gris: #6B5A70;
-  --borde: #F0DCEA;
+  --morado-oscuro: #0A2A66;
+  --morado: #1450C4;
+  --acento: #0090FF;
+  --acento-suave: #8FD3FF;
+  --papel: #F2F7FD;
+  --gris: #4E5D74;
+  --borde: #DCEAFB;
   --rojo: #B23A3A;
   --radio: 14px;
   --radio-chico: 8px;
   --degradado: linear-gradient(135deg, var(--acento) 0%, var(--morado) 100%);
-  --sombra: 0 10px 30px -12px rgba(58,26,87,.35);
-  --sombra-chica: 0 6px 16px -8px rgba(58,26,87,.3);
+  --sombra: 0 10px 30px -12px rgba(6,27,66,.35);
+  --sombra-chica: 0 6px 16px -8px rgba(6,27,66,.3);
   --paso: 200ms cubic-bezier(.2,.7,.3,1);
 }
 * { box-sizing: border-box; }

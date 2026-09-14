@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . SITE_NAME : SITE_NAME ?></title>
-<link rel="icon" href="img/escudo.svg" type="image/svg+xml">
+<link rel="icon" href="img/logo-sakoneta.png" type="image/png">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
   <img src="img/<?= e($splashImagen) ?>" alt="" class="splash-foto">
   <div class="splash-capa"></div>
   <div class="splash-contenido">
-    <img src="img/escudo.svg" alt="" class="splash-escudo" id="escudo-splash">
+    <img src="img/logo-sakoneta.png" alt="" class="splash-escudo" id="escudo-splash">
     <strong><?= e(SITE_NAME) ?></strong>
     <span><?= e(SITE_CLAIM) ?></span>
   </div>
@@ -37,7 +37,7 @@
 <header class="cabecera">
   <div class="contenedor">
     <a href="index.php" class="marca">
-      <img src="img/escudo.svg" alt="Emblema de <?= e(SITE_NAME) ?>" id="escudo-cabecera">
+      <img src="img/logo-sakoneta.png" alt="Emblema de <?= e(SITE_NAME) ?>" id="escudo-cabecera">
       <span class="marca-texto">
         <strong><?= e(SITE_NAME) ?></strong>
         <span><?= e(SITE_CLAIM) ?></span>

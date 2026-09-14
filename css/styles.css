@@ -1,21 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  --morado-oscuro: #3A1A57;
-  --morado: #5B2A86;
-  --fucsia: #C21470;
-  --acento: #D6187A;
-  --acento-suave: #F5A9CE;
-  --papel: #FBF5F9;
-  --borde-suave: #F0DCEA;
-  --tinta: #2B1330;
-  --gris-texto: #6B5A70;
+  --morado-oscuro: #0A2A66;
+  --morado: #1450C4;
+  --fucsia: #0074D9;
+  --acento: #0090FF;
+  --acento-suave: #8FD3FF;
+  --papel: #F2F7FD;
+  --borde-suave: #DCEAFB;
+  --tinta: #0A1930;
+  --gris-texto: #4E5D74;
   --radio: 14px;
   --radio-chico: 8px;
   --ancho-maximo: 1120px;
   --degradado: linear-gradient(135deg, var(--acento) 0%, var(--morado) 100%);
-  --sombra: 0 10px 30px -12px rgba(58, 26, 87, 0.35);
-  --sombra-chica: 0 6px 16px -8px rgba(58, 26, 87, 0.3);
+  --sombra: 0 10px 30px -12px rgba(6, 27, 66, 0.35);
+  --sombra-chica: 0 6px 16px -8px rgba(6, 27, 66, 0.3);
   --paso: 220ms cubic-bezier(.2,.7,.3,1);
 }
 
@@ -181,6 +181,7 @@ nav.principal a.activo {
   animation: entradaHero .7s var(--paso) both;
 }
 .hero-eyebrow { color: var(--acento-suave); font-size: 15px; margin-bottom: 10px; font-weight: 600; }
+.hero-kicker { color: var(--acento); margin-right: 4px; }
 .hero h1 {
   color: #fff;
   font-size: clamp(32px, 4.4vw, 52px);
@@ -272,7 +273,7 @@ nav.principal a.activo {
   box-shadow: var(--sombra);
   transition: transform var(--paso), box-shadow var(--paso);
 }
-.noticia-destacada:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -14px rgba(58,26,87,.45); }
+.noticia-destacada:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -14px rgba(6,27,66,.45); }
 .noticia-destacada img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -284,7 +285,7 @@ nav.principal a.activo {
 .noticia-destacada::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(0deg, rgba(42,15,54,.92) 0%, rgba(42,15,54,.35) 55%, transparent 85%);
+  background: linear-gradient(0deg, rgba(8,24,56,.92) 0%, rgba(8,24,56,.35) 55%, transparent 85%);
 }
 .noticia-destacada .fecha,
 .noticia-destacada h3,
@@ -398,7 +399,7 @@ nav.principal a.activo {
 .tarjeta-competicion:hover .tarjeta-competicion-foto img { --s: 1.08; }
 .tarjeta-competicion-categoria {
   position: absolute; top: 12px; left: 12px;
-  background: rgba(42,15,54,.75);
+  background: rgba(8,24,56,.75);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -510,7 +511,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 }
 .splash-capa {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(58,26,87,.55) 0%, rgba(58,26,87,.75) 60%, rgba(58,26,87,.92) 100%);
+  background: linear-gradient(180deg, rgba(6,27,66,.55) 0%, rgba(6,27,66,.75) 60%, rgba(6,27,66,.92) 100%);
 }
 .splash-contenido {
   position: relative;
@@ -527,6 +528,29 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .splash-escudo { width: 72px; margin-bottom: 16px; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
 .splash-contenido strong { display: block; font-family: 'Fraunces', serif; font-size: 26px; }
 .splash-contenido span { display: block; margin-top: 6px; color: var(--acento-suave); font-style: italic; }
+
+/* ---------- Franja de estadísticas del club ---------- */
+.franja-stats {
+  background: var(--morado-oscuro);
+  padding: 40px 0;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+.stat-item { display: flex; flex-direction: column; gap: 6px; }
+.stat-numero {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(32px, 4vw, 44px);
+  color: #fff;
+  background: linear-gradient(135deg, var(--acento-suave), #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat-etiqueta { color: #B8D6FF; font-size: 13.5px; }
 
 /* ---------- Franja de portada: la foto se funde con el texto ---------- */
 .franja-portada {
@@ -552,9 +576,9 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   inset: 0;
   background: linear-gradient(0deg,
     var(--papel) 0%,
-    rgba(42,15,54,.55) 32%,
-    rgba(42,15,54,.15) 60%,
-    rgba(42,15,54,0) 85%);
+    rgba(8,24,56,.55) 32%,
+    rgba(8,24,56,.15) 60%,
+    rgba(8,24,56,0) 85%);
 }
 .franja-portada-texto {
   position: relative;
@@ -578,9 +602,9 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .franja-noticia::after {
   background: linear-gradient(0deg,
     var(--papel) 0%,
-    rgba(20,8,28,.85) 35%,
-    rgba(20,8,28,.35) 65%,
-    rgba(20,8,28,.05) 100%);
+    rgba(6,16,40,.85) 35%,
+    rgba(6,16,40,.35) 65%,
+    rgba(6,16,40,.05) 100%);
 }
 .franja-noticia-fecha {
   color: var(--acento-suave) !important;
@@ -621,6 +645,15 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   will-change: transform;
   transform: translateY(var(--py, 0px));
 }
+.galeria-video {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-chica);
+  aspect-ratio: 4/3;
+  background: #000;
+}
+.galeria-video video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
 .galeria-parallax-noticia { grid-template-columns: repeat(2, 1fr); }
 
 /* ---------- Countdown a la próxima competición ---------- */
@@ -749,6 +782,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   .grid-noticias { grid-template-columns: 1fr; }
   .pagina-noticias { grid-template-columns: repeat(2, 1fr); }
   .grid-competiciones { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .galeria-parallax { grid-template-columns: 1fr; }
   .grid-plantilla { grid-template-columns: repeat(2, 1fr); }
   .grid-contacto { grid-template-columns: 1fr; }
