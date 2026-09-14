@@ -100,10 +100,13 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   de descargarlos en CSV — la web no los envía por sí sola, es una
   lista para usar con tu propio correo o herramienta de newsletter.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
-  cualquier parte del panel, indicando dónde se usa cada una y con
-  opción de borrarlas (también se puede borrar una foto puntual desde
-  la propia galería de la noticia, gimnasta, categoría o competición
-  donde se subió).
+  cualquier parte del panel, indicando dónde se usa cada una. Se
+  pueden seleccionar varias a la vez (o "Seleccionar todos") y
+  borrarlas todas de golpe, además de poder borrar una suelta.
+- **Cambiar contraseña**: desde el menú del panel, sin tocar ningún
+  archivo ni ejecutar comandos. El usuario sigue siendo `admin`.
+- **Pie de página**: título y texto de la primera columna del pie
+  (visible en todas las páginas), editables desde Ajustes.
 - **Vídeos**: además de fotos, el mismo selector de noticias,
   gimnastas, categorías y competiciones admite vídeo (MP4, WEBM o
   MOV, hasta 80 MB). Los vídeos se muestran con su propio reproductor

@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $heroTexto = trim($_POST['hero_texto'] ?? '');
     $nombreSitioNuevo = trim($_POST['nombre_sitio'] ?? '');
     $esloganSitioNuevo = trim($_POST['eslogan_sitio'] ?? '');
+    $pieTituloNuevo = trim($_POST['pie_titulo'] ?? '');
+    $pieTextoNuevo = trim($_POST['pie_texto'] ?? '');
     $estadisticas = [];
     foreach ([1, 2, 3, 4] as $n) {
         $valor = trim($_POST["est{$n}_valor"] ?? '');
@@ -52,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
                 $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null,
-                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null,
+                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null, $pieTituloNuevo ?: null, $pieTextoNuevo ?: null,
                 $estadisticas['est1_valor'], $estadisticas['est1_texto'],
                 $estadisticas['est2_valor'], $estadisticas['est2_texto'],
                 $estadisticas['est3_valor'], $estadisticas['est3_texto'],
@@ -76,6 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['hero_texto'] = $heroTexto;
     $ajustes['nombre_sitio'] = $nombreSitioNuevo;
     $ajustes['eslogan_sitio'] = $esloganSitioNuevo;
+    $ajustes['pie_titulo'] = $pieTituloNuevo;
+    $ajustes['pie_texto'] = $pieTextoNuevo;
     foreach ($estadisticas as $clave => $valor) { $ajustes[$clave] = $valor; }
   } catch (Throwable $e) {
     error_log('Error al guardar ajustes.php: ' . $e->getMessage());
@@ -199,6 +203,23 @@ $defectoEst = [
   <div class="campo">
     <label for="sobre_palmares">Palmarés (un logro por línea)</label>
     <textarea id="sobre_palmares" name="sobre_palmares" placeholder="Ej: Bronce por equipos, Campeonato de Euskadi 2025"><?= e($ajustes['sobre_palmares'] ?? '') ?></textarea>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+
+  <h3>Pie de página</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    El título y el texto que aparecen en la primera columna del pie,
+    en todas las páginas. Déjalos en blanco para usar el texto por
+    defecto.
+  </p>
+  <div class="campo">
+    <label for="pie_titulo">Título del pie</label>
+    <input type="text" id="pie_titulo" name="pie_titulo" value="<?= e($ajustes['pie_titulo'] ?? '') ?>" placeholder="<?= e(nombreSitio()) ?>">
+  </div>
+  <div class="campo">
+    <label for="pie_texto">Texto del pie</label>
+    <textarea id="pie_texto" name="pie_texto" placeholder="Polideportivo de Sakoneta. Escuela y competición de gimnasia rítmica..."><?= e($ajustes['pie_texto'] ?? '') ?></textarea>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">

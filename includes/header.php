@@ -28,6 +28,7 @@
     <img src="img/logo-sakoneta.png" alt="" class="splash-escudo" id="escudo-splash">
     <strong><?= e(nombreSitio()) ?></strong>
     <span><?= e(claimSitio()) ?></span>
+    <div class="splash-cargando" aria-hidden="true"></div>
   </div>
 </div>
 <?php endif; ?>

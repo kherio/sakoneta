@@ -51,3 +51,30 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(function () {});
   }
 });
+
+// Selección múltiple en la biblioteca de medios (Fotos y vídeos subidos)
+document.addEventListener('DOMContentLoaded', function () {
+  var checks = document.querySelectorAll('.check-medio');
+  if (!checks.length) return;
+
+  var seleccionarTodos = document.getElementById('seleccionar-todos');
+  var boton = document.getElementById('btn-borrar-seleccion');
+  var contador = document.getElementById('contador-seleccion');
+
+  function actualizarContador() {
+    var marcados = document.querySelectorAll('.check-medio:checked').length;
+    contador.textContent = marcados;
+    boton.disabled = marcados === 0;
+  }
+
+  checks.forEach(function (c) { c.addEventListener('change', actualizarContador); });
+
+  if (seleccionarTodos) {
+    seleccionarTodos.addEventListener('change', function () {
+      checks.forEach(function (c) { c.checked = seleccionarTodos.checked; });
+      actualizarContador();
+    });
+  }
+
+  actualizarContador();
+});
