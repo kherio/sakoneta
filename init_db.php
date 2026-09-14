@@ -123,6 +123,11 @@ if (!in_array('sobre_historia', $nombresColumnas, true)) {
 if (!in_array('sobre_palmares', $nombresColumnas, true)) {
     $pdo->exec("ALTER TABLE ajustes ADD COLUMN sobre_palmares TEXT");
 }
+foreach (['hero_kicker', 'hero_titulo', 'hero_texto'] as $columnaHero) {
+    if (!in_array($columnaHero, $nombresColumnas, true)) {
+        $pdo->exec("ALTER TABLE ajustes ADD COLUMN $columnaHero TEXT");
+    }
+}
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -33,9 +33,9 @@ require __DIR__ . '/includes/header.php';
   <?php endif; ?>
   <div class="contenedor">
     <div>
-      <div class="hero-eyebrow"><span class="hero-kicker">★</span> Equipo de referencia en gimnasia rítmica</div>
-      <h1><?= t('hero_titulo') ?></h1>
-      <p><?= t('hero_texto') ?></p>
+      <div class="hero-eyebrow"><span class="hero-kicker">★</span> <?= e($ajustes['hero_kicker'] ?: 'Equipo de referencia en gimnasia rítmica') ?></div>
+      <h1><?= e($ajustes['hero_titulo'] ?: t('hero_titulo')) ?></h1>
+      <p><?= e($ajustes['hero_texto'] ?: t('hero_texto')) ?></p>
       <div class="hero-cta">
         <a href="noticias.php" class="boton oro"><?= t('hero_boton_noticias') ?></a>
         <a href="competiciones.php" class="boton contorno"><?= t('hero_boton_competiciones') ?></a>

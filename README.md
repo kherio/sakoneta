@@ -69,7 +69,9 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
 - **Ajustes del sitio**: subir una foto para la pantalla de bienvenida
   (splash) a pantalla completa que se muestra al entrar a la web, y
   otra foto para la portada, con pie de foto opcional. Las imágenes
-  subidas se guardan en `img/subidas/`.
+  subidas se guardan en `img/subidas/`. También se edita aquí el
+  texto de la portada (entradilla, titular grande y párrafo de
+  presentación); si se deja en blanco, se usa el texto por defecto.
 - **Categorías**: crear, renombrar, reordenar y borrar las categorías
   (Base, Alevín, Infantil...) que luego se eligen al dar de alta
   gimnastas y competiciones. También admiten varias fotos propias y
