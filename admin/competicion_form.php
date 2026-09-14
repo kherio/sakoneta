@@ -159,7 +159,7 @@ require __DIR__ . '/includes/layout_header.php';
   <?php endif; ?>
 
   <div class="campo">
-    <label for="fotos">Añadir foto(s) nueva(s) (JPG, PNG o WEBP, máx. 10 MB cada una)</label>
+    <label for="fotos">Añadir foto(s) nueva(s) (JPG, PNG o WEBP, máx. 20 MB cada una)</label>
     <input type="file" id="fotos" name="fotos[]" accept="image/jpeg,image/png,image/webp" multiple>
   </div>
   <?php if (!$id): ?>

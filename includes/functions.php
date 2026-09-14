@@ -78,8 +78,8 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
             $errores[] = 'No se ha podido subir "' . $_FILES[$campo]['name'][$i] . '".';
             continue;
         }
-        if ($_FILES[$campo]['size'][$i] > 10 * 1024 * 1024) {
-            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" pesa demasiado (máximo 10 MB).';
+        if ($_FILES[$campo]['size'][$i] > 20 * 1024 * 1024) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" pesa demasiado (máximo 20 MB).';
             continue;
         }
         $extensionOriginal = strtolower(pathinfo($_FILES[$campo]['name'][$i], PATHINFO_EXTENSION));
@@ -185,8 +185,8 @@ function procesarImagenSubida(string $campo, ?string &$error = null): ?string {
         $error = 'No se ha podido subir el archivo (código ' . $archivo['error'] . ').';
         return null;
     }
-    if ($archivo['size'] > 10 * 1024 * 1024) {
-        $error = 'La imagen pesa demasiado (máximo 10 MB).';
+    if ($archivo['size'] > 20 * 1024 * 1024) {
+        $error = 'La imagen pesa demasiado (máximo 20 MB).';
         return null;
     }
     $extensionesValidas = ['jpg' => 'jpg', 'jpeg' => 'jpg', 'png' => 'png', 'webp' => 'webp'];

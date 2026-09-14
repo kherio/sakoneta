@@ -169,19 +169,28 @@ data/club.sqlite          Base de datos (se genera con init_db.php)
 ## Límite de tamaño de las fotos subidas
 
 Por defecto, PHP suele traer `upload_max_filesize` en solo 2 MB, algo
-muy fácil de superar con una foto de móvil normal. Para evitarlo, el
-proyecto incluye dos ficheros en la raíz que elevan ese límite a 10 MB
-por foto (30 MB por envío, para cuando se suben varias fotos a la vez
-en una competición):
+muy fácil de superar con una foto de móvil normal (las cámaras de
+gama alta pueden dar JPEG de 10-20 MB). Para evitarlo, el proyecto
+incluye dos ficheros en la raíz que elevan ese límite a 20 MB por
+foto (60 MB por envío, para cuando se suben varias fotos a la vez en
+una competición):
 
 - **`.htaccess`**: funciona si PHP corre como módulo de Apache (mod_php).
 - **`.user.ini`**: funciona con PHP-FPM (no lee `.htaccess`). Puede
   tardar unos minutos en aplicarse, o necesitar recargar el servicio:
-  `sudo systemctl reload php8.2-fpm` (ajusta la versión de PHP instalada).
+  `sudo systemctl reload php8.2-fpm` (ajusta la versión de PHP instalada;
+  averigua el nombre exacto del servicio con
+  `systemctl list-units --type=service --all | grep -i php`).
 
 Si aun así una foto no se sube, el propio formulario ahora muestra un
 aviso explicando el motivo (por ejemplo, si el límite del servidor
 sigue siendo demasiado bajo) en vez de fallar en silencio.
+
+**Para comprobar qué límite está aplicando tu servidor de verdad**
+(no lo que digan los ficheros, sino el valor real que usa PHP en ese
+directorio), sube `comprobar-limite.php` a la raíz del sitio, ábrelo
+en el navegador y bórralo en cuanto lo hayas comprobado — no debe
+quedar publicado de forma permanente.
 
 ## Antes de publicarlo en un servidor real
 

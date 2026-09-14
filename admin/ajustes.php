@@ -81,7 +81,7 @@ require __DIR__ . '/includes/layout_header.php';
   <?php endif; ?>
 
   <div class="campo">
-    <label for="splash_imagen">Foto de la pantalla de bienvenida (JPG, PNG o WEBP, máx. 10 MB)</label>
+    <label for="splash_imagen">Foto de la pantalla de bienvenida (JPG, PNG o WEBP, máx. 20 MB)</label>
     <input type="file" id="splash_imagen" name="splash_imagen" accept="image/jpeg,image/png,image/webp">
   </div>
 
@@ -104,7 +104,7 @@ require __DIR__ . '/includes/layout_header.php';
   <?php endif; ?>
 
   <div class="campo">
-    <label for="inicio_imagen">Foto de portada (JPG, PNG o WEBP, máx. 10 MB)</label>
+    <label for="inicio_imagen">Foto de portada (JPG, PNG o WEBP, máx. 20 MB)</label>
     <input type="file" id="inicio_imagen" name="inicio_imagen" accept="image/jpeg,image/png,image/webp">
   </div>
 
