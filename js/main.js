@@ -79,6 +79,29 @@ document.addEventListener('DOMContentLoaded', function () {
     numeros.forEach(function (n) { observadorNumeros.observe(n); });
   }
 
+  // --- Menú móvil ---
+  var botonMenu = document.getElementById('btn-menu-movil');
+  var menuMovil = document.getElementById('menu-movil');
+  if (botonMenu && menuMovil) {
+    botonMenu.addEventListener('click', function () {
+      var abierto = menuMovil.classList.toggle('abierto');
+      botonMenu.classList.toggle('activo', abierto);
+      botonMenu.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    });
+  }
+
+  // --- Cabecera compacta al hacer scroll ---
+  var cabecera = document.getElementById('cabecera-principal');
+  if (cabecera) {
+    var actualizarCabecera = function () {
+      cabecera.classList.toggle('compacta', window.scrollY > 60);
+    };
+    document.addEventListener('scroll', function () {
+      window.requestAnimationFrame(actualizarCabecera);
+    }, { passive: true });
+    actualizarCabecera();
+  }
+
   // --- Countdown a la próxima competición ---
   var cuentasAtras = document.querySelectorAll('.cuenta-atras[data-fecha]');
   if (cuentasAtras.length) {

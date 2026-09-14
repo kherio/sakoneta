@@ -27,7 +27,10 @@ $numCategoriasStats = (int)$pdo->query('SELECT COUNT(*) FROM categorias')->fetch
 require __DIR__ . '/includes/header.php';
 ?>
 
-<section class="hero">
+<section class="hero <?= !empty($ajustes['inicio_imagen']) ? 'hero-con-foto' : '' ?>">
+  <?php if (!empty($ajustes['inicio_imagen'])): ?>
+    <div class="hero-fondo-foto" data-parallax="0.06" data-parallax-limite="35" style="background-image:url('img/<?= e($ajustes['inicio_imagen']) ?>');"></div>
+  <?php endif; ?>
   <div class="contenedor">
     <div>
       <div class="hero-eyebrow"><span class="hero-kicker">★</span> Equipo de referencia en gimnasia rítmica</div>
@@ -76,16 +79,6 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
-
-<?php if (!empty($ajustes['inicio_imagen'])): ?>
-<section class="franja-portada animar-scroll">
-  <div class="franja-portada-imagen" data-parallax style="background-image:url('img/<?= e($ajustes['inicio_imagen']) ?>');"></div>
-  <div class="contenedor franja-portada-texto">
-    <h2><?= e($ajustes['inicio_imagen_titulo'] ?: SITE_NAME) ?></h2>
-    <p><?= e(SITE_CLAIM) ?></p>
-  </div>
-</section>
-<?php endif; ?>
 
 <section class="seccion">
   <div class="contenedor">

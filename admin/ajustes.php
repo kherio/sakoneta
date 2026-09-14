@@ -91,7 +91,11 @@ require __DIR__ . '/includes/layout_header.php';
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
-  <h3>Foto de la página de inicio</h3>
+  <h3>Foto de fondo de la portada</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    Aparece como fondo detrás del titular de la página de inicio, con
+    un efecto de parallax al hacer scroll.
+  </p>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
     Aparece como una foto grande justo debajo de la cabecera de la portada.
   </p>

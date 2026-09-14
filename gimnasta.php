@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $pdo = getDb();
 $paginaActual = 'gimnastas';
@@ -27,6 +28,10 @@ $fotoPrincipal = $gimnasta['foto'] ?: ($fotos[0]['archivo'] ?? 'gimnasta-placeho
 $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $f['archivo'] !== $fotoPrincipal; });
 
 $tituloPagina = $gimnasta['nombre'];
+$descripcionOG = $gimnasta['nombre'] . ' · ' . $gimnasta['categoria'] . ' · ' . $gimnasta['modalidad'];
+$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$migas = [['texto' => t('nav_gimnastas'), 'url' => 'gimnastas.php'], ['texto' => $gimnasta['nombre']]];
 require __DIR__ . '/includes/header.php';
 ?>
 

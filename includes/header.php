@@ -5,7 +5,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . SITE_NAME : SITE_NAME ?></title>
+<meta name="description" content="<?= e($descripcionOG ?? SITE_CLAIM) ?>">
 <link rel="icon" href="img/logo-sakoneta.png" type="image/png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<?= e(SITE_NAME) ?>">
+<meta property="og:title" content="<?= isset($tituloPagina) ? e($tituloPagina) : e(SITE_NAME) ?>">
+<meta property="og:description" content="<?= e($descripcionOG ?? SITE_CLAIM) ?>">
+<meta property="og:image" content="<?= e($imagenOG ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . '/img/logo-sakoneta.png') ?>">
+<meta property="og:url" content="<?= e(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
+<meta name="twitter:card" content="summary_large_image">
+
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -34,7 +44,7 @@
   </div>
 </div>
 
-<header class="cabecera">
+<header class="cabecera" id="cabecera-principal">
   <div class="contenedor">
     <a href="index.php" class="marca">
       <img src="img/logo-sakoneta.png" alt="Emblema de <?= e(SITE_NAME) ?>" id="escudo-cabecera">
@@ -43,6 +53,11 @@
         <span><?= e(SITE_CLAIM) ?></span>
       </span>
     </a>
+
+    <button type="button" class="btn-menu-movil" id="btn-menu-movil" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil">
+      <span></span><span></span><span></span>
+    </button>
+
     <nav class="principal">
       <a href="index.php" class="<?= ($paginaActual ?? '') === 'inicio' ? 'activo' : '' ?>"><?= t('nav_inicio') ?></a>
       <a href="noticias.php" class="<?= ($paginaActual ?? '') === 'noticias' ? 'activo' : '' ?>"><?= t('nav_noticias') ?></a>
@@ -50,7 +65,35 @@
       <a href="competiciones.php" class="<?= ($paginaActual ?? '') === 'competiciones' ? 'activo' : '' ?>"><?= t('nav_competiciones') ?></a>
       <a href="sobre.php" class="<?= ($paginaActual ?? '') === 'sobre' ? 'activo' : '' ?>"><?= t('nav_sobre') ?></a>
       <a href="contacto.php" class="<?= ($paginaActual ?? '') === 'contacto' ? 'activo' : '' ?>"><?= t('nav_contacto') ?></a>
+      <a href="buscar.php" class="<?= ($paginaActual ?? '') === 'buscar' ? 'activo' : '' ?>" title="Buscar">⌕</a>
       <a href="admin/index.php" class="nav-acceso"><?= t('nav_acceso') ?></a>
     </nav>
   </div>
+
+  <div class="menu-movil" id="menu-movil">
+    <a href="index.php" class="<?= ($paginaActual ?? '') === 'inicio' ? 'activo' : '' ?>"><?= t('nav_inicio') ?></a>
+    <a href="noticias.php" class="<?= ($paginaActual ?? '') === 'noticias' ? 'activo' : '' ?>"><?= t('nav_noticias') ?></a>
+    <a href="gimnastas.php" class="<?= ($paginaActual ?? '') === 'gimnastas' ? 'activo' : '' ?>"><?= t('nav_gimnastas') ?></a>
+    <a href="competiciones.php" class="<?= ($paginaActual ?? '') === 'competiciones' ? 'activo' : '' ?>"><?= t('nav_competiciones') ?></a>
+    <a href="sobre.php" class="<?= ($paginaActual ?? '') === 'sobre' ? 'activo' : '' ?>"><?= t('nav_sobre') ?></a>
+    <a href="contacto.php" class="<?= ($paginaActual ?? '') === 'contacto' ? 'activo' : '' ?>"><?= t('nav_contacto') ?></a>
+    <a href="buscar.php" class="<?= ($paginaActual ?? '') === 'buscar' ? 'activo' : '' ?>"><?= t('nav_buscar') ?></a>
+    <a href="admin/index.php" class="nav-acceso"><?= t('nav_acceso') ?></a>
+  </div>
 </header>
+
+<?php if (!empty($migas)): ?>
+<nav class="migas-pan" aria-label="Ruta de navegación">
+  <div class="contenedor">
+    <a href="index.php"><?= t('nav_inicio') ?></a>
+    <?php foreach ($migas as $miga): ?>
+      <span class="migas-separador">›</span>
+      <?php if (!empty($miga['url'])): ?>
+        <a href="<?= e($miga['url']) ?>"><?= e($miga['texto']) ?></a>
+      <?php else: ?>
+        <span class="migas-actual"><?= e($miga['texto']) ?></span>
+      <?php endif; ?>
+    <?php endforeach; ?>
+  </div>
+</nav>
+<?php endif; ?>

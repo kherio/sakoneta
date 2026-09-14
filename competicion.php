@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $pdo = getDb();
 $paginaActual = 'competiciones';
@@ -28,6 +29,10 @@ $fotoPrincipal = $competicion['imagen_portada'] ?: ($fotos[0]['archivo'] ?? 'com
 $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $f['archivo'] !== $fotoPrincipal; });
 
 $tituloPagina = $competicion['nombre'];
+$descripcionOG = $competicion['descripcion'] ? recortarTexto(trim(explode("\n\n", $competicion['descripcion'])[0]), 160) : ($competicion['lugar'] . ' · ' . formatearFecha($competicion['fecha']));
+$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$migas = [['texto' => t('nav_competiciones'), 'url' => 'competiciones.php'], ['texto' => $competicion['nombre']]];
 require __DIR__ . '/includes/header.php';
 ?>
 

@@ -17,6 +17,21 @@ function redirigir(string $ruta): void {
 }
 
 /**
+ * Recorta un texto a una longitud máxima sin depender de la extensión
+ * mbstring (no siempre está instalada). Corta por espacio para no
+ * partir una palabra a la mitad.
+ */
+function recortarTexto(string $texto, int $longitud): string {
+    if (strlen($texto) <= $longitud) return $texto;
+    $recortado = substr($texto, 0, $longitud);
+    $ultimoEspacio = strrpos($recortado, ' ');
+    if ($ultimoEspacio !== false) {
+        $recortado = substr($recortado, 0, $ultimoEspacio);
+    }
+    return $recortado . '…';
+}
+
+/**
  * Detecta el caso en que PHP ha descartado toda la petición POST (incluidos
  * $_POST y $_FILES) por superar "post_max_size" en el servidor. En ese caso
  * $_POST y $_FILES llegan vacíos sin ningún otro aviso, así que hay que
@@ -132,6 +147,9 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
         $rutaFinal = $carpetaDestino . '/' . $nombreFinal;
 
         if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
+            if ($esImagen) {
+                redimensionarImagenSiHaceFalta($rutaFinal, $extensionFinal);
+            }
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
         } else {
             $errores[] = 'No se ha podido guardar "' . $_FILES[$campo]['name'][$i] . '".';
@@ -213,6 +231,53 @@ function eliminarArchivoSiNoSeUsa(PDO $pdo, ?string $ruta): void {
     }
 }
 
+/**
+ * Redimensiona una imagen ya guardada si supera el ancho/alto máximo,
+ * para que las fotos de móvil (a veces de más de 4000px) no viajen a
+ * tamaño completo. Si la extensión GD no está disponible en el
+ * servidor, no hace nada (la imagen se queda en su tamaño original).
+ */
+function redimensionarImagenSiHaceFalta(string $rutaCompleta, string $extension, int $maximoPx = 1600): void {
+    if (!function_exists('imagecreatefromjpeg')) return;
+
+    $cargar = ['jpg' => 'imagecreatefromjpeg', 'png' => 'imagecreatefrompng', 'webp' => 'imagecreatefromwebp'];
+    $guardar = ['jpg' => 'imagejpeg', 'png' => 'imagepng', 'webp' => 'imagewebp'];
+    if (!isset($cargar[$extension]) || !function_exists($cargar[$extension])) return;
+
+    $origen = @$cargar[$extension]($rutaCompleta);
+    if (!$origen) return;
+
+    $anchoOriginal = imagesx($origen);
+    $altoOriginal = imagesy($origen);
+
+    if (max($anchoOriginal, $altoOriginal) <= $maximoPx) {
+        imagedestroy($origen);
+        return;
+    }
+
+    $ratio = $maximoPx / max($anchoOriginal, $altoOriginal);
+    $anchoNuevo = (int)round($anchoOriginal * $ratio);
+    $altoNuevo = (int)round($altoOriginal * $ratio);
+
+    $destino = imagecreatetruecolor($anchoNuevo, $altoNuevo);
+    if ($extension === 'png' || $extension === 'webp') {
+        imagealphablending($destino, false);
+        imagesavealpha($destino, true);
+    }
+    imagecopyresampled($destino, $origen, 0, 0, 0, 0, $anchoNuevo, $altoNuevo, $anchoOriginal, $altoOriginal);
+
+    if ($extension === 'jpg') {
+        $guardar[$extension]($destino, $rutaCompleta, 85);
+    } elseif ($extension === 'webp') {
+        $guardar[$extension]($destino, $rutaCompleta, 82);
+    } else {
+        $guardar[$extension]($destino, $rutaCompleta, 6);
+    }
+
+    imagedestroy($origen);
+    imagedestroy($destino);
+}
+
 function obtenerAjustes(PDO $pdo): array {
     $ajustes = $pdo->query('SELECT * FROM ajustes WHERE id = 1')->fetch();
     if (!$ajustes) {
@@ -267,6 +332,7 @@ function procesarImagenSubida(string $campo, ?string &$error = null): ?string {
         $error = 'No se ha podido guardar el archivo en el servidor.';
         return null;
     }
+    redimensionarImagenSiHaceFalta($rutaFinal, $extensionesValidas[$extensionOriginal]);
 
     return 'subidas/' . $nombreFinal;
 }
