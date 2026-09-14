@@ -250,7 +250,11 @@ columna que la base de datos todavía no tenía (por ejemplo, tras
 añadir el texto editable de la portada), se producía un
 **Error 500** al guardar. Ahora es imposible que eso vuelva a pasar
 por ese motivo, porque la migración se aplica sola en cuanto se
-recibe la primera visita con el código nuevo.
+recibe la primera visita con el código nuevo. Además, la página de
+Ajustes tiene ahora un `try/catch` general: cualquier fallo al
+guardar (sea cual sea la causa) se muestra como un aviso legible en
+vez de una pantalla en blanco de error 500, y el motivo exacto queda
+anotado en el registro de errores de PHP del servidor.
 
 ## Antes de publicarlo en un servidor real
 

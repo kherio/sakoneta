@@ -15,6 +15,7 @@ $guardado = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $error = 'La foto es demasiado grande para el límite de subida configurado en el servidor. Prueba con una imagen más ligera (o pide que se aumenten "upload_max_filesize" y "post_max_size" en la configuración de PHP del servidor).';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  try {
     exigirCsrf();
     $splashActivo = isset($_POST['splash_activo']) ? 1 : 0;
     $inicioImagenTitulo = trim($_POST['inicio_imagen_titulo'] ?? '');
@@ -51,21 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            try {
-                $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
-                $stmt->execute([
-                    $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
-                    $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null,
-                    $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null,
-                    $estadisticas['est1_valor'], $estadisticas['est1_texto'],
-                    $estadisticas['est2_valor'], $estadisticas['est2_texto'],
-                    $estadisticas['est3_valor'], $estadisticas['est3_texto'],
-                    $estadisticas['est4_valor'], $estadisticas['est4_texto'],
-                ]);
-                redirigir('ajustes.php?ok=1');
-            } catch (PDOException $e) {
-                $error = 'No se han podido guardar los ajustes (error de base de datos). Si acabas de actualizar el código del sitio, recarga esta página una vez más: la base de datos se actualiza sola en la primera visita tras cada cambio.';
-            }
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt->execute([
+                $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
+                $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null,
+                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null,
+                $estadisticas['est1_valor'], $estadisticas['est1_texto'],
+                $estadisticas['est2_valor'], $estadisticas['est2_texto'],
+                $estadisticas['est3_valor'], $estadisticas['est3_texto'],
+                $estadisticas['est4_valor'], $estadisticas['est4_texto'],
+            ]);
+            redirigir('ajustes.php?ok=1');
         }
     }
 
@@ -80,6 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['nombre_sitio'] = $nombreSitioNuevo;
     $ajustes['eslogan_sitio'] = $esloganSitioNuevo;
     foreach ($estadisticas as $clave => $valor) { $ajustes[$clave] = $valor; }
+  } catch (Throwable $e) {
+    error_log('Error al guardar ajustes.php: ' . $e->getMessage());
+    $error = 'No se han podido guardar los ajustes por un error interno. Si acabas de actualizar el código del sitio, recarga esta página una vez más (la base de datos se actualiza sola en la primera visita tras cada cambio). Si el problema sigue, revisa el registro de errores del servidor: ahí queda anotado el motivo exacto ("' . get_class($e) . '").';
+  }
 }
 
 require __DIR__ . '/includes/layout_header.php';
