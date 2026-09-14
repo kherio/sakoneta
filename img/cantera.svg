@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340">
+  <rect width="600" height="340" fill="#40206b"/>
+  <circle cx="200" cy="170" r="70" fill="#D6187A" opacity="0.85"/>
+  <circle cx="360" cy="170" r="70" fill="#F5A9CE" opacity="0.85"/>
+  <text x="40" y="300" font-family="Georgia, serif" font-size="26" fill="#FBF5F9">La escuela crece</text>
+</svg>
