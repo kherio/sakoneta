@@ -20,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $inicioImagenTitulo = trim($_POST['inicio_imagen_titulo'] ?? '');
     $sobreHistoria = trim($_POST['sobre_historia'] ?? '');
     $sobrePalmares = trim($_POST['sobre_palmares'] ?? '');
+    $heroKicker = trim($_POST['hero_kicker'] ?? '');
+    $heroTitulo = trim($_POST['hero_titulo'] ?? '');
+    $heroTexto = trim($_POST['hero_texto'] ?? '');
 
     $errorSplash = null;
     $nuevoSplash = procesarImagenSubida('splash_imagen', $errorSplash);
@@ -39,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=? WHERE id=1');
-            $stmt->execute([$splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null, $sobreHistoria ?: null, $sobrePalmares ?: null]);
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=? WHERE id=1');
+            $stmt->execute([$splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null, $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null]);
             redirigir('ajustes.php?ok=1');
         }
     }
@@ -50,6 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['inicio_imagen_titulo'] = $inicioImagenTitulo;
     $ajustes['sobre_historia'] = $sobreHistoria;
     $ajustes['sobre_palmares'] = $sobrePalmares;
+    $ajustes['hero_kicker'] = $heroKicker;
+    $ajustes['hero_titulo'] = $heroTitulo;
+    $ajustes['hero_texto'] = $heroTexto;
 }
 
 require __DIR__ . '/includes/layout_header.php';
@@ -91,13 +97,30 @@ require __DIR__ . '/includes/layout_header.php';
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
+  <h3 style="margin-top:0;">Texto de la portada</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    Deja cualquiera de estos campos en blanco para usar el texto por
+    defecto de la web.
+  </p>
+  <div class="campo">
+    <label for="hero_kicker">Entradilla (línea pequeña sobre el titular)</label>
+    <input type="text" id="hero_kicker" name="hero_kicker" value="<?= e($ajustes['hero_kicker'] ?? '') ?>" placeholder="Ej: Equipo de referencia en gimnasia rítmica">
+  </div>
+  <div class="campo">
+    <label for="hero_titulo">Titular grande</label>
+    <input type="text" id="hero_titulo" name="hero_titulo" value="<?= e($ajustes['hero_titulo'] ?? '') ?>" placeholder="Ej: Cada cinta, cada aro, cada ejercicio: un paso más hacia el podio.">
+  </div>
+  <div class="campo">
+    <label for="hero_texto">Texto de presentación</label>
+    <textarea id="hero_texto" name="hero_texto" placeholder="Ej: Sigue la actualidad de la escuela, las gimnastas y los conjuntos del club..."><?= e($ajustes['hero_texto'] ?? '') ?></textarea>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+
   <h3>Foto de fondo de la portada</h3>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
     Aparece como fondo detrás del titular de la página de inicio, con
     un efecto de parallax al hacer scroll.
-  </p>
-  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
-    Aparece como una foto grande justo debajo de la cabecera de la portada.
   </p>
 
   <?php if (!empty($ajustes['inicio_imagen'])): ?>
