@@ -100,7 +100,11 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   en cualquier tarjeta de Competiciones.
 - Las miniaturas de Competiciones combinan el parallax con el zoom al
   pasar el ratón que ya tenían.
-- La foto de cada noticia también tiene ahora un ligero parallax.
+- **Foto de la noticia como fondo espectacular**: en vez de una
+  imagen pequeña bajo el título, ahora es un banner a todo lo ancho
+  con la foto de fondo, un zoom lento al entrar (efecto "Ken Burns")
+  y el mismo parallax al hacer scroll, con el título y la fecha
+  superpuestos y un degradado que la funde con el resto de la página.
 - **Countdown** a la próxima competición en la portada.
 - **Parallax suave** en la foto de portada al hacer scroll.
 - **Pestañas por categoría** en Gimnastas y Competiciones (filtran sin

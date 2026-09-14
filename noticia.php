@@ -29,14 +29,17 @@ $urlCodificada = rawurlencode($urlActual);
 require __DIR__ . '/includes/header.php';
 ?>
 
+<section class="franja-portada franja-noticia animar-scroll">
+  <div class="franja-portada-imagen franja-noticia-imagen" data-parallax="0.1" data-parallax-limite="50" style="background-image:url('img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>');"></div>
+  <div class="contenedor franja-portada-texto">
+    <div class="fecha franja-noticia-fecha"><?= e(formatearFecha($noticia['fecha'])) ?></div>
+    <h1 class="franja-noticia-titulo"><?= e($noticia['titulo']) ?></h1>
+  </div>
+</section>
+
 <section class="seccion">
   <div class="contenedor">
-    <article class="detalle-noticia">
-      <div class="fecha"><?= e(formatearFecha($noticia['fecha'])) ?></div>
-      <h1><?= e($noticia['titulo']) ?></h1>
-      <div class="marco-parallax marco-parallax-noticia">
-        <img src="img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.06" data-parallax-limite="26">
-      </div>
+    <article class="detalle-noticia detalle-noticia-sin-cabecera">
       <div class="cuerpo">
         <?php foreach (explode("\n\n", $noticia['contenido']) as $parrafo): ?>
           <?php if (trim($parrafo) !== ''): ?>

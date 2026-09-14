@@ -340,9 +340,9 @@ nav.principal a.activo {
 
 /* Detalle de noticia */
 .detalle-noticia { max-width: 720px; margin: 0 auto; }
+.detalle-noticia-sin-cabecera { margin-top: 8px; }
 .detalle-noticia .fecha { color: var(--fucsia); font-size: 14px; }
 .detalle-noticia h1 { font-size: 34px; margin-top: 8px; }
-.detalle-noticia .marco-parallax-noticia { border-radius: var(--radio); margin: 24px 0; aspect-ratio: 16/9; box-shadow: var(--sombra); }
 .detalle-noticia .cuerpo p { color: #333; font-size: 16.5px; }
 
 /* Gimnastas */
@@ -564,6 +564,40 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .franja-portada-texto h2 { color: #fff; font-size: clamp(24px, 3vw, 34px); margin-bottom: 6px; }
 .franja-portada-texto p { color: var(--acento-suave); font-style: italic; margin: 0; }
 .franja-competicion { min-height: 380px; }
+
+/* ---------- Foto de la noticia como fondo espectacular ---------- */
+@keyframes kenBurnsNoticia {
+  from { background-size: 108% auto; }
+  to { background-size: 124% auto; }
+}
+.franja-noticia { min-height: 62vh; max-height: 620px; align-items: flex-end; }
+.franja-noticia-imagen {
+  background-size: 108% auto;
+  animation: kenBurnsNoticia 9s ease-out forwards;
+}
+.franja-noticia::after {
+  background: linear-gradient(0deg,
+    var(--papel) 0%,
+    rgba(20,8,28,.85) 35%,
+    rgba(20,8,28,.35) 65%,
+    rgba(20,8,28,.05) 100%);
+}
+.franja-noticia-fecha {
+  color: var(--acento-suave) !important;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 13px !important;
+  font-weight: 600;
+}
+.franja-noticia-titulo {
+  color: #fff;
+  font-size: clamp(28px, 4.4vw, 46px);
+  max-width: 18ch;
+  text-shadow: 0 4px 24px rgba(0,0,0,.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .franja-noticia-imagen { animation: none; }
+}
 
 /* ---------- Galería de fotos con parallax (detalle de competición) ---------- */
 .galeria-parallax {
