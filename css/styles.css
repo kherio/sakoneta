@@ -117,13 +117,15 @@ nav.principal {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 nav.principal a {
   color: var(--papel);
   font-size: 15px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 999px;
+  white-space: nowrap;
   transition: background var(--paso), color var(--paso), transform var(--paso);
 }
 nav.principal a:hover {
@@ -667,6 +669,11 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   transition: opacity .3s, transform .3s;
 }
 .mensaje-guino.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 1180px) {
+  .marca-texto span { display: none; }
+  nav.principal a { padding: 8px 10px; font-size: 14px; }
+}
 
 @media (max-width: 860px) {
   .hero .contenedor { grid-template-columns: 1fr; }
