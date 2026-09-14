@@ -4,14 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . SITE_NAME : SITE_NAME ?></title>
-<meta name="description" content="<?= e($descripcionOG ?? SITE_CLAIM) ?>">
+<title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . nombreSitio() : nombreSitio() ?></title>
+<meta name="description" content="<?= e($descripcionOG ?? claimSitio()) ?>">
 <link rel="icon" href="img/logo-sakoneta.png" type="image/png">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="<?= e(SITE_NAME) ?>">
-<meta property="og:title" content="<?= isset($tituloPagina) ? e($tituloPagina) : e(SITE_NAME) ?>">
-<meta property="og:description" content="<?= e($descripcionOG ?? SITE_CLAIM) ?>">
+<meta property="og:site_name" content="<?= e(nombreSitio()) ?>">
+<meta property="og:title" content="<?= isset($tituloPagina) ? e($tituloPagina) : e(nombreSitio()) ?>">
+<meta property="og:description" content="<?= e($descripcionOG ?? claimSitio()) ?>">
 <meta property="og:image" content="<?= e($imagenOG ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . '/img/logo-sakoneta.png') ?>">
 <meta property="og:url" content="<?= e(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
 <meta name="twitter:card" content="summary_large_image">
@@ -26,8 +26,8 @@
   <div class="splash-capa"></div>
   <div class="splash-contenido">
     <img src="img/logo-sakoneta.png" alt="" class="splash-escudo" id="escudo-splash">
-    <strong><?= e(SITE_NAME) ?></strong>
-    <span><?= e(SITE_CLAIM) ?></span>
+    <strong><?= e(nombreSitio()) ?></strong>
+    <span><?= e(claimSitio()) ?></span>
   </div>
 </div>
 <?php endif; ?>
@@ -47,10 +47,10 @@
 <header class="cabecera" id="cabecera-principal">
   <div class="contenedor">
     <a href="index.php" class="marca">
-      <img src="img/logo-sakoneta.png" alt="Emblema de <?= e(SITE_NAME) ?>" id="escudo-cabecera">
+      <img src="img/logo-sakoneta.png" alt="Emblema de <?= e(nombreSitio()) ?>" id="escudo-cabecera">
       <span class="marca-texto">
-        <strong><?= e(SITE_NAME) ?></strong>
-        <span><?= e(SITE_CLAIM) ?></span>
+        <strong><?= e(nombreSitio()) ?></strong>
+        <span><?= e(claimSitio()) ?></span>
       </span>
     </a>
 

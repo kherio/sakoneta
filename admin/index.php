@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/includes/auth.php';
 
 if (estaAutenticado()) {
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Acceso administración · <?= htmlspecialchars(SITE_NAME) ?></title>
+<title>Acceso administración · <?= htmlspecialchars(nombreSitio()) ?></title>
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -41,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?= campoCsrf() ?>
     <img src="../img/logo-sakoneta.png" alt="">
     <h1>Panel de administración</h1>
-    <p class="subt"><?= htmlspecialchars(SITE_NAME) ?></p>
+    <p class="subt"><?= htmlspecialchars(nombreSitio()) ?></p>
 
     <?php if ($error): ?>
       <div class="aviso error"><?= htmlspecialchars($error) ?></div>

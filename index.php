@@ -24,6 +24,13 @@ $numGimnastasStats = (int)$pdo->query('SELECT COUNT(*) FROM gimnastas')->fetchCo
 $numCompeticionesStats = (int)$pdo->query('SELECT COUNT(*) FROM competiciones WHERE disputada = 1')->fetchColumn();
 $numCategoriasStats = (int)$pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
 
+$estadisticasPortada = [
+    ['valor' => $ajustes['est1_valor'] ?? $numGimnastasStats, 'texto' => $ajustes['est1_texto'] ?: 'Gimnastas en el club'],
+    ['valor' => $ajustes['est2_valor'] ?? $numCompeticionesStats, 'texto' => $ajustes['est2_texto'] ?: 'Competiciones disputadas'],
+    ['valor' => $ajustes['est3_valor'] ?? $numCategoriasStats, 'texto' => $ajustes['est3_texto'] ?: 'Categorías, de base a senior'],
+    ['valor' => $ajustes['est4_valor'] ?? 5, 'texto' => $ajustes['est4_texto'] ?: 'Aparatos: aro, pelota, mazas, cinta y cuerda'],
+];
+
 require __DIR__ . '/includes/header.php';
 ?>
 
@@ -61,22 +68,12 @@ require __DIR__ . '/includes/header.php';
 
 <section class="franja-stats animar-scroll">
   <div class="contenedor stats-grid">
+    <?php foreach ($estadisticasPortada as $est): ?>
     <div class="stat-item">
-      <span class="stat-numero" data-hasta="<?= $numGimnastasStats ?>">0</span>
-      <span class="stat-etiqueta">Gimnastas en el club</span>
+      <span class="stat-numero" data-hasta="<?= (int)$est['valor'] ?>">0</span>
+      <span class="stat-etiqueta"><?= e($est['texto']) ?></span>
     </div>
-    <div class="stat-item">
-      <span class="stat-numero" data-hasta="<?= $numCompeticionesStats ?>">0</span>
-      <span class="stat-etiqueta">Competiciones disputadas</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-numero" data-hasta="<?= $numCategoriasStats ?>">0</span>
-      <span class="stat-etiqueta">Categorías, de base a senior</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-numero" data-hasta="5">0</span>
-      <span class="stat-etiqueta">Aparatos: aro, pelota, mazas, cinta y cuerda</span>
-    </div>
+    <?php endforeach; ?>
   </div>
 </section>
 

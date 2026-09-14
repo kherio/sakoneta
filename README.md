@@ -66,12 +66,16 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   vez disputada, y un texto libre para contar cómo fue.
 - **Mensajes de contacto**: los mensajes enviados desde el
   formulario público quedan guardados y visibles aquí.
-- **Ajustes del sitio**: subir una foto para la pantalla de bienvenida
-  (splash) a pantalla completa que se muestra al entrar a la web, y
-  otra foto para la portada, con pie de foto opcional. Las imágenes
-  subidas se guardan en `img/subidas/`. También se edita aquí el
-  texto de la portada (entradilla, titular grande y párrafo de
-  presentación); si se deja en blanco, se usa el texto por defecto.
+- **Ajustes del sitio**: nombre del club y lema, editables (si se dejan
+  en blanco, se usan los definidos en `config.php`); subir una foto
+  para la pantalla de bienvenida (splash) a pantalla completa que se
+  muestra al entrar a la web, y otra foto para la portada, con pie de
+  foto opcional. Las imágenes subidas se guardan en `img/subidas/`.
+  También se edita aquí el texto de la portada (entradilla, titular
+  grande y párrafo de presentación) y **las 4 estadísticas** que
+  aparecen bajo el titular (número y texto de cada una); si se dejan
+  en blanco, se calculan solas (gimnastas, competiciones disputadas,
+  categorías) o usan el valor por defecto.
 - **Categorías**: crear, renombrar, reordenar y borrar las categorías
   (Base, Alevín, Infantil...) que luego se eligen al dar de alta
   gimnastas y competiciones. También admiten varias fotos propias y

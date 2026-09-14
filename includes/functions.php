@@ -86,8 +86,12 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     )");
     $pdo->exec("INSERT OR IGNORE INTO ajustes (id, splash_activo, splash_imagen, inicio_imagen, inicio_imagen_titulo)
                 VALUES (1, 0, NULL, NULL, NULL)");
-    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto'] as $columnaAjuste) {
+    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto', 'nombre_sitio', 'eslogan_sitio'] as $columnaAjuste) {
         agregarColumnaSiFalta($pdo, 'ajustes', $columnaAjuste, 'TEXT');
+    }
+    foreach ([1, 2, 3, 4] as $n) {
+        agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_valor", 'INTEGER');
+        agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_texto", 'TEXT');
     }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
@@ -97,6 +101,20 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         mensaje TEXT NOT NULL,
         fecha TEXT NOT NULL,
         leido INTEGER NOT NULL DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS patrocinadores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        logo TEXT,
+        url TEXT,
+        orden INTEGER DEFAULT 0
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS suscriptores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        fecha TEXT NOT NULL
     )");
 }
 
@@ -269,6 +287,7 @@ function contarUsosArchivo(PDO $pdo, string $ruta): int {
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competiciones WHERE imagen_portada = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competicion_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM ajustes WHERE splash_imagen = ? OR inicio_imagen = ?'); $stmt->execute([$ruta, $ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM patrocinadores WHERE logo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     return $total;
 }
 
@@ -311,6 +330,9 @@ function descripcionUsosArchivo(PDO $pdo, string $ruta): array {
         if ($ajustes['splash_imagen'] === $ruta) $usos[] = 'Pantalla de bienvenida (splash)';
         if ($ajustes['inicio_imagen'] === $ruta) $usos[] = 'Foto de portada de inicio';
     }
+
+    $stmt = $pdo->prepare('SELECT nombre FROM patrocinadores WHERE logo = ?'); $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Logo de patrocinador: ' . $n;
 
     return $usos;
 }
@@ -372,6 +394,32 @@ function redimensionarImagenSiHaceFalta(string $rutaCompleta, string $extension,
 
     imagedestroy($origen);
     imagedestroy($destino);
+}
+
+/**
+ * Nombre del sitio: el que se haya guardado en Ajustes, o si no hay
+ * ninguno, el nombre por defecto definido en config.php.
+ */
+function nombreSitio(): string {
+    static $nombre = null;
+    if ($nombre === null) {
+        $ajustes = obtenerAjustes(getDb());
+        $nombre = $ajustes['nombre_sitio'] ?: SITE_NAME;
+    }
+    return $nombre;
+}
+
+/**
+ * Lema del sitio: el que se haya guardado en Ajustes, o si no hay
+ * ninguno, el lema por defecto definido en config.php.
+ */
+function claimSitio(): string {
+    static $claim = null;
+    if ($claim === null) {
+        $ajustes = obtenerAjustes(getDb());
+        $claim = $ajustes['eslogan_sitio'] ?: SITE_CLAIM;
+    }
+    return $claim;
 }
 
 function obtenerAjustes(PDO $pdo): array {
