@@ -79,6 +79,29 @@ document.addEventListener('DOMContentLoaded', function () {
     numeros.forEach(function (n) { observadorNumeros.observe(n); });
   }
 
+  // --- Ajustar el titular del hero para que quepa en una sola línea ---
+  var ajustarTituloHero = function () {
+    var titulo = document.querySelector('.hero h1');
+    if (!titulo) return;
+    titulo.style.fontSize = '';
+    var tamano = parseFloat(window.getComputedStyle(titulo).fontSize);
+    var intentos = 0;
+    while (intentos < 40 && tamano > 16) {
+      var lineHeight = parseFloat(window.getComputedStyle(titulo).lineHeight);
+      if (titulo.scrollHeight <= lineHeight + 3) break;
+      tamano -= 1;
+      titulo.style.fontSize = tamano + 'px';
+      intentos++;
+    }
+  };
+  ajustarTituloHero();
+  window.addEventListener('resize', function () {
+    window.requestAnimationFrame(ajustarTituloHero);
+  });
+  // Reajustar también cuando termine la animación de entrada del hero,
+  // por si el navegador todavía no tenía las medidas finales listas.
+  window.addEventListener('load', ajustarTituloHero);
+
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');
