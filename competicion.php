@@ -47,6 +47,20 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
+<?php if (!empty($competicion['descripcion'])): ?>
+<section class="seccion" style="padding-bottom:<?= $otrasFotos ? '0' : '64px' ?>;">
+  <div class="contenedor">
+    <div class="detalle-noticia">
+      <?php foreach (explode("\n\n", $competicion['descripcion']) as $parrafo): ?>
+        <?php if (trim($parrafo) !== ''): ?>
+          <p><?= nl2br(e($parrafo)) ?></p>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <?php if ($otrasFotos): ?>
 <section class="seccion">
   <div class="contenedor">
@@ -63,10 +77,18 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
-<?php else: ?>
+<?php endif; ?>
+
+<?php if (!$otrasFotos && empty($competicion['descripcion'])): ?>
 <section class="seccion">
   <div class="contenedor">
     <p><a href="competiciones.php">← <?= t('nav_competiciones') ?></a></p>
+  </div>
+</section>
+<?php else: ?>
+<section class="seccion" style="padding-top:0;">
+  <div class="contenedor">
+    <p><a href="competiciones.php"><?= t('volver_competiciones') ?></a></p>
   </div>
 </section>
 <?php endif; ?>

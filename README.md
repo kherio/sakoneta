@@ -66,6 +66,10 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   pueden subir varias fotos a la vez y elegir cuál de ellas se usa
   como foto de portada/fondo en la tarjeta de esa competición en la
   web pública.
+- **Información sobre el campeonato**: cada competición tiene un
+  campo de texto libre (párrafos separados por una línea en blanco)
+  que aparece en su página de detalle pública, junto con la galería
+  de fotos.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una y con
   opción de borrarlas (también se puede quitar una foto puntual desde

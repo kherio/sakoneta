@@ -40,17 +40,23 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
     fecha TEXT NOT NULL,
     resultado TEXT,
     disputada INTEGER NOT NULL DEFAULT 0,
-    imagen_portada TEXT
+    imagen_portada TEXT,
+    descripcion TEXT
 )");
 
 // Migración: añade la columna imagen_portada si la base de datos ya existía sin ella
 $columnasCompeticiones = $pdo->query("PRAGMA table_info(competiciones)")->fetchAll();
 $tienePortada = false;
+$tieneDescripcion = false;
 foreach ($columnasCompeticiones as $columna) {
-    if ($columna['name'] === 'imagen_portada') { $tienePortada = true; break; }
+    if ($columna['name'] === 'imagen_portada') { $tienePortada = true; }
+    if ($columna['name'] === 'descripcion') { $tieneDescripcion = true; }
 }
 if (!$tienePortada) {
     $pdo->exec("ALTER TABLE competiciones ADD COLUMN imagen_portada TEXT");
+}
+if (!$tieneDescripcion) {
+    $pdo->exec("ALTER TABLE competiciones ADD COLUMN descripcion TEXT");
 }
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_fotos (
@@ -134,13 +140,13 @@ if ($count === 0) {
 $count = (int)$pdo->query('SELECT COUNT(*) AS c FROM competiciones')->fetch()['c'];
 if ($count === 0) {
     $competiciones = [
-        ['Campeonato de Euskadi por Clubes', 'Junior', 'Vitoria-Gasteiz', date('Y-m-d', strtotime('-24 days')), 'Bronce por equipos', 1],
-        ['Copa de Bizkaia', 'Infantil', 'Bilbao', date('Y-m-d', strtotime('-3 days')), 'Plata en conjunto, bronce individual', 1],
-        ['Campeonato de Euskadi Individual', 'Senior', 'Donostia-San Sebastián', date('Y-m-d', strtotime('+11 days')), null, 0],
-        ['Torneo interclubes de primavera', 'Base', 'Leioa', date('Y-m-d', strtotime('+25 days')), null, 0],
-        ['Campeonato de España por Autonomías', 'Junior', 'Madrid', date('Y-m-d', strtotime('+40 days')), null, 0],
+        ['Campeonato de Euskadi por Clubes', 'Junior', 'Vitoria-Gasteiz', date('Y-m-d', strtotime('-24 days')), 'Bronce por equipos', 1, "El conjunto junior viajó hasta Vitoria-Gasteiz con el objetivo de subir al podio, y lo consiguió con un ejercicio de aro y pelota muy limpio.\n\nLa entrenadora destacó la madurez del grupo ante un pabellón exigente y con rivales de mucho nivel."],
+        ['Copa de Bizkaia', 'Infantil', 'Bilbao', date('Y-m-d', strtotime('-3 days')), 'Plata en conjunto, bronce individual', 1, "Una de las citas más esperadas del calendario territorial. El conjunto infantil logró la plata con su ejercicio de cuerdas, y en individual se sumó un bronce más para la vitrina del club.\n\nGracias a todas las familias que acompañaron a las gimnastas durante toda la jornada."],
+        ['Campeonato de Euskadi Individual', 'Senior', 'Donostia-San Sebastián', date('Y-m-d', strtotime('+11 days')), null, 0, "Cita individual para la categoría senior. Se disputará en el Illumbe de Donostia-San Sebastián, con clasificación directa para el Campeonato de España por Autonomías."],
+        ['Torneo interclubes de primavera', 'Base', 'Leioa', date('Y-m-d', strtotime('+25 days')), null, 0, "Torneo amistoso pensado para las categorías de base, con la participación de varios clubes de la zona. Ideal para que las más pequeñas vivan su primera experiencia de competición."],
+        ['Campeonato de España por Autonomías', 'Junior', 'Madrid', date('Y-m-d', strtotime('+40 days')), null, 0, null],
     ];
-    $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada) VALUES (?,?,?,?,?,?)');
+    $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada, descripcion) VALUES (?,?,?,?,?,?,?)');
     foreach ($competiciones as $c) $stmt->execute($c);
 }
 
