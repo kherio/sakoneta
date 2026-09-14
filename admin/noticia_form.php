@@ -80,7 +80,7 @@ require __DIR__ . '/includes/layout_header.php';
 
   <div class="fila-2">
     <div class="campo">
-      <label for="imagen">Imagen (JPG, PNG o WEBP, máx. 6 MB)</label>
+      <label for="imagen">Imagen (JPG, PNG o WEBP, máx. 10 MB)</label>
       <?php if (!empty($noticia['imagen'])): ?>
         <div style="margin-bottom:8px;">
           <img src="../img/<?= e($noticia['imagen']) ?>" alt="" style="max-width:160px;border-radius:8px;box-shadow:var(--sombra-chica);display:block;margin-bottom:6px;">

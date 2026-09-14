@@ -1,0 +1,22 @@
+# Los valores por defecto de PHP (upload_max_filesize=2M en muchas
+# instalaciones de Debian) son demasiado bajos para fotos de móvil
+# normales. Esto los eleva para este sitio sin tocar la configuración
+# global del servidor.
+#
+# Solo funciona si PHP corre como módulo de Apache (mod_php). Si tu
+# servidor usa PHP-FPM (lo más habitual con Apache event/worker o con
+# Nginx), estos php_value se ignoran: usa el fichero .user.ini de al
+# lado en su lugar (y puede que tengas que reiniciar/recargar PHP-FPM).
+
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 30M
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 30M
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 30M
+</IfModule>

@@ -95,7 +95,7 @@ require __DIR__ . '/includes/layout_header.php';
       <input type="text" id="aparato" name="aparato" value="<?= e($gimnasta['aparato']) ?>" placeholder="Aro, pelota, mazas, cinta, cuerda...">
     </div>
     <div class="campo">
-      <label for="foto">Foto (JPG, PNG o WEBP, máx. 6 MB)</label>
+      <label for="foto">Foto (JPG, PNG o WEBP, máx. 10 MB)</label>
       <?php if (!empty($gimnasta['foto'])): ?>
         <div style="margin-bottom:8px;">
           <img src="../img/<?= e($gimnasta['foto']) ?>" alt="" style="max-width:120px;border-radius:8px;box-shadow:var(--sombra-chica);display:block;margin-bottom:6px;">
