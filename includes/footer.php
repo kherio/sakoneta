@@ -1,10 +1,16 @@
 <?php
 $patrocinadoresFooter = [];
+$ajustesPie = [];
 try {
-    $patrocinadoresFooter = getDb()->query('SELECT * FROM patrocinadores ORDER BY orden ASC')->fetchAll();
+    $pdoPie = getDb();
+    $patrocinadoresFooter = $pdoPie->query('SELECT * FROM patrocinadores ORDER BY orden ASC')->fetchAll();
+    $ajustesPie = obtenerAjustes($pdoPie);
 } catch (Throwable $e) {
     $patrocinadoresFooter = [];
+    $ajustesPie = [];
 }
+$pieTitulo = $ajustesPie['pie_titulo'] ?? '';
+$pieTexto = $ajustesPie['pie_texto'] ?? '';
 ?>
 <?php if ($patrocinadoresFooter): ?>
 <div class="franja-patrocinadores">
@@ -36,8 +42,8 @@ try {
 <footer>
   <div class="contenedor pie-grid">
     <div>
-      <h4><?= e(nombreSitio()) ?></h4>
-      <p style="max-width:32ch;font-size:14px;">Polideportivo de Sakoneta. Escuela y competición de gimnasia rítmica. Edita esta dirección y el resto de datos de contacto desde el panel o el código antes de publicar.</p>
+      <h4><?= e($pieTitulo ?: nombreSitio()) ?></h4>
+      <p style="max-width:32ch;font-size:14px;"><?= nl2br(e($pieTexto ?: 'Polideportivo de Sakoneta. Escuela y competición de gimnasia rítmica. Edita esta dirección y el resto de datos de contacto desde el panel o el código antes de publicar.')) ?></p>
     </div>
     <div>
       <h4><?= t('footer_secciones') ?></h4>

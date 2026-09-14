@@ -24,6 +24,7 @@
     <a href="suscriptores.php" class="<?= ($seccionActual ?? '') === 'suscriptores' ? 'activo' : '' ?>">Suscriptores</a>
     <a href="ajustes.php" class="<?= ($seccionActual ?? '') === 'ajustes' ? 'activo' : '' ?>">Ajustes del sitio</a>
     <a href="../index.php" target="_blank">Ver sitio web ↗</a>
+    <a href="cambiar_clave.php" class="<?= ($seccionActual ?? '') === 'cambiar_clave' ? 'activo' : '' ?>">Cambiar contraseña</a>
     <a href="logout.php" class="salir">Cerrar sesión</a>
   </aside>
   <main class="admin-contenido">

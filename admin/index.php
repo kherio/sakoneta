@@ -8,13 +8,17 @@ if (estaAutenticado()) {
     exit;
 }
 
+$pdo = getDb();
+$ajustesLogin = obtenerAjustes($pdo);
+$hashActual = $ajustesLogin['admin_password_hash'] ?: ADMIN_PASS_HASH;
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tokenValido = !empty($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '');
     $usuario = trim($_POST['usuario'] ?? '');
     $clave = $_POST['clave'] ?? '';
 
-    if ($tokenValido && $usuario === ADMIN_USER && password_verify($clave, ADMIN_PASS_HASH)) {
+    if ($tokenValido && $usuario === ADMIN_USER && password_verify($clave, $hashActual)) {
         session_regenerate_id(true);
         $_SESSION['admin_autenticado'] = true;
         $_SESSION['admin_usuario'] = $usuario;
