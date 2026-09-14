@@ -111,7 +111,11 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
 function contarUsosArchivo(PDO $pdo, string $ruta): int {
     $total = 0;
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM noticias WHERE imagen = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM noticia_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM gimnastas WHERE foto = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM gimnasta_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM categorias WHERE imagen_portada = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM categoria_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competiciones WHERE imagen_portada = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM competicion_fotos WHERE archivo = ?'); $stmt->execute([$ruta]); $total += (int)$stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM ajustes WHERE splash_imagen = ? OR inicio_imagen = ?'); $stmt->execute([$ruta, $ruta]); $total += (int)$stmt->fetchColumn();
@@ -127,8 +131,23 @@ function descripcionUsosArchivo(PDO $pdo, string $ruta): array {
     $stmt = $pdo->prepare('SELECT titulo FROM noticias WHERE imagen = ?'); $stmt->execute([$ruta]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $t) $usos[] = 'Noticia: ' . $t;
 
+    $stmt = $pdo->prepare('SELECT n.titulo FROM noticia_fotos f JOIN noticias n ON n.id = f.noticia_id WHERE f.archivo = ?');
+    $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $t) $usos[] = 'Foto de noticia: ' . $t;
+
     $stmt = $pdo->prepare('SELECT nombre FROM gimnastas WHERE foto = ?'); $stmt->execute([$ruta]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Gimnasta: ' . $n;
+
+    $stmt = $pdo->prepare('SELECT g.nombre FROM gimnasta_fotos f JOIN gimnastas g ON g.id = f.gimnasta_id WHERE f.archivo = ?');
+    $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Foto de gimnasta: ' . $n;
+
+    $stmt = $pdo->prepare('SELECT nombre FROM categorias WHERE imagen_portada = ?'); $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Portada de categoría: ' . $n;
+
+    $stmt = $pdo->prepare('SELECT c.nombre FROM categoria_fotos f JOIN categorias c ON c.id = f.categoria_id WHERE f.archivo = ?');
+    $stmt->execute([$ruta]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Foto de categoría: ' . $n;
 
     $stmt = $pdo->prepare('SELECT nombre FROM competiciones WHERE imagen_portada = ?'); $stmt->execute([$ruta]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) $usos[] = 'Portada de competición: ' . $n;

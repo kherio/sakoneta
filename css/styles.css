@@ -621,6 +621,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   will-change: transform;
   transform: translateY(var(--py, 0px));
 }
+.galeria-parallax-noticia { grid-template-columns: repeat(2, 1fr); }
 
 /* ---------- Countdown a la próxima competición ---------- */
 .cuenta-atras { margin-top: 16px; display: flex; gap: 10px; }

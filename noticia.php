@@ -26,6 +26,11 @@ $urlActual = $esquema . ($_SERVER['HTTP_HOST'] ?? 'localhost') . ($_SERVER['REQU
 $tituloCodificado = rawurlencode($noticia['titulo']);
 $urlCodificada = rawurlencode($urlActual);
 
+$stmtFotos = $pdo->prepare('SELECT * FROM noticia_fotos WHERE noticia_id = ? ORDER BY orden ASC');
+$stmtFotos->execute([$id]);
+$fotosNoticia = $stmtFotos->fetchAll();
+$otrasFotosNoticia = array_filter($fotosNoticia, function ($f) use ($noticia) { return $f['archivo'] !== $noticia['imagen']; });
+
 require __DIR__ . '/includes/header.php';
 ?>
 
@@ -47,6 +52,19 @@ require __DIR__ . '/includes/header.php';
           <?php endif; ?>
         <?php endforeach; ?>
       </div>
+
+      <?php if ($otrasFotosNoticia): ?>
+      <div style="margin-top:32px;">
+        <h3><?= t('seccion_galeria') ?></h3>
+        <div class="galeria-parallax galeria-parallax-noticia">
+          <?php foreach ($otrasFotosNoticia as $f): ?>
+            <div class="galeria-parallax-item marco-parallax animar-scroll">
+              <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.06" data-parallax-limite="18">
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
 
       <div class="compartir-noticia">
         <p><?= t('compartir') ?></p>

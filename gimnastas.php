@@ -37,14 +37,14 @@ require __DIR__ . '/includes/header.php';
 
     <div class="grid-plantilla" id="grid-filtrable-gimnastas">
       <?php foreach ($gimnastas as $g): ?>
-      <div class="tarjeta-jugador animar-scroll" data-categoria="<?= e($g['categoria']) ?>">
+      <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;" data-categoria="<?= e($g['categoria']) ?>">
         <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>"></div>
         <div class="info">
           <div class="dorsal"><?= e($g['categoria']) ?></div>
           <h4><?= e($g['nombre']) ?></h4>
           <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
         </div>
-      </div>
+      </a>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>

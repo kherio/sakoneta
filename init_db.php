@@ -29,8 +29,13 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
 $pdo->exec("CREATE TABLE IF NOT EXISTS categorias (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL UNIQUE,
-    orden INTEGER DEFAULT 0
+    orden INTEGER DEFAULT 0,
+    imagen_portada TEXT
 )");
+$columnasCategorias = $pdo->query("PRAGMA table_info(categorias)")->fetchAll();
+if (!in_array('imagen_portada', array_column($columnasCategorias, 'name'), true)) {
+    $pdo->exec("ALTER TABLE categorias ADD COLUMN imagen_portada TEXT");
+}
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,6 +67,27 @@ if (!$tieneDescripcion) {
 $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_fotos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     competicion_id INTEGER NOT NULL,
+    archivo TEXT NOT NULL,
+    orden INTEGER DEFAULT 0
+)");
+
+$pdo->exec("CREATE TABLE IF NOT EXISTS noticia_fotos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    noticia_id INTEGER NOT NULL,
+    archivo TEXT NOT NULL,
+    orden INTEGER DEFAULT 0
+)");
+
+$pdo->exec("CREATE TABLE IF NOT EXISTS gimnasta_fotos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    gimnasta_id INTEGER NOT NULL,
+    archivo TEXT NOT NULL,
+    orden INTEGER DEFAULT 0
+)");
+
+$pdo->exec("CREATE TABLE IF NOT EXISTS categoria_fotos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    categoria_id INTEGER NOT NULL,
     archivo TEXT NOT NULL,
     orden INTEGER DEFAULT 0
 )");

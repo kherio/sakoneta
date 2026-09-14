@@ -47,12 +47,15 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
 
 ## Qué se puede gestionar desde el panel
 
-- **Noticias**: crear, editar, publicar/despublicar y borrar. La
-  imagen se sube directamente desde tu ordenador.
-- **Gimnastas**: nombre, categoría, modalidad (individual o conjunto),
-  aparato principal y foto (subida directa desde tu ordenador).
-- **Competiciones**: nombre, categoría, lugar, fecha y resultado
-  una vez disputada.
+- **Noticias**: crear, editar, publicar/despublicar y borrar. Se
+  pueden subir varias fotos a la vez y elegir cuál se usa como
+  principal; el resto forma una galería en la noticia.
+- **Gimnastas**: nombre, categoría, modalidad (individual o conjunto)
+  y aparato principal. Igual que en noticias, admite varias fotos con
+  una marcada como principal; cada gimnasta tiene su propia página
+  pública con galería.
+- **Competiciones**: nombre, categoría, lugar, fecha, resultado una
+  vez disputada, y un texto libre para contar cómo fue.
 - **Mensajes de contacto**: los mensajes enviados desde el
   formulario público quedan guardados y visibles aquí.
 - **Ajustes del sitio**: subir una foto para la pantalla de bienvenida
@@ -61,7 +64,9 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   subidas se guardan en `img/subidas/`.
 - **Categorías**: crear, renombrar, reordenar y borrar las categorías
   (Base, Alevín, Infantil...) que luego se eligen al dar de alta
-  gimnastas y competiciones.
+  gimnastas y competiciones. También admiten varias fotos propias y
+  tienen su propia página pública, que además lista sus gimnastas y
+  competiciones.
 - **Fotos por competición**: al crear o editar una competición se
   pueden subir varias fotos a la vez y elegir cuál de ellas se usa
   como foto de portada/fondo en la tarjeta de esa competición en la
@@ -72,8 +77,9 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   de fotos.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una y con
-  opción de borrarlas (también se puede quitar una foto puntual desde
-  el propio formulario de la noticia, gimnasta o ajuste donde se subió).
+  opción de borrarlas (también se puede borrar una foto puntual desde
+  la propia galería de la noticia, gimnasta, categoría o competición
+  donde se subió).
 - **Buscador y filtros**: en Noticias, Gimnastas y Competiciones se
   puede buscar por texto, y en Gimnastas/Competiciones también filtrar
   por categoría.
