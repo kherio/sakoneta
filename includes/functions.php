@@ -17,6 +17,20 @@ function redirigir(string $ruta): void {
 }
 
 /**
+ * Detecta el caso en que PHP ha descartado toda la petición POST (incluidos
+ * $_POST y $_FILES) por superar "post_max_size" en el servidor. En ese caso
+ * $_POST y $_FILES llegan vacíos sin ningún otro aviso, así que hay que
+ * comprobarlo explícitamente para poder mostrar un error claro en vez de
+ * que el formulario parezca no hacer nada.
+ */
+function subidaDemasiadoGrande(): bool {
+    return $_SERVER['REQUEST_METHOD'] === 'POST'
+        && empty($_POST)
+        && empty($_FILES)
+        && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 0;
+}
+
+/**
  * Comprueba que un archivo temporal es realmente una imagen del tipo esperado
  * (no solo que su nombre termine en .jpg/.png/.webp). Usa getimagesize(),
  * que lee la cabecera real del archivo.
@@ -56,6 +70,10 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
 
+        if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_INI_SIZE || $_FILES[$campo]['error'][$i] === UPLOAD_ERR_FORM_SIZE) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" supera el límite de subida configurado en el servidor (revisa "upload_max_filesize" en PHP).';
+            continue;
+        }
         if ($_FILES[$campo]['error'][$i] !== UPLOAD_ERR_OK) {
             $errores[] = 'No se ha podido subir "' . $_FILES[$campo]['name'][$i] . '".';
             continue;
@@ -159,6 +177,10 @@ function procesarImagenSubida(string $campo, ?string &$error = null): ?string {
         return null;
     }
     $archivo = $_FILES[$campo];
+    if ($archivo['error'] === UPLOAD_ERR_INI_SIZE || $archivo['error'] === UPLOAD_ERR_FORM_SIZE) {
+        $error = 'La imagen supera el límite de subida configurado en el servidor (revisa "upload_max_filesize" en PHP).';
+        return null;
+    }
     if ($archivo['error'] !== UPLOAD_ERR_OK) {
         $error = 'No se ha podido subir el archivo (código ' . $archivo['error'] . ').';
         return null;

@@ -1,0 +1,10 @@
+# Sube el límite de subida de archivos de PHP para esta carpeta.
+# Solo tiene efecto si Apache usa mod_php (no PHP-FPM, ver .user.ini).
+<IfModule mod_php.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 10M
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 10M
+</IfModule>

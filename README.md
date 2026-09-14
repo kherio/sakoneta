@@ -104,6 +104,27 @@ del sistema operativo, y se degradan sin errores en navegadores que
 no soporten alguna característica (por ejemplo, las transiciones de
 página con View Transitions).
 
+## Límite de tamaño de las fotos
+
+La web admite fotos de hasta 6 MB, pero **PHP tiene su propio límite
+por debajo de eso en muchas instalaciones por defecto** (a menudo
+`upload_max_filesize = 2M`). Si una foto de un tamaño normal "no se
+sube" sin más explicación, es casi seguro que es esto.
+
+Para solucionarlo de raíz, el proyecto incluye dentro de `admin/`:
+- `.htaccess` (efecto si el servidor usa **mod_php** en Apache)
+- `.user.ini` (efecto si el servidor usa **PHP-FPM**)
+
+Ambos suben el límite a 8-10 MB automáticamente; solo hace falta que
+`AllowOverride All` esté activo para que el `.htaccess` funcione (ver
+el apartado de despliegue en Debian más abajo). Si aun así seguís
+viendo el problema, comprobad directamente los valores de
+`upload_max_filesize` y `post_max_size` en el `php.ini` del servidor.
+
+Cuando una foto supera el límite, ahora se muestra un aviso claro
+indicando el problema, en vez de que el formulario parezca no hacer
+nada.
+
 ## Seguridad
 
 Antes de esta versión el panel no tenía protección contra CSRF ni

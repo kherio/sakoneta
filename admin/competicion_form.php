@@ -21,7 +21,9 @@ $tituloPagina = $id ? 'Editar competición' : 'Nueva competición';
 $error = '';
 $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY orden ASC')->fetchAll(PDO::FETCH_COLUMN);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
+    $error = 'Alguna foto es demasiado grande para el límite de subida configurado en el servidor. Prueba con imágenes más ligeras (o pide que se aumenten "upload_max_filesize" y "post_max_size" en la configuración de PHP del servidor).';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigirCsrf();
     $competicion['nombre'] = trim($_POST['nombre'] ?? '');
     $competicion['categoria'] = $_POST['categoria'] ?? 'Infantil';

@@ -22,7 +22,9 @@ $error = '';
 $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY orden ASC')->fetchAll(PDO::FETCH_COLUMN);
 $modalidades = ['Individual', 'Conjunto'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
+    $error = 'La foto es demasiado grande para el límite de subida configurado en el servidor. Prueba con una imagen más ligera (o pide que se aumenten "upload_max_filesize" y "post_max_size" en la configuración de PHP del servidor).';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigirCsrf();
     $gimnasta['nombre'] = trim($_POST['nombre'] ?? '');
     $gimnasta['categoria'] = $_POST['categoria'] ?? 'Infantil';
