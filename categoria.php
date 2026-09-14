@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $pdo = getDb();
 $paginaActual = 'categoria';
@@ -32,6 +33,10 @@ $fotoPrincipal = ($categoria['imagen_portada'] ?? null) ?: ($fotos[0]['archivo']
 $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $f['archivo'] !== $fotoPrincipal; });
 
 $tituloPagina = 'Categoría ' . $nombreCategoria;
+$descripcionOG = count($gimnastas) . ' gimnastas · ' . count($competiciones) . ' competiciones en la categoría ' . $nombreCategoria;
+$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$migas = [['texto' => $nombreCategoria]];
 require __DIR__ . '/includes/header.php';
 ?>
 

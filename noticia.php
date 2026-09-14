@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $pdo = getDb();
 $paginaActual = 'noticias';
@@ -20,6 +21,10 @@ if (!$noticia) {
 }
 
 $tituloPagina = $noticia['titulo'];
+$descripcionOG = $noticia['resumen'];
+$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . ($noticia['imagen'] ?: 'competicion.svg');
+$migas = [['texto' => t('nav_noticias'), 'url' => 'noticias.php'], ['texto' => $noticia['titulo']]];
 
 $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 $urlActual = $esquema . ($_SERVER['HTTP_HOST'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '');

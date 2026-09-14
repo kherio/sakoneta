@@ -18,6 +18,10 @@ administración para gestionar noticias, gimnastas y competiciones.
 
 - PHP 8.x con las extensiones `pdo_sqlite` y `sqlite3` (vienen activadas
   por defecto en la mayoría de instalaciones de PHP).
+- Extensión `gd` recomendada (para redimensionar automáticamente las
+  fotos subidas). Si no está instalada, la web funciona igual, solo
+  que las fotos se guardan a su tamaño original. En Debian/Ubuntu:
+  `sudo apt install php-gd` y reinicia Apache o PHP-FPM.
 - No necesitas instalar ningún servidor de base de datos: se usa un
   único archivo SQLite que se crea automáticamente.
 
@@ -130,6 +134,20 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
 - Un pequeño guiño: haz **5 clics seguidos sobre el escudo** del
   encabezado (o el de la pantalla de bienvenida) para un efecto
   sorpresa.
+- **Menú en móvil**: botón de hamburguesa con el mismo menú desplegado.
+- **Cabecera que se compacta** al hacer scroll (menos alto, sin el lema).
+- **Foto de fondo del hero** de la portada, con parallax, configurable
+  desde Ajustes (antes era una sección aparte debajo del hero; ahora
+  es el propio fondo del titular).
+- **Vista previa al compartir enlaces** (Open Graph): si pegas el
+  enlace de una noticia, competición, gimnasta o categoría en
+  WhatsApp/Facebook/etc., sale con foto y descripción.
+- **Fotos más ligeras**: cualquier foto subida que supere 1600px se
+  redimensiona sola (requiere la extensión PHP `gd`; si el servidor no
+  la tiene, simplemente no redimensiona, sin dar error).
+- **Migas de pan** en noticia, competición, gimnasta y categoría.
+- **Buscador público** (`buscar.php`), busca en noticias, gimnastas y
+  competiciones a la vez.
 
 Todos estos efectos respetan la preferencia de "reducir movimiento"
 del sistema operativo, y se degradan sin errores en navegadores que
