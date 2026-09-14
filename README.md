@@ -154,7 +154,9 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
 - **Cabecera que se compacta** al hacer scroll (menos alto, sin el lema).
 - **Foto de fondo del hero** de la portada, con parallax, configurable
   desde Ajustes (antes era una sección aparte debajo del hero; ahora
-  es el propio fondo del titular).
+  es el propio fondo del titular). El titular ajusta su propio tamaño
+  de letra en el navegador para caber siempre en una sola línea, sea
+  cual sea el texto que pongas.
 - **Vista previa al compartir enlaces** (Open Graph): si pegas el
   enlace de una noticia, competición, gimnasta o categoría en
   WhatsApp/Facebook/etc., sale con foto y descripción.

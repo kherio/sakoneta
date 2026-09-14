@@ -257,8 +257,9 @@ nav.principal a.activo {
 .hero-kicker { color: var(--acento); margin-right: 4px; }
 .hero h1 {
   color: #fff;
-  font-size: clamp(32px, 4.4vw, 52px);
-  max-width: 15ch;
+  font-size: clamp(26px, 3.6vw, 52px);
+  max-width: 22ch;
+  line-height: 1.15;
 }
 .hero p { max-width: 46ch; color: #E7D7EA; font-size: 17px; }
 .hero-cta { margin-top: 26px; display: flex; gap: 14px; flex-wrap: wrap; }
