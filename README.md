@@ -89,6 +89,16 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   campo de texto libre (párrafos separados por una línea en blanco)
   que aparece en su página de detalle pública, junto con la galería
   de fotos.
+- **Patrocinadores**: gestión desde el panel (nombre, logo y enlace
+  opcional). Aparecen en el pie de página de toda la web como un
+  **carrusel** de desplazamiento continuo (se pausa al pasar el
+  ratón por encima, y no se anima si el sistema tiene activado
+  "reducir movimiento").
+- **Suscripción por email**: formulario en el pie de todas las
+  páginas para recibir avisos de noticias nuevas. Los correos
+  quedan guardados en el panel (sección "Suscriptores"), con opción
+  de descargarlos en CSV — la web no los envía por sí sola, es una
+  lista para usar con tu propio correo o herramienta de newsletter.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una y con
   opción de borrarlas (también se puede borrar una foto puntual desde

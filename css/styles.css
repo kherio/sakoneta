@@ -536,7 +536,7 @@ nav.principal a.activo {
 .datos-contacto dd { margin: 4px 0 0; color: var(--gris-texto); }
 
 /* ---------- Pie ---------- */
-/* ---------- Franja de patrocinadores ---------- */
+/* ---------- Franja de patrocinadores (carrusel) ---------- */
 .franja-patrocinadores {
   background: #fff;
   border-top: 1px solid var(--borde-suave);
@@ -552,16 +552,30 @@ nav.principal a.activo {
   text-align: center;
   margin-bottom: 14px;
 }
-.patrocinadores-logos {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 32px;
+.carrusel-patrocinadores {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
-.patrocinadores-logos img { max-height: 42px; max-width: 130px; object-fit: contain; filter: grayscale(100%); opacity: .75; transition: filter var(--paso), opacity var(--paso); }
-.patrocinadores-logos a:hover img { filter: grayscale(0%); opacity: 1; }
-.patrocinador-texto { font-family: 'Fraunces', serif; color: var(--gris-texto); font-size: 15px; }
+.carrusel-patrocinadores-pista {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  width: max-content;
+  animation: desplazarPatrocinadores 28s linear infinite;
+}
+.carrusel-patrocinadores:hover .carrusel-patrocinadores-pista { animation-play-state: paused; }
+@keyframes desplazarPatrocinadores {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.carrusel-patrocinador-item { flex-shrink: 0; }
+.carrusel-patrocinador-item img { max-height: 42px; max-width: 130px; object-fit: contain; filter: grayscale(100%); opacity: .75; transition: filter var(--paso), opacity var(--paso); }
+.carrusel-patrocinador-item a:hover img { filter: grayscale(0%); opacity: 1; }
+.patrocinador-texto { font-family: 'Fraunces', serif; color: var(--gris-texto); font-size: 15px; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .carrusel-patrocinadores-pista { animation: none; flex-wrap: wrap; justify-content: center; }
+}
 
 footer {
   background: var(--morado-oscuro);

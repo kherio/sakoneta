@@ -10,18 +10,24 @@ try {
 <div class="franja-patrocinadores">
   <div class="contenedor">
     <span class="patrocinadores-etiqueta">Con la colaboración de</span>
-    <div class="patrocinadores-logos">
-      <?php foreach ($patrocinadoresFooter as $p): ?>
-        <?php if ($p['url']): ?>
-          <a href="<?= e($p['url']) ?>" target="_blank" rel="noopener" title="<?= e($p['nombre']) ?>">
-        <?php endif; ?>
-        <?php if ($p['logo']): ?>
-          <img src="img/<?= e($p['logo']) ?>" alt="<?= e($p['nombre']) ?>">
-        <?php else: ?>
-          <span class="patrocinador-texto"><?= e($p['nombre']) ?></span>
-        <?php endif; ?>
-        <?php if ($p['url']): ?></a><?php endif; ?>
-      <?php endforeach; ?>
+  </div>
+  <div class="carrusel-patrocinadores">
+    <div class="carrusel-patrocinadores-pista">
+      <?php for ($vuelta = 0; $vuelta < 2; $vuelta++): ?>
+        <?php foreach ($patrocinadoresFooter as $p): ?>
+          <div class="carrusel-patrocinador-item">
+            <?php if ($p['url']): ?>
+              <a href="<?= e($p['url']) ?>" target="_blank" rel="noopener" title="<?= e($p['nombre']) ?>">
+            <?php endif; ?>
+            <?php if ($p['logo']): ?>
+              <img src="img/<?= e($p['logo']) ?>" alt="<?= e($p['nombre']) ?>" <?= $vuelta === 1 ? 'aria-hidden="true"' : '' ?>>
+            <?php else: ?>
+              <span class="patrocinador-texto"><?= e($p['nombre']) ?></span>
+            <?php endif; ?>
+            <?php if ($p['url']): ?></a><?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      <?php endfor; ?>
     </div>
   </div>
 </div>
