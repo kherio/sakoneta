@@ -30,16 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $noticia['contenido'] = trim($_POST['contenido'] ?? '');
     $noticia['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
     $noticia['publicado'] = (isset($_POST['publicado']) && rolActual() !== 'colaborador') ? 1 : 0;
+    $noticia['imagen_posicion'] = in_array($_POST['imagen_posicion'] ?? '', ['arriba', 'centro', 'abajo'], true) ? $_POST['imagen_posicion'] : 'arriba';
 
     if ($noticia['titulo'] === '' || $noticia['resumen'] === '' || $noticia['contenido'] === '') {
         $error = 'Título, resumen y contenido son obligatorios.';
     } else {
         if ($id) {
-            $stmt = $pdo->prepare('UPDATE noticias SET titulo=?, resumen=?, contenido=?, fecha=?, publicado=? WHERE id=?');
-            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $id]);
+            $stmt = $pdo->prepare('UPDATE noticias SET titulo=?, resumen=?, contenido=?, fecha=?, publicado=?, imagen_posicion=? WHERE id=?');
+            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, fecha, publicado) VALUES (?,?,?,?,?)');
-            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado']]);
+            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, fecha, publicado, imagen_posicion) VALUES (?,?,?,?,?,?)');
+            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion']]);
             $id = (int)$pdo->lastInsertId();
         }
 
@@ -149,6 +150,16 @@ require __DIR__ . '/includes/layout_header.php';
     <?php else: ?>
       <label><input type="checkbox" name="publicado" <?= $noticia['publicado'] ? 'checked' : '' ?> style="width:auto;"> Publicada (visible en la web)</label>
     <?php endif; ?>
+  </div>
+
+  <div class="campo">
+    <label for="imagen_posicion">Encuadre de la foto principal (en la cabecera de la noticia)</label>
+    <select id="imagen_posicion" name="imagen_posicion">
+      <option value="arriba" <?= ($noticia['imagen_posicion'] ?? 'arriba') === 'arriba' ? 'selected' : '' ?>>Arriba (evita cortar caras)</option>
+      <option value="centro" <?= ($noticia['imagen_posicion'] ?? '') === 'centro' ? 'selected' : '' ?>>Centro</option>
+      <option value="abajo" <?= ($noticia['imagen_posicion'] ?? '') === 'abajo' ? 'selected' : '' ?>>Abajo</option>
+    </select>
+    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">La cabecera es bastante alta; esto decide qué parte de la foto se ve.</p>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">

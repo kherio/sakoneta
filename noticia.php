@@ -46,7 +46,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="franja-portada franja-noticia animar-scroll">
-  <div class="franja-portada-imagen franja-noticia-imagen" data-parallax="0.1" data-parallax-limite="50" style="background-image:url('img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>');"></div>
+  <div class="franja-portada-imagen franja-noticia-imagen" data-parallax="0.1" data-parallax-limite="50" style="background-image:url('img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>');background-position:<?= e(posicionCss($noticia['imagen_posicion'] ?? null)) ?>;"></div>
   <div class="contenedor franja-portada-texto">
     <div class="fecha franja-noticia-fecha"><?= e(formatearFecha($noticia['fecha'])) ?></div>
     <h1 class="franja-noticia-titulo"><?= e($noticia['titulo']) ?></h1>

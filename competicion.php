@@ -37,7 +37,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="franja-portada franja-competicion animar-scroll">
-  <div class="franja-portada-imagen franja-hero-foto" data-parallax="0.08" data-parallax-limite="40" style="background-image:url('img/<?= e($fotoPrincipal) ?>');"></div>
+  <div class="franja-portada-imagen franja-hero-foto" data-parallax="0.08" data-parallax-limite="40" style="background-image:url('img/<?= e($fotoPrincipal) ?>');background-position:<?= e(posicionCss($competicion['imagen_posicion'] ?? null)) ?>;"></div>
   <div class="contenedor franja-portada-texto">
     <div class="franja-competicion-subtitulo">
       <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e($competicion['categoria']) ?></span>

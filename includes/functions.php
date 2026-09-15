@@ -80,9 +80,11 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         imagen TEXT,
         fecha TEXT NOT NULL,
         publicado INTEGER NOT NULL DEFAULT 1,
-        likes INTEGER NOT NULL DEFAULT 0
+        likes INTEGER NOT NULL DEFAULT 0,
+        imagen_posicion TEXT NOT NULL DEFAULT 'arriba'
     )");
     agregarColumnaSiFalta($pdo, 'noticias', 'likes', 'INTEGER NOT NULL DEFAULT 0');
+    agregarColumnaSiFalta($pdo, 'noticias', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -115,6 +117,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     )");
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_portada', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
 
     foreach (['competicion_fotos' => 'competicion_id', 'noticia_fotos' => 'noticia_id', 'gimnasta_fotos' => 'gimnasta_id', 'categoria_fotos' => 'categoria_id'] as $tabla => $columnaId) {
         $pdo->exec("CREATE TABLE IF NOT EXISTS $tabla (
@@ -598,6 +601,21 @@ function listarMediaSubida(): array {
         $resultado[] = ['archivo' => $relativa, 'tipo' => in_array($extension, ['mp4', 'webm', 'mov'], true) ? 'video' : 'imagen'];
     }
     return $resultado;
+}
+
+/**
+ * Traduce el encuadre elegido para una foto de portada ('arriba',
+ * 'centro' o 'abajo') al valor CSS background-position
+ * correspondiente. Si el valor guardado no es ninguno de los tres
+ * (por ejemplo, un dato antiguo o corrupto), se usa 'arriba' porque
+ * es lo más habitual en fotos de personas (evita cortar caras).
+ */
+function posicionCss(?string $posicion): string {
+    return match ($posicion) {
+        'centro' => 'center center',
+        'abajo' => 'center 90%',
+        default => 'center 12%',
+    };
 }
 
 function obtenerAjustes(PDO $pdo): array {
