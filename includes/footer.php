@@ -75,6 +75,6 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
   </div>
   <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?> — sitio de ejemplo generado con fines de demostración.</div>
 </footer>
-<script src="js/main.js"></script>
+<script src="<?= versionArchivo('js/main.js') ?>"></script>
 </body>
 </html>

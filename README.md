@@ -16,6 +16,14 @@ administración para gestionar noticias, gimnastas y competiciones.
 
 ## Requisitos
 
+- Los archivos CSS y JS (`css/styles.css`, `js/main.js`,
+  `admin/css/admin.css`, `admin/js/admin.js`) se cargan con
+  `?v=fecha_de_modificación` añadido automáticamente. Así, después de
+  cada `git pull`, el navegador descarga la versión nueva en vez de
+  quedarse con una copia antigua guardada en caché — no hace falta
+  pedir a nadie que haga un refresco forzado (Ctrl+F5) tras cada
+  actualización.
+
 - PHP 8.x con las extensiones `pdo_sqlite` y `sqlite3` (vienen activadas
   por defecto en la mayoría de instalaciones de PHP).
 - Extensión `gd` recomendada (para redimensionar automáticamente las

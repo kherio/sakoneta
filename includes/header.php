@@ -16,7 +16,7 @@
 <meta property="og:url" content="<?= e(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="<?= versionArchivo('css/styles.css') ?>">
 </head>
 <body>
 

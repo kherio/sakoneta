@@ -11,6 +11,25 @@ function formatearFecha(?string $fecha): string {
     return (int)date('j', $ts) . ' de ' . $meses[(int)date('n', $ts) - 1] . ' de ' . date('Y', $ts);
 }
 
+/**
+ * Añade "?v=fecha_de_modificación" a la URL de un archivo estático
+ * (CSS, JS...) para que el navegador descargue la versión nueva justo
+ * después de cada actualización del sitio, en vez de quedarse con una
+ * copia antigua guardada en caché.
+ *
+ * $hrefRelativo es lo que se pone en el href/src tal cual (relativo a
+ * la página actual). $rutaFisica es dónde está el archivo de verdad
+ * en el disco, relativa a la raíz del proyecto; si no se indica, se
+ * asume que coincide con $hrefRelativo (válido en las páginas
+ * públicas, no en las del panel, donde el enlace es relativo a /admin/).
+ */
+function versionArchivo(string $hrefRelativo, ?string $rutaFisica = null): string {
+    $rutaFisica ??= $hrefRelativo;
+    $rutaCompleta = __DIR__ . '/../' . ltrim($rutaFisica, '/');
+    $version = is_file($rutaCompleta) ? filemtime($rutaCompleta) : time();
+    return $hrefRelativo . '?v=' . $version;
+}
+
 function redirigir(string $ruta): void {
     header('Location: ' . $ruta);
     exit;
