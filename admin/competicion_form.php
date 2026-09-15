@@ -33,17 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $competicion['disputada'] = isset($_POST['disputada']) ? 1 : 0;
     $competicion['resultado'] = $competicion['disputada'] ? trim($_POST['resultado'] ?? '') : null;
     $competicion['descripcion'] = trim($_POST['descripcion'] ?? '');
+    $competicion['imagen_posicion'] = in_array($_POST['imagen_posicion'] ?? '', ['arriba', 'centro', 'abajo'], true) ? $_POST['imagen_posicion'] : 'arriba';
 
     if ($competicion['nombre'] === '' || $competicion['lugar'] === '') {
         $error = 'El nombre y el lugar son obligatorios.';
     } else {
         // Guardar los datos básicos primero (crea el id si es una competición nueva)
         if ($id) {
-            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, resultado=?, disputada=?, descripcion=? WHERE id=?');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $id]);
+            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, resultado=?, disputada=?, descripcion=?, imagen_posicion=? WHERE id=?');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada, descripcion) VALUES (?,?,?,?,?,?,?)');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null]);
+            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada, descripcion, imagen_posicion) VALUES (?,?,?,?,?,?,?,?)');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion']]);
             $id = (int)$pdo->lastInsertId();
         }
 
@@ -164,6 +165,16 @@ require __DIR__ . '/includes/layout_header.php';
   <div class="campo">
     <label for="descripcion">Información sobre el campeonato (opcional)</label>
     <textarea id="descripcion" name="descripcion" placeholder="Cuenta cómo fue la jornada, cómo se preparó el equipo, anécdotas... Separa los párrafos con una línea en blanco."><?= e($competicion['descripcion'] ?? '') ?></textarea>
+  </div>
+
+  <div class="campo">
+    <label for="imagen_posicion">Encuadre de la foto principal (en la cabecera de la competición)</label>
+    <select id="imagen_posicion" name="imagen_posicion">
+      <option value="arriba" <?= ($competicion['imagen_posicion'] ?? 'arriba') === 'arriba' ? 'selected' : '' ?>>Arriba (evita cortar caras)</option>
+      <option value="centro" <?= ($competicion['imagen_posicion'] ?? '') === 'centro' ? 'selected' : '' ?>>Centro</option>
+      <option value="abajo" <?= ($competicion['imagen_posicion'] ?? '') === 'abajo' ? 'selected' : '' ?>>Abajo</option>
+    </select>
+    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">La cabecera es bastante alta; esto decide qué parte de la foto se ve.</p>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">

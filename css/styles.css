@@ -799,7 +799,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .franja-noticia-imagen,
 .franja-hero-foto {
   background-size: 108% auto;
-  background-position: center 20%;
   animation: kenBurnsNoticia 9s ease-out forwards;
 }
 .franja-competicion.franja-portada {
