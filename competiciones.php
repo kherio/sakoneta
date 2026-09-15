@@ -21,7 +21,7 @@ require __DIR__ . '/includes/header.php';
   <div class="contenedor">
     <div class="seccion-cabecera">
       <h2><?= t('seccion_competiciones') ?></h2>
-      <a href="resultados.php">Ver resultados anteriores →</a>
+      <a href="resultados.php">Ver competiciones anteriores →</a>
     </div>
 
     <?php if (!$competiciones): ?>

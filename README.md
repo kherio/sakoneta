@@ -318,6 +318,10 @@ El panel se ha reforzado con:
   en un servidor real para que los errores de PHP no se muestren a
   los visitantes.
 - `robots.txt` con `/admin/` y `/data/` bloqueados para buscadores.
+- **Sin listado de carpetas**: `Options -Indexes` en la raíz impide
+  que el navegador muestre el contenido de ninguna carpeta del
+  proyecto (`admin/css/`, `includes/`, `js/`, `img/`, `data/`...) al
+  visitarla directamente sin un archivo `index`.
 
 Aun así, antes de publicar el sitio en un dominio real:
 - Sirve el sitio por HTTPS.

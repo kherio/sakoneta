@@ -1,3 +1,10 @@
+# No permitir que el navegador liste el contenido de ninguna carpeta
+# del proyecto que no tenga un index.php/html propio (admin/css/,
+# includes/, js/, img/, data/...). Se aplica a esta carpeta y a todas
+# las de dentro, salvo que alguna tenga su propio .htaccess que diga
+# lo contrario (ninguna lo hace en este proyecto).
+Options -Indexes
+
 # Los valores por defecto de PHP (upload_max_filesize=2M en muchas
 # instalaciones de Debian) son demasiado bajos para fotos de móvil
 # normales. Esto los eleva para este sitio sin tocar la configuración
