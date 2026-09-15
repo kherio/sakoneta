@@ -99,6 +99,32 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   quedan guardados en el panel (sección "Suscriptores"), con opción
   de descargarlos en CSV — la web no los envía por sí sola, es una
   lista para usar con tu propio correo o herramienta de newsletter.
+- **Splash con transición de zoom**: al cerrarse, la pantalla de
+  bienvenida se desvanece con un efecto de zoom hacia dentro, más
+  lento y vistoso que un simple fundido.
+- **"Me gusta" en las noticias**: cada visitante puede darle a me
+  gusta una vez (se recuerda con una cookie, sin necesidad de
+  cuenta). El contador se actualiza al momento, sin recargar la página.
+- **Comentarios con moderación**: cualquiera puede dejar un comentario
+  en una noticia; queda pendiente hasta que alguien con permiso lo
+  aprueba desde "Comentarios" en el panel (aprobar, rechazar o
+  borrar). Solo se muestran en la web los aprobados. Incluye un campo
+  señuelo invisible para filtrar bots.
+- **Usuarios con roles**: en vez de una única contraseña compartida,
+  ahora se pueden crear varias personas con acceso, cada una con su
+  usuario y contraseña, y un rol que delimita lo que puede hacer:
+
+  | Rol | Puede hacer |
+  |---|---|
+  | **Administrador** | Todo: contenido, ajustes del sitio, moderación y gestión de usuarios. |
+  | **Editor** | Gestionar todo el contenido público (noticias, gimnastas, competiciones, categorías, patrocinadores, fotos) y publicarlo. No entra en Ajustes ni en Usuarios. |
+  | **Moderador** | Solo revisa comentarios y mensajes de contacto. No toca contenido ni ajustes. |
+  | **Colaborador** | Escribe y edita noticias, pero no puede publicarlas (quedan como borrador para que un editor o administrador las revise) ni borrarlas. No accede a ninguna otra sección. |
+
+  Se gestionan desde "Usuarios" en el panel (solo visible para
+  administradores). La cuenta `admin` de siempre se ha convertido
+  automáticamente en el primer usuario, con rol administrador y la
+  misma contraseña que ya tenía.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una. Se
   pueden seleccionar varias a la vez (o "Seleccionar todos") y

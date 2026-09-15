@@ -8,8 +8,15 @@ $pdo = getDb();
 $seccionActual = 'cambiar_clave';
 $tituloPagina = 'Cambiar contraseña';
 
-$ajustes = obtenerAjustes($pdo);
-$hashActual = $ajustes['admin_password_hash'] ?: ADMIN_PASS_HASH;
+$miId = (int)($_SESSION['admin_usuario_id'] ?? 0);
+$stmtYo = $pdo->prepare('SELECT * FROM usuarios WHERE id = ?');
+$stmtYo->execute([$miId]);
+$yo = $stmtYo->fetch();
+
+if (!$yo) {
+    // Sesión de antes de tener usuarios con id (poco probable, pero por si acaso)
+    redirigir('logout.php');
+}
 
 $error = '';
 $exito = false;
@@ -20,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nueva = $_POST['nueva'] ?? '';
     $repetir = $_POST['repetir'] ?? '';
 
-    if (!password_verify($actual, $hashActual)) {
+    if (!password_verify($actual, $yo['password_hash'])) {
         $error = 'La contraseña actual no es correcta.';
     } elseif (strlen($nueva) < 8) {
         $error = 'La contraseña nueva debe tener al menos 8 caracteres.';
@@ -28,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'La nueva contraseña y su repetición no coinciden.';
     } else {
         $nuevoHash = password_hash($nueva, PASSWORD_DEFAULT);
-        $pdo->prepare('UPDATE ajustes SET admin_password_hash = ? WHERE id = 1')->execute([$nuevoHash]);
+        $pdo->prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?')->execute([$nuevoHash, $miId]);
         $exito = true;
     }
 }
@@ -38,8 +45,8 @@ require __DIR__ . '/includes/layout_header.php';
 
 <h1>Cambiar contraseña</h1>
 <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-14px;">
-  El usuario de acceso sigue siendo <strong><?= e(ADMIN_USER) ?></strong>;
-  aquí solo se cambia la contraseña.
+  Tu usuario de acceso es <strong><?= e($yo['usuario']) ?></strong>
+  (rol: <?= e($yo['rol']) ?>); aquí solo se cambia tu contraseña.
 </p>
 
 <?php if ($exito): ?>

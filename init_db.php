@@ -65,4 +65,16 @@ if ($count === 0) {
     foreach ($competiciones as $c) $stmt->execute($c);
 }
 
+$count = (int)$pdo->query('SELECT COUNT(*) AS c FROM usuarios')->fetch()['c'];
+if ($count === 0) {
+    // Migración: si ya había una contraseña de administrador cambiada
+    // desde el panel (guardada en ajustes), se respeta; si no, se usa
+    // la del archivo config.php de toda la vida. Así el usuario
+    // "admin" sigue entrando con la misma contraseña de antes.
+    $ajustesActuales = $pdo->query('SELECT admin_password_hash FROM ajustes WHERE id = 1')->fetch();
+    $hashInicial = ($ajustesActuales && $ajustesActuales['admin_password_hash']) ? $ajustesActuales['admin_password_hash'] : ADMIN_PASS_HASH;
+    $stmt = $pdo->prepare('INSERT INTO usuarios (usuario, nombre, password_hash, rol, activo, creado) VALUES (?,?,?,?,1,?)');
+    $stmt->execute([ADMIN_USER, 'Administrador', $hashInicial, 'administrador', date('Y-m-d H:i:s')]);
+}
+
 echo "Base de datos creada e inicializada correctamente en data/club.sqlite";

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 exigirAutenticacion();
+exigirRol(['administrador','editor','colaborador']);
 
 $pdo = getDb();
 $seccionActual = 'noticias';
@@ -53,11 +54,13 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= $n['publicado'] ? 'Publicada' : 'Borrador' ?></td>
       <td class="acciones">
         <a href="noticia_form.php?id=<?= (int)$n['id'] ?>" class="editar">Editar</a>
+        <?php if (rolActual() !== 'colaborador'): ?>
         <form method="post" action="noticia_borrar.php" onsubmit="return confirm('¿Seguro que quieres borrar esta noticia?');">
           <?= campoCsrf() ?>
           <input type="hidden" name="id" value="<?= (int)$n['id'] ?>">
           <button type="submit" class="borrar">Borrar</button>
         </form>
+        <?php endif; ?>
       </td>
     </tr>
     <?php endforeach; ?>
