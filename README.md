@@ -141,10 +141,12 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   club, sea cual sea el orden en que se marquen.
 - **Swipe visual entre competiciones en el móvil**: al deslizar el
   dedo, la página se mueve de verdad siguiéndolo (con un poco de
-  resistencia si no hay competición en esa dirección), y si se supera
-  cerca de una cuarta parte de la pantalla, termina de deslizarse
-  fuera antes de pasar a la otra competición. Si no se supera, vuelve
-  a su sitio con una animación suave.
+  resistencia si no hay competición en esa dirección), y a la vez se
+  ve entrar por el otro lado una vista previa real de la siguiente o
+  anterior competición (su foto, categoría y título), como en un
+  carrusel. Si se supera cerca de una cuarta parte de la pantalla, se
+  completa el cambio; si no, todo vuelve a su sitio con una animación
+  suave.
 - **Filtro de categorías con selección múltiple**: en noticias,
   gimnastas y competiciones se pueden marcar varias categorías a la
   vez (antes solo una).

@@ -125,11 +125,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // --- Swipe entre competiciones (solo móvil/táctil), con desplazamiento visual ---
+  // --- Swipe entre competiciones (solo móvil/táctil), con la otra
+  // competición entrando de verdad en tiempo real ---
   var datosSwipe = document.getElementById('swipe-competicion');
   if (datosSwipe && window.matchMedia('(max-width: 860px) and (pointer: coarse)').matches) {
     var urlAnterior = datosSwipe.getAttribute('data-anterior');
     var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
+    var capaAnterior = document.getElementById('vista-previa-anterior');
+    var capaSiguiente = document.getElementById('vista-previa-siguiente');
+    var previewAnterior = null, previewSiguiente = null;
+
+    function rellenarCapa(capa, datos) {
+      if (!capa || !datos) return;
+      capa.querySelector('.vista-previa-swipe-imagen').style.backgroundImage = "url('" + datos.imagen + "')";
+      capa.querySelector('.vista-previa-swipe-imagen').style.backgroundPosition = datos.posicion;
+      capa.querySelector('.vista-previa-swipe-categoria').textContent = datos.categorias;
+      capa.querySelector('h3').textContent = datos.nombre;
+      capa.querySelector('p').textContent = datos.fechaLugar;
+    }
+
+    function precargar(url, capa, guardarEn) {
+      if (!url) return;
+      fetch(url + (url.indexOf('?') !== -1 ? '&' : '?') + 'preview=1')
+        .then(function (r) { return r.json(); })
+        .then(function (datos) {
+          rellenarCapa(capa, datos);
+          if (guardarEn === 'anterior') previewAnterior = datos; else previewSiguiente = datos;
+        })
+        .catch(function () {});
+    }
+    precargar(urlAnterior, capaAnterior, 'anterior');
+    precargar(urlSiguiente, capaSiguiente, 'siguiente');
+
     var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false;
     var anchoPantalla = window.innerWidth;
 
@@ -140,6 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
       arrastrando = true;
       esHorizontal = null;
       document.body.style.transition = 'none';
+      capaAnterior.style.transition = 'none';
+      capaSiguiente.style.transition = 'none';
     }, { passive: true });
 
     document.addEventListener('touchmove', function (e) {
@@ -152,12 +181,24 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (!esHorizontal) return;
 
-      // No dejar arrastrar hacia un lado que no tiene competición: se
-      // nota "elástico" (con resistencia) en vez de moverse a lo tonto
-      var tieneDestino = (deltaX < 0 && urlSiguiente) || (deltaX > 0 && urlAnterior);
+      var vaASiguiente = deltaX < 0;
+      var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
       document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
+
+      // La capa correspondiente entra desde su lado seguiendo el dedo,
+      // a la misma velocidad que se va el contenido actual
+      var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
+      var otraCapa = vaASiguiente ? capaAnterior : capaSiguiente;
+      otraCapa.classList.remove('visible');
+      if (tieneDestino) {
+        capaActiva.classList.add('visible');
+        var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
+        capaActiva.style.transform = 'translateX(' + (base + desplazamiento) + 'px)';
+      } else {
+        capaActiva.classList.remove('visible');
+      }
       e.preventDefault();
     }, { passive: false });
 
@@ -168,17 +209,27 @@ document.addEventListener('DOMContentLoaded', function () {
       inicioX = null;
       if (!esHorizontal) return;
 
-      var umbralSuperado = Math.abs(deltaX) > anchoPantalla * 0.22;
-      var destino = deltaX < 0 ? urlSiguiente : urlAnterior;
+      var vaASiguiente = deltaX < 0;
+      var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
+      var umbralSuperado = tieneDestino && Math.abs(deltaX) > anchoPantalla * 0.22;
+      var destino = vaASiguiente ? urlSiguiente : urlAnterior;
+      var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
 
-      document.body.style.transition = 'transform .28s cubic-bezier(.32,.72,0,1)';
+      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1)';
+      document.body.style.transition = transicion;
+      capaActiva.style.transition = transicion;
 
-      if (umbralSuperado && destino) {
+      if (umbralSuperado) {
         navegando = true;
-        document.body.style.transform = 'translateX(' + (deltaX < 0 ? -anchoPantalla : anchoPantalla) + 'px)';
+        var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
+        document.body.style.transform = 'translateX(' + destinoX + 'px)';
+        capaActiva.style.transform = 'translateX(0)';
         setTimeout(function () { window.location.href = destino; }, 260);
       } else {
         document.body.style.transform = 'translateX(0)';
+        var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
+        capaActiva.style.transform = 'translateX(' + base + 'px)';
+        setTimeout(function () { capaActiva.classList.remove('visible'); }, 290);
       }
     }, { passive: true });
 
