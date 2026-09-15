@@ -142,16 +142,15 @@ a { color: inherit; }
   position: relative;
   width: 100%;
   max-width: 460px;
-  aspect-ratio: 21/8;
-  background-size: cover;
-  background-repeat: no-repeat;
   border-radius: 8px;
   border: 1.5px solid var(--borde);
   cursor: crosshair;
   overflow: hidden;
   touch-action: none;
-  background-color: #ddd;
+  line-height: 0;
+  background: #ddd;
 }
+.selector-encuadre img { display: block; width: 100%; height: auto; pointer-events: none; }
 .selector-encuadre-rejilla {
   position: absolute;
   inset: 0;
