@@ -3,10 +3,15 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 exigirAutenticacion();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ajustes.php');
+    exit;
+}
 exigirCsrf();
 
 $pdo = getDb();
-$campo = $_GET['campo'] ?? '';
+$campo = $_POST['campo'] ?? '';
 
 if (in_array($campo, ['splash_imagen', 'inicio_imagen'], true)) {
     $ruta = $pdo->query("SELECT $campo FROM ajustes WHERE id = 1")->fetchColumn();

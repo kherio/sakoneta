@@ -13,12 +13,17 @@ $ajustesLogin = obtenerAjustes($pdo);
 $hashActual = $ajustesLogin['admin_password_hash'] ?: ADMIN_PASS_HASH;
 
 $error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$minutosRestantes = minutosBloqueoRestantes($pdo);
+
+if ($minutosRestantes > 0) {
+    $error = 'Demasiados intentos fallidos. Vuelve a probar en unos ' . $minutosRestantes . ' minutos.';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tokenValido = !empty($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '');
     $usuario = trim($_POST['usuario'] ?? '');
     $clave = $_POST['clave'] ?? '';
 
     if ($tokenValido && $usuario === ADMIN_USER && password_verify($clave, $hashActual)) {
+        resetearIntentosLogin($pdo);
         session_regenerate_id(true);
         $_SESSION['admin_autenticado'] = true;
         $_SESSION['admin_usuario'] = $usuario;
@@ -27,9 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Pequeña espera para dificultar ataques de fuerza bruta automatizados
+    registrarIntentoFallido($pdo);
     usleep(700000);
-    $error = 'Usuario o contraseña incorrectos.';
+    $minutosRestantes = minutosBloqueoRestantes($pdo);
+    $error = $minutosRestantes > 0
+        ? 'Demasiados intentos fallidos. Vuelve a probar en unos ' . $minutosRestantes . ' minutos.'
+        : 'Usuario o contraseña incorrectos.';
 }
 ?>
 <!DOCTYPE html>

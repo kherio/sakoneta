@@ -67,7 +67,11 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= $p['url'] ? '<a href="' . e($p['url']) . '" target="_blank">' . e($p['url']) . '</a>' : '—' ?></td>
       <td class="acciones">
         <a href="patrocinador_form.php?id=<?= (int)$p['id'] ?>" class="editar">Editar</a>
-        <a href="patrocinador_borrar.php?id=<?= (int)$p['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Borrar este patrocinador?');">Borrar</a>
+        <form method="post" action="patrocinador_borrar.php" onsubmit="return confirm('¿Borrar este patrocinador?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

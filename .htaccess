@@ -24,3 +24,26 @@
     php_value max_execution_time 300
     php_value max_input_time 300
 </IfModule>
+
+# Bloquear el acceso directo desde el navegador a la carpeta .git y a
+# cualquier archivo oculto (dotfile). Sin esto, alguien podría
+# descargarse todo el código y el historial del repositorio con solo
+# conocer la URL, incluidas versiones antiguas de archivos.
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "(^|/)\.git">
+        Require all denied
+    </DirectoryMatch>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <DirectoryMatch "(^|/)\.git">
+        Order allow,deny
+        Deny from all
+    </DirectoryMatch>
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

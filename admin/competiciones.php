@@ -73,7 +73,11 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= $c['disputada'] ? e($c['resultado'] ?: 'Disputada') : 'Pendiente' ?></td>
       <td class="acciones">
         <a href="competicion_form.php?id=<?= (int)$c['id'] ?>" class="editar">Editar</a>
-        <a href="competicion_borrar.php?id=<?= (int)$c['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Seguro que quieres borrar esta competición?');">Borrar</a>
+        <form method="post" action="competicion_borrar.php" onsubmit="return confirm('¿Seguro que quieres borrar esta competición?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

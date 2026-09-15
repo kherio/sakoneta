@@ -70,7 +70,11 @@ require __DIR__ . '/includes/layout_header.php';
       <td class="acciones">
         <a href="../categoria.php?nombre=<?= urlencode($c['nombre']) ?>" target="_blank">Ver</a>
         <a href="categoria_form.php?id=<?= (int)$c['id'] ?>" class="editar">Editar</a>
-        <a href="categoria_borrar.php?id=<?= (int)$c['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Borrar esta categoría? Las gimnastas o competiciones que ya la usen mantendrán el nombre como texto suelto.');">Borrar</a>
+        <form method="post" action="categoria_borrar.php" onsubmit="return confirm('¿Borrar esta categoría? Las gimnastas o competiciones que ya la usen mantendrán el nombre como texto suelto.');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

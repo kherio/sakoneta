@@ -8,9 +8,9 @@ $pdo = getDb();
 $seccionActual = 'suscriptores';
 $tituloPagina = 'Suscriptores';
 
-if (isset($_GET['borrar'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrar'])) {
     exigirCsrf();
-    $pdo->prepare('DELETE FROM suscriptores WHERE id = ?')->execute([(int)$_GET['borrar']]);
+    $pdo->prepare('DELETE FROM suscriptores WHERE id = ?')->execute([(int)$_POST['borrar']]);
     redirigir('suscriptores.php?ok=1');
 }
 
@@ -46,7 +46,11 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= e($s['email']) ?></td>
       <td><?= e($s['fecha']) ?></td>
       <td class="acciones">
-        <a href="suscriptores.php?borrar=<?= (int)$s['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Borrar este suscriptor?');">Borrar</a>
+        <form method="post" onsubmit="return confirm('¿Borrar este suscriptor?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="borrar" value="<?= (int)$s['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

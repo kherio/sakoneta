@@ -83,6 +83,10 @@ a { color: inherit; }
   color: #fff;
   padding: 24px 0;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 .admin-menu .marca { padding: 0 20px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 12px; }
 .admin-menu .marca img { width: 30px; }
@@ -163,8 +167,9 @@ table.admin-tabla td { padding: 13px 14px; border-bottom: 1px solid var(--borde)
 table.admin-tabla tbody tr { transition: background var(--paso); }
 table.admin-tabla tbody tr:hover { background: var(--papel); }
 table.admin-tabla tbody tr:last-child td { border-bottom: none; }
-table.admin-tabla .acciones { display: flex; gap: 10px; }
-table.admin-tabla .acciones a { font-size: 13.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; transition: background var(--paso); }
+table.admin-tabla .acciones { display: flex; gap: 10px; align-items: center; }
+table.admin-tabla .acciones form { margin: 0; display: contents; }
+table.admin-tabla .acciones a, table.admin-tabla .acciones button { font-size: 13.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; transition: background var(--paso); font-family: inherit; background: none; border: none; cursor: pointer; }
 table.admin-tabla .acciones .editar { color: var(--morado); }
 table.admin-tabla .acciones .editar:hover { background: var(--borde); }
 table.admin-tabla .acciones .borrar { color: var(--rojo); }

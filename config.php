@@ -8,11 +8,12 @@ define('SITE_SHORT', 'Sakoneta');
 define('SITE_CLAIM', 'Erritmoa, grazia eta talde-lana');
 define('DB_PATH', __DIR__ . '/data/club.sqlite');
 
-// Usuario y contraseña del panel de administración.
-// La contraseña por defecto es "sakoneta2026" — CÁMBIALA generando un
-// nuevo hash con: php -r "echo password_hash('tu_password', PASSWORD_DEFAULT);"
+// Contraseña de administrador: se cambia SIEMPRE desde el panel
+// ("Cambiar contraseña" en el menú), nunca editando este archivo a
+// mano. El hash de aquí abajo es solo el que se usa la primerísima
+// vez, antes de que nadie haya cambiado la contraseña desde la web.
 define('ADMIN_USER', 'admin');
-define('ADMIN_PASS_HASH', '$2b$10$mnKMTvJEg5wzwPa52ryqNOTTLGdRrH6Re2aXVJU20Ie3JFRk7L.PW');
+define('ADMIN_PASS_HASH', '$2b$10$F7HjHqmCpX.6v6s7lIjbiuRV5vhrdFq.hRqGbHZHF3vwDJrr/Ilzy');
 
 date_default_timezone_set('Europe/Madrid');
 

@@ -74,7 +74,11 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= e($g['aparato']) ?></td>
       <td class="acciones">
         <a href="gimnasta_form.php?id=<?= (int)$g['id'] ?>" class="editar">Editar</a>
-        <a href="gimnasta_borrar.php?id=<?= (int)$g['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Seguro que quieres borrar esta gimnasta?');">Borrar</a>
+        <form method="post" action="gimnasta_borrar.php" onsubmit="return confirm('¿Seguro que quieres borrar esta gimnasta?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

@@ -61,7 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         }
         $portadaElegida = trim($_POST['portada_existente'] ?? '');
         if ($portadaElegida !== '') {
-            $pdo->prepare('UPDATE gimnastas SET foto = ? WHERE id = ?')->execute([$portadaElegida, $id]);
+            $comprobar = $pdo->prepare("SELECT COUNT(*) FROM gimnasta_fotos WHERE gimnasta_id = ? AND archivo = ? AND tipo = 'imagen'");
+            $comprobar->execute([$id, $portadaElegida]);
+            if ((int)$comprobar->fetchColumn() > 0) {
+                $pdo->prepare('UPDATE gimnastas SET foto = ? WHERE id = ?')->execute([$portadaElegida, $id]);
+            }
         } elseif (empty($gimnasta['foto']) && $primeraImagenNueva) {
             $pdo->prepare('UPDATE gimnastas SET foto = ? WHERE id = ?')->execute([$primeraImagenNueva, $id]);
         }
@@ -157,7 +161,7 @@ require __DIR__ . '/includes/layout_header.php';
           <?php else: ?>
           <p style="font-size:11.5px;color:var(--gris);margin:4px 0;">Vídeo</p>
           <?php endif; ?>
-          <a href="gimnasta_foto_borrar.php?id=<?= (int)$f['id'] ?>&gimnasta_id=<?= (int)$id ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;" onclick="return confirm('¿Borrar este archivo?');">Borrar</a>
+          <button type="submit" formaction="gimnasta_foto_borrar.php" name="id" value="<?= (int)$f['id'] ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;width:100%;" onclick="return confirm('¿Borrar este archivo?');">Borrar</button>
         </div>
       <?php endforeach; ?>
     </div>
