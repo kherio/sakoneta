@@ -220,13 +220,37 @@ página con View Transitions).
 
 El panel se ha reforzado con:
 
+- **La base de datos vive fuera de la carpeta pública del sitio**: en
+  vez de `data/club.sqlite`, ahora se guarda un nivel por encima del
+  proyecto (en una carpeta hermana, `sakoneta-datos-privados/`, fuera
+  de lo que cualquier servidor web pueda llegar a servir). Esto
+  importa sobre todo si el sitio se sirviera algún día con Nginx: el
+  `.htaccess` de `data/` es una protección que **solo funciona en
+  Apache** — con Nginx, sin una regla específica en su configuración,
+  ese `.htaccess` se ignora y el archivo de la base de datos podría
+  llegar a descargarse directamente. Sacarla de la carpeta pública
+  elimina el problema de raíz, sea cual sea el servidor.
+  **La migración es automática**: si ya tenías `data/club.sqlite` de
+  antes, se traslada solo la primera vez que cargues cualquier página
+  tras esta actualización — no hace falta mover nada a mano por SSH.
+  Si por lo que sea el servidor no puede crear esa carpeta externa
+  (permisos), se sigue usando `data/` como antes y queda avisado en
+  el registro de errores de PHP.
+- **La contraseña inicial también se genera ahí fuera**, en
+  `sakoneta-datos-privados/contrasena-inicial-admin.txt`.
+- **Los colaboradores solo pueden editar sus propias noticias, y solo
+  mientras sigan sin publicar**: antes, un colaborador podía abrir y
+  modificar (o despublicar) una noticia de otra persona, o una ya
+  publicada, aunque el panel dijera que "no puede publicar ni
+  borrar". Ahora se comprueba de verdad quién es el autor antes de
+  dejar editar o borrar fotos de una noticia — un colaborador que lo
+  intente con una noticia ajena o ya publicada recibe un aviso claro
+  de que no tiene permiso, en vez de poder modificarla igualmente.
 - **Sin ningún secreto permanente en el código fuente**: ya no hay
   ningún hash de contraseña fijo en `config.php`. Si no hay ninguna
   contraseña de administrador guardada todavía, se genera una al azar
-  en el primer arranque y se escribe una única vez en
-  `data/contrasena-inicial-admin.txt` (no accesible desde el
-  navegador, no se sube a git). Bórralo en cuanto hayas anotado la
-  contraseña y la hayas cambiado desde el panel.
+  en el primer arranque. Bórrala en cuanto la hayas anotado y
+  cambiado desde el panel.
 - **`.git/` bloqueado correctamente**: el `.htaccess` usa
   `RewriteRule` (válido ahí) en vez de `<DirectoryMatch>` (que NO es
   válido dentro de un `.htaccess` y podía provocar un error 500 en

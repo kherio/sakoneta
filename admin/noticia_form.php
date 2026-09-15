@@ -9,13 +9,14 @@ $pdo = getDb();
 $seccionActual = 'noticias';
 
 $id = (int)($_GET['id'] ?? 0);
-$noticia = ['titulo' => '', 'resumen' => '', 'contenido' => '', 'imagen' => '', 'fecha' => date('Y-m-d'), 'publicado' => 1];
+$noticia = ['titulo' => '', 'resumen' => '', 'contenido' => '', 'imagen' => '', 'fecha' => date('Y-m-d'), 'publicado' => 1, 'autor_id' => (int)($_SESSION['admin_usuario_id'] ?? 0)];
 
 if ($id) {
     $stmt = $pdo->prepare('SELECT * FROM noticias WHERE id = ?');
     $stmt->execute([$id]);
     $encontrada = $stmt->fetch();
     if ($encontrada) $noticia = $encontrada;
+    exigirPuedeEditarNoticia($noticia);
 }
 
 $tituloPagina = $id ? 'Editar noticia' : 'Nueva noticia';
@@ -39,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
             $stmt = $pdo->prepare('UPDATE noticias SET titulo=?, resumen=?, contenido=?, fecha=?, publicado=?, imagen_posicion=? WHERE id=?');
             $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, fecha, publicado, imagen_posicion) VALUES (?,?,?,?,?,?)');
-            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion']]);
+            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, fecha, publicado, imagen_posicion, autor_id) VALUES (?,?,?,?,?,?,?)');
+            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], (int)($_SESSION['admin_usuario_id'] ?? 0)]);
             $id = (int)$pdo->lastInsertId();
         }
 

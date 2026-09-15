@@ -85,6 +85,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     )");
     agregarColumnaSiFalta($pdo, 'noticias', 'likes', 'INTEGER NOT NULL DEFAULT 0');
     agregarColumnaSiFalta($pdo, 'noticias', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
+    agregarColumnaSiFalta($pdo, 'noticias', 'autor_id', 'INTEGER');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,14 +221,14 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         } else {
             $claveGenerada = bin2hex(random_bytes(9)); // 18 caracteres hexadecimales
             $hashInicial = password_hash($claveGenerada, PASSWORD_DEFAULT);
-            $rutaAviso = __DIR__ . '/../data/contrasena-inicial-admin.txt';
+            $rutaAviso = CARPETA_PRIVADA . '/contrasena-inicial-admin.txt';
             @file_put_contents($rutaAviso, "Usuario: " . ADMIN_USER . "\nContraseña inicial: $claveGenerada\n\n" .
                 "Este archivo se generó automáticamente porque no había ninguna contraseña de\n" .
                 "administrador guardada todavía. Entra con estos datos y cámbiala cuanto antes\n" .
                 "desde \"Cambiar contraseña\" en el panel. Después, borra este archivo del\n" .
-                "servidor (no es accesible desde el navegador, pero no hace falta dejarlo ahí):\n" .
-                "rm data/contrasena-inicial-admin.txt\n");
-            error_log('Sakoneta: se ha generado una contraseña de administrador inicial. Consulta data/contrasena-inicial-admin.txt en el servidor.');
+                "servidor (ya está fuera de la carpeta pública del sitio, pero no hace falta\n" .
+                "dejarlo ahí): rm " . $rutaAviso . "\n");
+            error_log('Sakoneta: se ha generado una contraseña de administrador inicial. Consulta ' . $rutaAviso . ' en el servidor.');
         }
 
         $stmt = $pdo->prepare('INSERT INTO usuarios (usuario, nombre, password_hash, rol, activo, creado, session_version) VALUES (?,?,?,?,1,?,1)');
