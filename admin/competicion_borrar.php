@@ -13,6 +13,7 @@ exigirCsrf();
 $pdo = getDb();
 $id = (int)($_POST['id'] ?? 0);
 if ($id) {
+    $pdo->prepare('DELETE FROM competicion_categorias WHERE competicion_id = ?')->execute([$id]);
     $stmt = $pdo->prepare('DELETE FROM competiciones WHERE id = ?');
     $stmt->execute([$id]);
 }

@@ -6,11 +6,25 @@ $pdo = getDb();
 $paginaActual = 'competiciones';
 $tituloPagina = 'Próximas competiciones';
 
-$competiciones = $pdo->query("SELECT * FROM competiciones WHERE disputada = 0 ORDER BY fecha ASC")->fetchAll();
+$competiciones = $pdo->query("
+    SELECT c.*, (
+        SELECT GROUP_CONCAT(categoria, ',') FROM (
+            SELECT cc.categoria FROM competicion_categorias cc
+            JOIN categorias cat ON cat.nombre = cc.categoria
+            WHERE cc.competicion_id = c.id
+            ORDER BY cat.orden ASC
+        )
+    ) AS categorias_lista
+    FROM competiciones c
+    WHERE c.disputada = 0
+    ORDER BY c.fecha ASC
+")->fetchAll();
 $categoriasPresentes = [];
 foreach ($competiciones as $c) {
-    if ($c['categoria'] && !in_array($c['categoria'], $categoriasPresentes, true)) {
-        $categoriasPresentes[] = $c['categoria'];
+    foreach (explode(',', $c['categorias_lista'] ?? '') as $cat) {
+        if ($cat !== '' && !in_array($cat, $categoriasPresentes, true)) {
+            $categoriasPresentes[] = $cat;
+        }
     }
 }
 
@@ -38,10 +52,10 @@ require __DIR__ . '/includes/header.php';
 
     <div class="grid-competiciones" id="grid-filtrable-competiciones">
       <?php foreach ($competiciones as $c): ?>
-      <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categoria']) ?>">
+      <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categorias_lista'] ?? '') ?>">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
           <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.05" data-parallax-limite="16">
-          <span class="tarjeta-competicion-categoria"><?= e($c['categoria']) ?></span>
+          <span class="tarjeta-competicion-categoria"><?= e(str_replace(',', ' · ', $c['categorias_lista'] ?? '')) ?></span>
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>

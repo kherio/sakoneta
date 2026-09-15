@@ -630,6 +630,9 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .suscripcion-aviso-error { color: #F2A0A0; }
 
 /* ---------- Aviso de "desliza" entre competiciones (solo móvil) ---------- */
+@media (max-width: 860px) and (pointer: coarse) {
+  html, body { overflow-x: clip; }
+}
 .aviso-swipe {
   display: none;
 }

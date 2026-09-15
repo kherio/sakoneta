@@ -22,12 +22,20 @@ $tituloPagina = $id ? 'Editar competición' : 'Nueva competición';
 $error = '';
 $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY orden ASC')->fetchAll(PDO::FETCH_COLUMN);
 
+$categoriasElegidas = $id
+    ? $pdo->query('SELECT categoria FROM competicion_categorias WHERE competicion_id = ' . (int)$id)->fetchAll(PDO::FETCH_COLUMN)
+    : [$competicion['categoria']];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $error = 'Alguna foto es demasiado grande para el límite de subida configurado en el servidor. Prueba con imágenes más ligeras (o pide que se aumenten "upload_max_filesize" y "post_max_size" en la configuración de PHP del servidor).';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigirCsrf();
     $competicion['nombre'] = trim($_POST['nombre'] ?? '');
-    $competicion['categoria'] = $_POST['categoria'] ?? 'Infantil';
+    $categoriasElegidas = array_values(array_intersect((array)($_POST['categorias'] ?? []), $categorias));
+    if (!$categoriasElegidas) {
+        $categoriasElegidas = [$categorias[0] ?? 'Infantil'];
+    }
+    $competicion['categoria'] = $categoriasElegidas[0];
     $competicion['lugar'] = trim($_POST['lugar'] ?? '');
     $competicion['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
     $competicion['disputada'] = isset($_POST['disputada']) ? 1 : 0;
@@ -50,6 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
             $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada, descripcion, imagen_posicion) VALUES (?,?,?,?,?,?,?,?)');
             $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion']]);
             $id = (int)$pdo->lastInsertId();
+        }
+
+        // Guardar el conjunto completo de categorías elegidas
+        $pdo->prepare('DELETE FROM competicion_categorias WHERE competicion_id = ?')->execute([$id]);
+        $stmtCat = $pdo->prepare('INSERT OR IGNORE INTO competicion_categorias (competicion_id, categoria) VALUES (?, ?)');
+        foreach ($categoriasElegidas as $cat) {
+            $stmtCat->execute([$id, $cat]);
         }
 
         // Subir las fotos y vídeos nuevos (se puede seleccionar varios a la vez)
@@ -137,12 +152,16 @@ require __DIR__ . '/includes/layout_header.php';
       <input type="text" id="nombre" name="nombre" value="<?= e($competicion['nombre']) ?>" required>
     </div>
     <div class="campo">
-      <label for="categoria">Categoría</label>
-      <select id="categoria" name="categoria">
+      <label>Categorías</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 0;">
         <?php foreach ($categorias as $c): ?>
-          <option value="<?= e($c) ?>" <?= $competicion['categoria'] === $c ? 'selected' : '' ?>><?= e($c) ?></option>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:14px;width:auto;">
+            <input type="checkbox" name="categorias[]" value="<?= e($c) ?>" style="width:auto;" <?= in_array($c, $categoriasElegidas, true) ? 'checked' : '' ?>>
+            <?= e($c) ?>
+          </label>
         <?php endforeach; ?>
-      </select>
+      </div>
+      <p style="font-size:12.5px;color:var(--gris);margin-top:-4px;">Marca todas las categorías que participen en esta competición (puede ser más de una).</p>
     </div>
   </div>
 

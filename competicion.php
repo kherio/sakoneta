@@ -30,6 +30,15 @@ $stmtAnterior = $pdo->prepare('SELECT id FROM competiciones WHERE fecha < ? ORDE
 $stmtAnterior->execute([$competicion['fecha']]);
 $idAnterior = $stmtAnterior->fetchColumn();
 
+$categoriasCompeticion = $pdo->prepare('
+    SELECT cc.categoria FROM competicion_categorias cc
+    JOIN categorias cat ON cat.nombre = cc.categoria
+    WHERE cc.competicion_id = ?
+    ORDER BY cat.orden ASC
+');
+$categoriasCompeticion->execute([$id]);
+$categoriasCompeticion = $categoriasCompeticion->fetchAll(PDO::FETCH_COLUMN) ?: [$competicion['categoria']];
+
 $stmtFotos = $pdo->prepare('SELECT * FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC');
 $stmtFotos->execute([$id]);
 $fotos = $stmtFotos->fetchAll();
@@ -50,7 +59,7 @@ require __DIR__ . '/includes/header.php';
   <div class="franja-portada-imagen franja-hero-foto" data-parallax="0.08" data-parallax-limite="40" style="background-image:url('img/<?= e($fotoPrincipal) ?>');background-position:<?= e(posicionCss($competicion['imagen_posicion'] ?? null)) ?>;"></div>
   <div class="contenedor franja-portada-texto">
     <div class="franja-competicion-subtitulo">
-      <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e($competicion['categoria']) ?></span>
+      <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e(implode(' · ', $categoriasCompeticion)) ?></span>
       · <?= e(formatearFecha($competicion['fecha'])) ?> · <?= e($competicion['lugar']) ?>
       <?php if ($competicion['disputada']): ?>
         · <?= e($competicion['resultado'] ?: t('disputada')) ?>

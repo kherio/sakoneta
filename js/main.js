@@ -125,31 +125,60 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // --- Swipe entre competiciones (solo móvil/táctil) ---
+  // --- Swipe entre competiciones (solo móvil/táctil), con desplazamiento visual ---
   var datosSwipe = document.getElementById('swipe-competicion');
   if (datosSwipe && window.matchMedia('(max-width: 860px) and (pointer: coarse)').matches) {
     var urlAnterior = datosSwipe.getAttribute('data-anterior');
     var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
-    var inicioX = null, inicioY = null;
+    var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false;
+    var anchoPantalla = window.innerWidth;
 
     document.addEventListener('touchstart', function (e) {
+      if (navegando) return;
       inicioX = e.touches[0].clientX;
       inicioY = e.touches[0].clientY;
+      arrastrando = true;
+      esHorizontal = null;
+      document.body.style.transition = 'none';
     }, { passive: true });
 
+    document.addEventListener('touchmove', function (e) {
+      if (!arrastrando || inicioX === null) return;
+      var deltaX = e.touches[0].clientX - inicioX;
+      var deltaY = e.touches[0].clientY - inicioY;
+
+      if (esHorizontal === null && (Math.abs(deltaX) > 12 || Math.abs(deltaY) > 12)) {
+        esHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.3;
+      }
+      if (!esHorizontal) return;
+
+      // No dejar arrastrar hacia un lado que no tiene competición: se
+      // nota "elástico" (con resistencia) en vez de moverse a lo tonto
+      var tieneDestino = (deltaX < 0 && urlSiguiente) || (deltaX > 0 && urlAnterior);
+      var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
+
+      document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
+      e.preventDefault();
+    }, { passive: false });
+
     document.addEventListener('touchend', function (e) {
-      if (inicioX === null) return;
+      if (!arrastrando || inicioX === null) { arrastrando = false; return; }
+      arrastrando = false;
       var deltaX = e.changedTouches[0].clientX - inicioX;
-      var deltaY = e.changedTouches[0].clientY - inicioY;
       inicioX = null;
+      if (!esHorizontal) return;
 
-      // Solo cuenta como swipe si el movimiento es sobre todo horizontal
-      if (Math.abs(deltaX) < 70 || Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+      var umbralSuperado = Math.abs(deltaX) > anchoPantalla * 0.22;
+      var destino = deltaX < 0 ? urlSiguiente : urlAnterior;
 
-      if (deltaX < 0 && urlSiguiente) {
-        window.location.href = urlSiguiente;
-      } else if (deltaX > 0 && urlAnterior) {
-        window.location.href = urlAnterior;
+      document.body.style.transition = 'transform .28s cubic-bezier(.32,.72,0,1)';
+
+      if (umbralSuperado && destino) {
+        navegando = true;
+        document.body.style.transform = 'translateX(' + (deltaX < 0 ? -anchoPantalla : anchoPantalla) + 'px)';
+        setTimeout(function () { window.location.href = destino; }, 260);
+      } else {
+        document.body.style.transform = 'translateX(0)';
       }
     }, { passive: true });
 
@@ -248,7 +277,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (botonTodas) botonTodas.classList.toggle('activo', mostrarTodas);
 
       Array.from(tarjetas).forEach(function (tarjeta) {
-        var coincide = mostrarTodas || activas.indexOf(tarjeta.getAttribute('data-categoria')) !== -1;
+        var categoriasTarjeta = (tarjeta.getAttribute('data-categoria') || '').split(',');
+        var coincide = mostrarTodas || activas.some(function (activa) { return categoriasTarjeta.indexOf(activa) !== -1; });
         tarjeta.style.display = coincide ? '' : 'none';
       });
     }

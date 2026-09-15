@@ -65,4 +65,11 @@ if ($count === 0) {
     foreach ($competiciones as $c) $stmt->execute($c);
 }
 
+// Por si acaso alguna competición (de ejemplo o real) tiene categoría
+// en la columna antigua pero todavía no tiene fila en la tabla de
+// categorías múltiples (por ejemplo, en una instalación nueva, donde
+// esto se inserta DESPUÉS de que se hayan creado las migraciones).
+$pdo->exec("INSERT OR IGNORE INTO competicion_categorias (competicion_id, categoria)
+            SELECT id, categoria FROM competiciones WHERE categoria IS NOT NULL AND categoria != ''");
+
 echo "Base de datos creada e inicializada correctamente en data/club.sqlite";
