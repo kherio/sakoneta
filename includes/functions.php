@@ -96,7 +96,7 @@ function resetearIntentosLogin(PDO $pdo): void {
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 2;
+const VERSION_ESQUEMA_SAKONETA = 3;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -151,6 +151,18 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_portada', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_categorias (
+        competicion_id INTEGER NOT NULL,
+        categoria TEXT NOT NULL,
+        PRIMARY KEY (competicion_id, categoria)
+    )");
+    // Migración: cada competición que ya tuviera una categoría en la
+    // columna antigua pasa a tener también esa misma categoría aquí,
+    // sin perder nada. A partir de ahora una competición puede tener
+    // varias a la vez.
+    $pdo->exec("INSERT OR IGNORE INTO competicion_categorias (competicion_id, categoria)
+                SELECT id, categoria FROM competiciones WHERE categoria IS NOT NULL AND categoria != ''");
 
     foreach (['competicion_fotos' => 'competicion_id', 'noticia_fotos' => 'noticia_id', 'gimnasta_fotos' => 'gimnasta_id', 'categoria_fotos' => 'categoria_id'] as $tabla => $columnaId) {
         $pdo->exec("CREATE TABLE IF NOT EXISTS $tabla (

@@ -19,7 +19,12 @@ $stmtGimnastas = $pdo->prepare('SELECT * FROM gimnastas WHERE categoria = ? ORDE
 $stmtGimnastas->execute([$nombreCategoria]);
 $gimnastas = $stmtGimnastas->fetchAll();
 
-$stmtCompeticiones = $pdo->prepare('SELECT * FROM competiciones WHERE categoria = ? ORDER BY fecha DESC');
+$stmtCompeticiones = $pdo->prepare('
+    SELECT c.* FROM competiciones c
+    JOIN competicion_categorias cc ON cc.competicion_id = c.id
+    WHERE cc.categoria = ?
+    ORDER BY c.fecha DESC
+');
 $stmtCompeticiones->execute([$nombreCategoria]);
 $competiciones = $stmtCompeticiones->fetchAll();
 

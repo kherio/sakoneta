@@ -134,6 +134,17 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   administradores). La cuenta `admin` de siempre se ha convertido
   automáticamente en el primer usuario, con rol administrador y la
   misma contraseña que ya tenía.
+- **Una competición puede tener varias categorías a la vez** (por
+  ejemplo, "Base" y "Alevín" juntas si compiten en el mismo
+  campeonato). Se marcan con casillas al crear o editar la
+  competición, y se muestran siempre en el orden de categorías del
+  club, sea cual sea el orden en que se marquen.
+- **Swipe visual entre competiciones en el móvil**: al deslizar el
+  dedo, la página se mueve de verdad siguiéndolo (con un poco de
+  resistencia si no hay competición en esa dirección), y si se supera
+  cerca de una cuarta parte de la pantalla, termina de deslizarse
+  fuera antes de pasar a la otra competición. Si no se supera, vuelve
+  a su sitio con una animación suave.
 - **Filtro de categorías con selección múltiple**: en noticias,
   gimnastas y competiciones se pueden marcar varias categorías a la
   vez (antes solo una).

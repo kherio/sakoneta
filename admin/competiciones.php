@@ -13,19 +13,26 @@ $buscar = trim($_GET['buscar'] ?? '');
 $categoriaFiltro = trim($_GET['categoria'] ?? '');
 $categorias = $pdo->query('SELECT nombre FROM categorias ORDER BY orden ASC')->fetchAll(PDO::FETCH_COLUMN);
 
-$sql = 'SELECT * FROM competiciones WHERE 1=1';
+$sql = 'SELECT c.*, (
+    SELECT GROUP_CONCAT(categoria, ", ") FROM (
+        SELECT cc.categoria FROM competicion_categorias cc
+        JOIN categorias cat ON cat.nombre = cc.categoria
+        WHERE cc.competicion_id = c.id
+        ORDER BY cat.orden ASC
+    )
+) AS categorias_lista FROM competiciones c WHERE 1=1';
 $parametros = [];
 if ($buscar !== '') {
-    $sql .= ' AND (nombre LIKE ? OR lugar LIKE ?)';
+    $sql .= ' AND (c.nombre LIKE ? OR c.lugar LIKE ?)';
     $comodin = '%' . $buscar . '%';
     $parametros[] = $comodin;
     $parametros[] = $comodin;
 }
 if ($categoriaFiltro !== '') {
-    $sql .= ' AND categoria = ?';
+    $sql .= ' AND c.id IN (SELECT competicion_id FROM competicion_categorias WHERE categoria = ?)';
     $parametros[] = $categoriaFiltro;
 }
-$sql .= ' ORDER BY fecha ASC';
+$sql .= ' ORDER BY c.fecha ASC';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($parametros);
 $competiciones = $stmt->fetchAll();
@@ -69,7 +76,7 @@ require __DIR__ . '/includes/layout_header.php';
       </td>
       <td><?= e($c['fecha']) ?></td>
       <td><?= e($c['nombre']) ?></td>
-      <td><?= e($c['categoria']) ?></td>
+      <td><?= e($c['categorias_lista'] ?: $c['categoria']) ?></td>
       <td><?= e($c['lugar']) ?></td>
       <td><?= $c['disputada'] ? e($c['resultado'] ?: 'Disputada') : 'Pendiente' ?></td>
       <td class="acciones">
