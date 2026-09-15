@@ -50,6 +50,36 @@ function esAdministrador(): bool {
 }
 
 /**
+ * Un colaborador solo puede editar (o borrar fotos de) sus propias
+ * noticias, y solo mientras sigan sin publicar. Una vez publicada, o
+ * si es de otra persona, ya no puede tocarla — la seguirá viendo en
+ * el listado, pero sin opción de editar. Administradores y editores
+ * no tienen esta limitación.
+ */
+function puedeEditarNoticia(array $noticia): bool {
+    if (rolActual() !== 'colaborador') {
+        return true;
+    }
+    $miId = (int)($_SESSION['admin_usuario_id'] ?? 0);
+    return (int)($noticia['autor_id'] ?? 0) === $miId && !$noticia['publicado'];
+}
+
+/**
+ * Corta la ejecución con un 403 si la persona conectada no puede
+ * editar esta noticia (ver puedeEditarNoticia).
+ */
+function exigirPuedeEditarNoticia(array $noticia): void {
+    if (puedeEditarNoticia($noticia)) {
+        return;
+    }
+    http_response_code(403);
+    require __DIR__ . '/layout_header.php';
+    echo '<h1>Sin permiso</h1><p>Como colaborador, solo puedes editar tus propias noticias mientras sigan sin publicar.</p>';
+    require __DIR__ . '/layout_footer.php';
+    exit;
+}
+
+/**
  * Corta la ejecución (con un mensaje claro) si la persona conectada no
  * tiene ninguno de los roles indicados. Debe llamarse justo después de
  * exigirAutenticacion().

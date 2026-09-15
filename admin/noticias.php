@@ -53,7 +53,9 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= e($n['fecha']) ?></td>
       <td><?= $n['publicado'] ? 'Publicada' : 'Borrador' ?></td>
       <td class="acciones">
+        <?php if (puedeEditarNoticia($n)): ?>
         <a href="noticia_form.php?id=<?= (int)$n['id'] ?>" class="editar">Editar</a>
+        <?php endif; ?>
         <?php if (rolActual() !== 'colaborador'): ?>
         <form method="post" action="noticia_borrar.php" onsubmit="return confirm('¿Seguro que quieres borrar esta noticia?');">
           <?= campoCsrf() ?>
