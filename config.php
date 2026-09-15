@@ -13,7 +13,7 @@ define('DB_PATH', __DIR__ . '/data/club.sqlite');
 // mano. El hash de aquí abajo es solo el que se usa la primerísima
 // vez, antes de que nadie haya cambiado la contraseña desde la web.
 define('ADMIN_USER', 'admin');
-define('ADMIN_PASS_HASH', '$2b$10$F7HjHqmCpX.6v6s7lIjbiuRV5vhrdFq.hRqGbHZHF3vwDJrr/Ilzy');
+define('ADMIN_PASS_HASH', '$2y$10$axoFNkh833n2taG6/D5o1eoBERgp/059yTcHeqP3viRFwEVti08fy');
 
 date_default_timezone_set('Europe/Madrid');
 
