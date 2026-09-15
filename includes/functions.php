@@ -96,7 +96,7 @@ function resetearIntentosLogin(PDO $pdo): void {
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 1;
+const VERSION_ESQUEMA_SAKONETA = 2;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -172,7 +172,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     )");
     $pdo->exec("INSERT OR IGNORE INTO ajustes (id, splash_activo, splash_imagen, inicio_imagen, inicio_imagen_titulo)
                 VALUES (1, 0, NULL, NULL, NULL)");
-    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto', 'nombre_sitio', 'eslogan_sitio', 'admin_password_hash', 'pie_titulo', 'pie_texto'] as $columnaAjuste) {
+    foreach (['sobre_historia', 'sobre_palmares', 'hero_kicker', 'hero_titulo', 'hero_texto', 'nombre_sitio', 'eslogan_sitio', 'admin_password_hash', 'pie_titulo', 'pie_texto', 'hero_titulo_tamano'] as $columnaAjuste) {
         agregarColumnaSiFalta($pdo, 'ajustes', $columnaAjuste, 'TEXT');
     }
     foreach ([1, 2, 3, 4] as $n) {
