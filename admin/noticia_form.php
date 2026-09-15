@@ -31,7 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $noticia['contenido'] = trim($_POST['contenido'] ?? '');
     $noticia['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
     $noticia['publicado'] = (isset($_POST['publicado']) && rolActual() !== 'colaborador') ? 1 : 0;
-    $noticia['imagen_posicion'] = in_array($_POST['imagen_posicion'] ?? '', ['arriba', 'centro', 'abajo'], true) ? $_POST['imagen_posicion'] : 'arriba';
+    if (preg_match('/^(\d{1,3})\s+(\d{1,3})$/', trim($_POST['imagen_posicion'] ?? ''), $m) && (int)$m[1] <= 100 && (int)$m[2] <= 100) {
+        $noticia['imagen_posicion'] = (int)$m[1] . ' ' . (int)$m[2];
+    } else {
+        $noticia['imagen_posicion'] = $noticia['imagen_posicion'] ?? '50 12';
+    }
 
     if ($noticia['titulo'] === '' || $noticia['resumen'] === '' || $noticia['contenido'] === '') {
         $error = 'Título, resumen y contenido son obligatorios.';
@@ -154,13 +158,18 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
 
   <div class="campo">
-    <label for="imagen_posicion">Encuadre de la foto principal (en la cabecera de la noticia)</label>
-    <select id="imagen_posicion" name="imagen_posicion">
-      <option value="arriba" <?= ($noticia['imagen_posicion'] ?? 'arriba') === 'arriba' ? 'selected' : '' ?>>Arriba (evita cortar caras)</option>
-      <option value="centro" <?= ($noticia['imagen_posicion'] ?? '') === 'centro' ? 'selected' : '' ?>>Centro</option>
-      <option value="abajo" <?= ($noticia['imagen_posicion'] ?? '') === 'abajo' ? 'selected' : '' ?>>Abajo</option>
-    </select>
-    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">La cabecera es bastante alta; esto decide qué parte de la foto se ve.</p>
+    <label>Encuadre de la foto principal (en la cabecera de la noticia)</label>
+    <?php if (!empty($noticia['imagen'])): [$posX, $posY] = posicionXY($noticia['imagen_posicion'] ?? null); ?>
+      <div class="selector-encuadre" id="selector-encuadre" style="background-image:url('../img/<?= e($noticia['imagen']) ?>');">
+        <div class="selector-encuadre-rejilla"></div>
+        <div class="selector-encuadre-marca" id="marca-encuadre" style="left:<?= $posX ?>%;top:<?= $posY ?>%;"></div>
+      </div>
+      <input type="hidden" name="imagen_posicion" id="imagen_posicion_input" value="<?= $posX ?> <?= $posY ?>">
+      <p style="font-size:12.5px;color:var(--gris);margin-top:6px;">Haz clic o arrastra sobre la foto para marcar qué parte quieres que se vea en la cabecera (que es bastante alta).</p>
+    <?php else: ?>
+      <input type="hidden" name="imagen_posicion" value="50 12">
+      <p style="font-size:13px;color:var(--gris);">Guarda primero una foto principal; después podrás ajustar aquí mismo qué parte se ve en la cabecera.</p>
+    <?php endif; ?>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
