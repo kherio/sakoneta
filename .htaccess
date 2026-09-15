@@ -25,25 +25,33 @@
     php_value max_input_time 300
 </IfModule>
 
-# Bloquear el acceso directo desde el navegador a la carpeta .git y a
-# cualquier archivo oculto (dotfile). Sin esto, alguien podría
-# descargarse todo el código y el historial del repositorio con solo
-# conocer la URL, incluidas versiones antiguas de archivos.
+# Bloquear cualquier URL que pase por una carpeta .git (ej. /.git/config,
+# /.git/HEAD, /.git/objects/...). RewriteRule sí es válido en .htaccess
+# (a diferencia de <DirectoryMatch>, que NO lo es y podía provocar un
+# error 500 aquí). La mayoría de archivos dentro de .git/ no empiezan
+# por punto (config, HEAD, objects/...), así que hace falta esto y no
+# solo bloquear "archivos ocultos".
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule "(^|/)\.git(/|$)" - [F,L]
+</IfModule>
+
+# Bloquear también el acceso directo a cualquier otro archivo oculto
+# (dotfile) como refuerzo adicional.
 <IfModule mod_authz_core.c>
-    <DirectoryMatch "(^|/)\.git">
-        Require all denied
-    </DirectoryMatch>
     <FilesMatch "^\.">
         Require all denied
     </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
-    <DirectoryMatch "(^|/)\.git">
-        Order allow,deny
-        Deny from all
-    </DirectoryMatch>
     <FilesMatch "^\.">
         Order allow,deny
         Deny from all
     </FilesMatch>
 </IfModule>
+
+# IMPORTANTE: esto es un cierre de emergencia, no la solución de
+# verdad. Lo correcto es que la carpeta .git NUNCA llegue al servidor
+# de producción — despliega copiando solo los archivos del proyecto,
+# o con "git archive", no clonando el repositorio directamente dentro
+# del docroot público si puedes evitarlo.

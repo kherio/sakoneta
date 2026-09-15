@@ -18,6 +18,10 @@ $roles = [
 
 $error = '';
 
+function numeroAdministradoresActivos(PDO $pdo): int {
+    return (int)$pdo->query("SELECT COUNT(*) FROM usuarios WHERE rol = 'administrador' AND activo = 1")->fetchColumn();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigirCsrf();
 
@@ -47,29 +51,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['cambiar_rol'])) {
         $id = (int)$_POST['id'];
         $rol = $_POST['rol'] ?? '';
-        if (array_key_exists($rol, $roles) && $id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+        $stmtObjetivo->execute([$id]);
+        $objetivo = $stmtObjetivo->fetch();
+
+        if (!array_key_exists($rol, $roles) || $id === (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+            // nada que hacer: rol inválido o intentando cambiarse el rol a sí mismo
+        } elseif ($objetivo && $objetivo['rol'] === 'administrador' && $objetivo['activo'] && $rol !== 'administrador' && numeroAdministradoresActivos($pdo) <= 1) {
+            $error = 'No puedes quitarle el rol de administrador: es el único que queda activo.';
+        } else {
             $pdo->prepare('UPDATE usuarios SET rol = ? WHERE id = ?')->execute([$rol, $id]);
         }
-        redirigir('usuarios.php?ok=1');
+        if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['alternar_activo'])) {
         $id = (int)$_POST['id'];
-        if ($id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
-            $pdo->prepare('UPDATE usuarios SET activo = 1 - activo WHERE id = ?')->execute([$id]);
+        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+        $stmtObjetivo->execute([$id]);
+        $objetivo = $stmtObjetivo->fetch();
+
+        if ($objetivo && $id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+            if ($objetivo['rol'] === 'administrador' && $objetivo['activo'] && numeroAdministradoresActivos($pdo) <= 1) {
+                $error = 'No puedes desactivar al único administrador activo que queda.';
+            } else {
+                // Al desactivar, invalidamos también cualquier sesión abierta de esa cuenta
+                $pdo->prepare('UPDATE usuarios SET activo = 1 - activo, session_version = session_version + 1 WHERE id = ?')->execute([$id]);
+            }
         }
-        redirigir('usuarios.php?ok=1');
+        if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['borrar'])) {
         $id = (int)$_POST['id'];
-        if ($id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
-            $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+        $stmtObjetivo->execute([$id]);
+        $objetivo = $stmtObjetivo->fetch();
+
+        if ($objetivo && $id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+            if ($objetivo['rol'] === 'administrador' && $objetivo['activo'] && numeroAdministradoresActivos($pdo) <= 1) {
+                $error = 'No puedes borrar al único administrador activo que queda.';
+            } else {
+                $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+            }
         }
-        redirigir('usuarios.php?ok=1');
+        if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['resetear_clave'])) {
         $id = (int)$_POST['id'];
         $nueva = $_POST['nueva_clave'] ?? '';
         if (strlen($nueva) < 8) {
             $error = 'La contraseña nueva debe tener al menos 8 caracteres.';
         } else {
-            $pdo->prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?')->execute([password_hash($nueva, PASSWORD_DEFAULT), $id]);
+            // Invalida también cualquier sesión que esa persona tuviera abierta
+            $pdo->prepare('UPDATE usuarios SET password_hash = ?, session_version = session_version + 1 WHERE id = ?')->execute([password_hash($nueva, PASSWORD_DEFAULT), $id]);
             redirigir('usuarios.php?ok=1');
         }
     }

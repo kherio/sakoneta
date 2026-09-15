@@ -8,12 +8,14 @@ define('SITE_SHORT', 'Sakoneta');
 define('SITE_CLAIM', 'Erritmoa, grazia eta talde-lana');
 define('DB_PATH', __DIR__ . '/data/club.sqlite');
 
-// Contraseña de administrador: se cambia SIEMPRE desde el panel
-// ("Cambiar contraseña" en el menú), nunca editando este archivo a
-// mano. El hash de aquí abajo es solo el que se usa la primerísima
-// vez, antes de que nadie haya cambiado la contraseña desde la web.
+// Nombre de usuario del primer administrador. La contraseña NUNCA se
+// guarda aquí: la primera vez que se instala el sitio (o tras esta
+// actualización, si el sitio ya existía) se genera sola al azar y se
+// escribe una única vez en data/contrasena-inicial-admin.txt — nunca
+// en un archivo de código, porque un repositorio puede acabar siendo
+// público y ese dato quedaría ahí para siempre. Cambia la contraseña
+// cuanto antes desde "Cambiar contraseña" en el panel.
 define('ADMIN_USER', 'admin');
-define('ADMIN_PASS_HASH', '$2b$10$F7HjHqmCpX.6v6s7lIjbiuRV5vhrdFq.hRqGbHZHF3vwDJrr/Ilzy');
 
 date_default_timezone_set('Europe/Madrid');
 

@@ -35,7 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'La nueva contraseña y su repetición no coinciden.';
     } else {
         $nuevoHash = password_hash($nueva, PASSWORD_DEFAULT);
-        $pdo->prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?')->execute([$nuevoHash, $miId]);
+        $pdo->prepare('UPDATE usuarios SET password_hash = ?, session_version = session_version + 1 WHERE id = ?')->execute([$nuevoHash, $miId]);
+        // Actualizamos también la sesión actual para no cerrarnos a
+        // nosotros mismos: solo se invalidan las DEMÁS sesiones abiertas
+        // con la contraseña antigua.
+        $_SESSION['admin_session_version']++;
         $exito = true;
     }
 }

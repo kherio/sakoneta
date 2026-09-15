@@ -191,8 +191,45 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         password_hash TEXT NOT NULL,
         rol TEXT NOT NULL DEFAULT 'colaborador',
         activo INTEGER NOT NULL DEFAULT 1,
-        creado TEXT NOT NULL
+        creado TEXT NOT NULL,
+        session_version INTEGER NOT NULL DEFAULT 1
     )");
+    agregarColumnaSiFalta($pdo, 'usuarios', 'session_version', 'INTEGER NOT NULL DEFAULT 1');
+
+    // Igual que las tablas y columnas, el primer usuario administrador
+    // también se crea solo, sin depender de que alguien ejecute
+    // init_db.php a mano tras esta actualización. Se respeta la
+    // contraseña que ya hubiera (cambiada desde el panel de Ajustes en
+    // versiones anteriores); si no había ninguna, se genera una nueva
+    // al azar en este mismo momento — nunca se usa un hash fijo
+    // guardado en el código fuente, porque un repositorio puede llegar
+    // a ser público y ese hash quedaría ahí para siempre.
+    $numUsuarios = (int)$pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
+    if ($numUsuarios === 0) {
+        $columnasAjustes = $pdo->query('PRAGMA table_info(ajustes)')->fetchAll();
+        $hashPrevio = null;
+        if (in_array('admin_password_hash', array_column($columnasAjustes, 'name'), true)) {
+            $hashPrevio = $pdo->query('SELECT admin_password_hash FROM ajustes WHERE id = 1')->fetchColumn();
+        }
+
+        if ($hashPrevio) {
+            $hashInicial = $hashPrevio;
+        } else {
+            $claveGenerada = bin2hex(random_bytes(9)); // 18 caracteres hexadecimales
+            $hashInicial = password_hash($claveGenerada, PASSWORD_DEFAULT);
+            $rutaAviso = __DIR__ . '/../data/contrasena-inicial-admin.txt';
+            @file_put_contents($rutaAviso, "Usuario: " . ADMIN_USER . "\nContraseña inicial: $claveGenerada\n\n" .
+                "Este archivo se generó automáticamente porque no había ninguna contraseña de\n" .
+                "administrador guardada todavía. Entra con estos datos y cámbiala cuanto antes\n" .
+                "desde \"Cambiar contraseña\" en el panel. Después, borra este archivo del\n" .
+                "servidor (no es accesible desde el navegador, pero no hace falta dejarlo ahí):\n" .
+                "rm data/contrasena-inicial-admin.txt\n");
+            error_log('Sakoneta: se ha generado una contraseña de administrador inicial. Consulta data/contrasena-inicial-admin.txt en el servidor.');
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO usuarios (usuario, nombre, password_hash, rol, activo, creado, session_version) VALUES (?,?,?,?,1,?,1)');
+        $stmt->execute([ADMIN_USER, 'Administrador', $hashInicial, 'administrador', date('Y-m-d H:i:s')]);
+    }
 }
 
 /**
@@ -541,6 +578,26 @@ function limpiarReferenciasArchivo(PDO $pdo, string $archivo): void {
     if (is_file($rutaCompleta)) {
         @unlink($rutaCompleta);
     }
+}
+
+/**
+ * Lista los archivos (fotos y vídeos) ya subidos a img/subidas/, del
+ * más reciente al más antiguo. Se usa para poder elegir una foto ya
+ * subida en vez de tener que volver a subirla.
+ */
+function listarMediaSubida(): array {
+    $carpeta = __DIR__ . '/../img/subidas';
+    if (!is_dir($carpeta)) return [];
+    $archivos = glob($carpeta . '/*.{jpg,jpeg,png,webp,mp4,webm,mov}', GLOB_BRACE);
+    usort($archivos, fn($a, $b) => filemtime($b) <=> filemtime($a));
+
+    $resultado = [];
+    foreach ($archivos as $rutaCompleta) {
+        $relativa = 'subidas/' . basename($rutaCompleta);
+        $extension = strtolower(pathinfo($relativa, PATHINFO_EXTENSION));
+        $resultado[] = ['archivo' => $relativa, 'tipo' => in_array($extension, ['mp4', 'webm', 'mov'], true) ? 'video' : 'imagen'];
+    }
+    return $resultado;
 }
 
 function obtenerAjustes(PDO $pdo): array {

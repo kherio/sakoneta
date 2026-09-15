@@ -51,19 +51,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         $erroresFotos = [];
         $fotosNuevas = procesarImagenesMultiples('fotos', $erroresFotos);
 
-        if ($fotosNuevas) {
+        // Añadir también las fotos elegidas de la biblioteca (ya subidas
+        // antes desde cualquier otra parte del sitio)
+        $seleccionBiblioteca = $_POST['fotos_biblioteca'] ?? [];
+        $fotosDeBiblioteca = [];
+        if (is_array($seleccionBiblioteca)) {
+            $mediaDisponible = array_column(listarMediaSubida(), null, 'archivo');
+            foreach ($seleccionBiblioteca as $archivoElegido) {
+                if (isset($mediaDisponible[$archivoElegido])) {
+                    $fotosDeBiblioteca[] = $mediaDisponible[$archivoElegido];
+                }
+            }
+        }
+        $fotosAAgregar = array_merge($fotosNuevas, $fotosDeBiblioteca);
+
+        if ($fotosAAgregar) {
             $maxOrden = (int)$pdo->query('SELECT COALESCE(MAX(orden), 0) m FROM competicion_fotos WHERE competicion_id = ' . (int)$id)->fetch()['m'];
             $stmtFoto = $pdo->prepare('INSERT INTO competicion_fotos (competicion_id, archivo, orden, tipo) VALUES (?, ?, ?, ?)');
-            foreach ($fotosNuevas as $i => $media) {
+            foreach ($fotosAAgregar as $i => $media) {
                 $stmtFoto->execute([$id, $media['archivo'], $maxOrden + $i + 1, $media['tipo']]);
             }
         }
 
         // Determinar la foto de portada (solo puede ser una imagen): la
         // elegida entre las existentes, o si no había ninguna todavía, la
-        // primera imagen subida en este envío.
+        // primera imagen añadida en este envío.
         $primeraImagenNueva = null;
-        foreach ($fotosNuevas as $media) {
+        foreach ($fotosAAgregar as $media) {
             if ($media['tipo'] === 'imagen') { $primeraImagenNueva = $media['archivo']; break; }
         }
         $portadaElegida = trim($_POST['portada_existente'] ?? '');
@@ -87,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 
 $fotos = $id ? $pdo->prepare('SELECT * FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC') : null;
 if ($fotos) { $fotos->execute([$id]); $fotos = $fotos->fetchAll(); } else { $fotos = []; }
+
+$archivosYaEnGaleria = array_column($fotos, 'archivo');
+$mediaBiblioteca = array_filter(listarMediaSubida(), fn($m) => !in_array($m['archivo'], $archivosYaEnGaleria, true));
 
 // Releer la portada actual por si se acaba de actualizar en este envío
 if ($id) {
@@ -189,6 +206,24 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
   <?php if (!$id): ?>
     <p style="font-size:13px;color:var(--gris);margin-top:-10px;">Al guardar por primera vez, la primera foto que subas se usará como portada automáticamente. Podrás cambiarla después.</p>
+  <?php endif; ?>
+
+  <?php if ($mediaBiblioteca): ?>
+  <details style="margin-bottom:18px;">
+    <summary style="cursor:pointer;font-weight:600;font-size:14.5px;color:var(--morado);">O elige entre las fotos y vídeos ya subidos antes (<?= count($mediaBiblioteca) ?>)</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:12px;max-height:340px;overflow-y:auto;padding:4px;">
+      <?php foreach ($mediaBiblioteca as $m): ?>
+        <label style="cursor:pointer;border:1.5px solid var(--borde);border-radius:8px;padding:5px;text-align:center;display:block;">
+          <input type="checkbox" name="fotos_biblioteca[]" value="<?= e($m['archivo']) ?>" style="width:auto;margin-bottom:4px;">
+          <?php if ($m['tipo'] === 'video'): ?>
+            <video src="../img/<?= e($m['archivo']) ?>" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:5px;display:block;" muted></video>
+          <?php else: ?>
+            <img src="../img/<?= e($m['archivo']) ?>" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:5px;display:block;">
+          <?php endif; ?>
+        </label>
+      <?php endforeach; ?>
+    </div>
+  </details>
   <?php endif; ?>
 
   <button type="submit" class="btn">Guardar competición</button>

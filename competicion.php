@@ -37,18 +37,18 @@ require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="franja-portada franja-competicion animar-scroll">
-  <div class="franja-portada-imagen" data-parallax="0.08" data-parallax-limite="40" style="background-image:url('img/<?= e($fotoPrincipal) ?>');"></div>
+  <div class="franja-portada-imagen franja-hero-foto" data-parallax="0.08" data-parallax-limite="40" style="background-image:url('img/<?= e($fotoPrincipal) ?>');"></div>
   <div class="contenedor franja-portada-texto">
-    <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;margin-bottom:10px;"><?= e($competicion['categoria']) ?></span>
-    <h2><?= e($competicion['nombre']) ?></h2>
-    <p>
-      <?= e(formatearFecha($competicion['fecha'])) ?> · <?= e($competicion['lugar']) ?>
+    <div class="franja-competicion-subtitulo">
+      <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e($competicion['categoria']) ?></span>
+      · <?= e(formatearFecha($competicion['fecha'])) ?> · <?= e($competicion['lugar']) ?>
       <?php if ($competicion['disputada']): ?>
         · <?= e($competicion['resultado'] ?: t('disputada')) ?>
       <?php else: ?>
         · <?= t('pendiente') ?>
       <?php endif; ?>
-    </p>
+    </div>
+    <h2><?= e($competicion['nombre']) ?></h2>
   </div>
 </section>
 

@@ -140,7 +140,7 @@ require __DIR__ . '/includes/layout_header.php';
 
   <h3 style="margin-top:0;">Fotos y vídeos</h3>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
-    Puedes subir varias fotos y vídeos. Marca cuál foto quieres usar
+    Puedes subir varias fotos y vídeos. Marca la foto que quieres usar
     como principal (los vídeos no se pueden usar como principal, pero
     sí se ven en la página de la gimnasta).
   </p>
