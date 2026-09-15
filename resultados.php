@@ -1,12 +1,15 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $pdo = getDb();
 $paginaActual = 'competiciones';
-$tituloPagina = 'Próximas competiciones';
+$tituloPagina = 'Resultados';
+$descripcionOG = 'Resultados de las competiciones ya disputadas por el club.';
+$migas = [['texto' => t('nav_competiciones'), 'url' => 'competiciones.php'], ['texto' => 'Resultados']];
 
-$competiciones = $pdo->query("SELECT * FROM competiciones WHERE disputada = 0 ORDER BY fecha ASC")->fetchAll();
+$competiciones = $pdo->query("SELECT * FROM competiciones WHERE disputada = 1 ORDER BY fecha DESC")->fetchAll();
 $categoriasPresentes = [];
 foreach ($competiciones as $c) {
     if ($c['categoria'] && !in_array($c['categoria'], $categoriasPresentes, true)) {
@@ -20,15 +23,15 @@ require __DIR__ . '/includes/header.php';
 <section class="seccion">
   <div class="contenedor">
     <div class="seccion-cabecera">
-      <h2><?= t('seccion_competiciones') ?></h2>
-      <a href="resultados.php">Ver resultados anteriores →</a>
+      <h2>Resultados</h2>
+      <a href="competiciones.php">← Ver próximas competiciones</a>
     </div>
 
     <?php if (!$competiciones): ?>
-      <p>No hay ninguna competición pendiente por ahora. <a href="resultados.php">Consulta los resultados de las ya disputadas</a>.</p>
+      <p>Todavía no hay ninguna competición disputada. <a href="competiciones.php">Consulta las próximas</a>.</p>
     <?php else: ?>
     <?php if (count($categoriasPresentes) > 1): ?>
-    <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-competiciones">
+    <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-resultados">
       <button type="button" class="activo" data-categoria="todas"><?= t('filtro_todas') ?></button>
       <?php foreach ($categoriasPresentes as $cat): ?>
         <button type="button" data-categoria="<?= e($cat) ?>"><?= e($cat) ?></button>
@@ -36,7 +39,7 @@ require __DIR__ . '/includes/header.php';
     </div>
     <?php endif; ?>
 
-    <div class="grid-competiciones" id="grid-filtrable-competiciones">
+    <div class="grid-competiciones" id="grid-filtrable-resultados">
       <?php foreach ($competiciones as $c): ?>
       <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categoria']) ?>">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
@@ -47,12 +50,8 @@ require __DIR__ . '/includes/header.php';
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
           <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
           <p class="lugar"><?= e($c['lugar']) ?></p>
-          <?php if ($c['disputada']): ?>
-            <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>
-            <span class="pill jugado"><?= t('disputada') ?></span>
-          <?php else: ?>
-            <span class="pill pendiente"><?= t('pendiente') ?></span>
-          <?php endif; ?>
+          <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>
+          <span class="pill jugado"><?= t('disputada') ?></span>
         </div>
       </article>
       <?php endforeach; ?>
