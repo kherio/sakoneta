@@ -132,7 +132,7 @@ $defectoEst = [
   <?php if (!empty($ajustes['splash_imagen'])): ?>
     <div style="margin-bottom:14px;">
       <img src="../img/<?= e($ajustes['splash_imagen']) ?>" alt="" style="max-width:280px;border-radius:8px;box-shadow:var(--sombra-chica);display:block;margin-bottom:6px;">
-      <a href="ajustes_imagen_borrar.php?campo=splash_imagen&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Quitar la foto de bienvenida? Esto también desactivará el splash.');">Quitar foto</a>
+      <button type="submit" formaction="ajustes_imagen_borrar.php" name="campo" value="splash_imagen" class="borrar" style="font-size:13px;" onclick="return confirm('¿Quitar la foto de bienvenida? Esto también desactivará el splash.');">Quitar foto</button>
     </div>
   <?php endif; ?>
 
@@ -176,7 +176,7 @@ $defectoEst = [
   <?php if (!empty($ajustes['inicio_imagen'])): ?>
     <div style="margin-bottom:14px;">
       <img src="../img/<?= e($ajustes['inicio_imagen']) ?>" alt="" style="max-width:280px;border-radius:8px;box-shadow:var(--sombra-chica);display:block;margin-bottom:6px;">
-      <a href="ajustes_imagen_borrar.php?campo=inicio_imagen&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Quitar la foto de portada de inicio?');">Quitar foto</a>
+      <button type="submit" formaction="ajustes_imagen_borrar.php" name="campo" value="inicio_imagen" class="borrar" style="font-size:13px;" onclick="return confirm('¿Quitar la foto de portada de inicio?');">Quitar foto</button>
     </div>
   <?php endif; ?>
 

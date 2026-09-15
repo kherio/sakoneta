@@ -38,17 +38,26 @@ require __DIR__ . '/includes/layout_header.php';
 
 <table class="admin-tabla">
   <thead>
-    <tr><th>Título</th><th>Fecha</th><th>Estado</th><th></th></tr>
+    <tr><th style="width:56px;"></th><th>Título</th><th>Fecha</th><th>Estado</th><th></th></tr>
   </thead>
   <tbody>
     <?php foreach ($noticias as $n): ?>
     <tr>
+      <td style="width:56px;">
+        <?php if (!empty($n['imagen'])): ?>
+          <img src="../img/<?= e($n['imagen']) ?>" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;">
+        <?php endif; ?>
+      </td>
       <td><?= e($n['titulo']) ?></td>
       <td><?= e($n['fecha']) ?></td>
       <td><?= $n['publicado'] ? 'Publicada' : 'Borrador' ?></td>
       <td class="acciones">
         <a href="noticia_form.php?id=<?= (int)$n['id'] ?>" class="editar">Editar</a>
-        <a href="noticia_borrar.php?id=<?= (int)$n['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Seguro que quieres borrar esta noticia?');">Borrar</a>
+        <form method="post" action="noticia_borrar.php" onsubmit="return confirm('¿Seguro que quieres borrar esta noticia?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$n['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>

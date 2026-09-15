@@ -16,6 +16,54 @@ function redirigir(string $ruta): void {
     exit;
 }
 
+const LOGIN_MAX_INTENTOS = 6;
+const LOGIN_BLOQUEO_MINUTOS = 15;
+
+function ipVisitante(): string {
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+}
+
+/**
+ * Devuelve los minutos restantes de bloqueo para esta IP, o 0 si puede
+ * intentar iniciar sesión.
+ */
+function minutosBloqueoRestantes(PDO $pdo): int {
+    $stmt = $pdo->prepare('SELECT bloqueado_hasta FROM intentos_login WHERE ip = ?');
+    $stmt->execute([ipVisitante()]);
+    $hasta = $stmt->fetchColumn();
+    if (!$hasta) return 0;
+    $restante = strtotime($hasta) - time();
+    return $restante > 0 ? (int)ceil($restante / 60) : 0;
+}
+
+/**
+ * Registra un intento de login fallido para la IP actual. Si se supera
+ * el máximo de intentos, bloquea esa IP durante un tiempo.
+ */
+function registrarIntentoFallido(PDO $pdo): void {
+    $ip = ipVisitante();
+    $stmt = $pdo->prepare('SELECT intentos FROM intentos_login WHERE ip = ?');
+    $stmt->execute([$ip]);
+    $intentos = (int)$stmt->fetchColumn() + 1;
+
+    $bloqueadoHasta = null;
+    if ($intentos >= LOGIN_MAX_INTENTOS) {
+        $bloqueadoHasta = date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60);
+    }
+
+    $pdo->prepare('INSERT INTO intentos_login (ip, intentos, ultimo_intento, bloqueado_hasta) VALUES (?, ?, ?, ?)
+                    ON CONFLICT(ip) DO UPDATE SET intentos = excluded.intentos, ultimo_intento = excluded.ultimo_intento, bloqueado_hasta = excluded.bloqueado_hasta')
+        ->execute([$ip, $intentos, date('Y-m-d H:i:s'), $bloqueadoHasta]);
+}
+
+/**
+ * Se llama tras un login correcto para olvidar los intentos fallidos
+ * previos de esta IP.
+ */
+function resetearIntentosLogin(PDO $pdo): void {
+    $pdo->prepare('DELETE FROM intentos_login WHERE ip = ?')->execute([ipVisitante()]);
+}
+
 /**
  * Crea las tablas si no existen y añade cualquier columna nueva que
  * falte (migraciones). Se llama automáticamente en cada petición
@@ -115,6 +163,13 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT NOT NULL UNIQUE,
         fecha TEXT NOT NULL
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS intentos_login (
+        ip TEXT PRIMARY KEY,
+        intentos INTEGER NOT NULL DEFAULT 0,
+        ultimo_intento TEXT,
+        bloqueado_hasta TEXT
     )");
 }
 
@@ -420,6 +475,50 @@ function claimSitio(): string {
         $claim = $ajustes['eslogan_sitio'] ?: SITE_CLAIM;
     }
     return $claim;
+}
+
+/**
+ * Limpia TODAS las referencias posibles a un archivo (portada/foto
+ * principal, filas de galería en cualquier entidad, ajustes,
+ * patrocinadores) y borra el archivo físico al final. Es el único
+ * punto donde se hace esta limpieza, para que el resultado sea
+ * siempre el mismo se borre desde donde se borre (galería de una
+ * noticia, biblioteca de medios, borrado en bloque...).
+ */
+function limpiarReferenciasArchivo(PDO $pdo, string $archivo): void {
+    $entidades = [
+        'noticias' => ['fotos' => 'noticia_fotos', 'columna_id' => 'noticia_id', 'columna_portada' => 'imagen'],
+        'gimnastas' => ['fotos' => 'gimnasta_fotos', 'columna_id' => 'gimnasta_id', 'columna_portada' => 'foto'],
+        'categorias' => ['fotos' => 'categoria_fotos', 'columna_id' => 'categoria_id', 'columna_portada' => 'imagen_portada'],
+        'competiciones' => ['fotos' => 'competicion_fotos', 'columna_id' => 'competicion_id', 'columna_portada' => 'imagen_portada'],
+    ];
+
+    foreach ($entidades as $tabla => $info) {
+        $columnaPortada = $info['columna_portada'];
+        $tablaFotos = $info['fotos'];
+        $columnaId = $info['columna_id'];
+
+        $stmt = $pdo->prepare("SELECT id FROM $tabla WHERE $columnaPortada = ?");
+        $stmt->execute([$archivo]);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $id) {
+            $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ? AND $columnaId = ?")->execute([$archivo, $id]);
+            $siguiente = $pdo->prepare("SELECT archivo FROM $tablaFotos WHERE $columnaId = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
+            $siguiente->execute([$id]);
+            $nuevaPortada = $siguiente->fetchColumn() ?: null;
+            $pdo->prepare("UPDATE $tabla SET $columnaPortada = ? WHERE id = ?")->execute([$nuevaPortada, $id]);
+        }
+        // Por si el archivo era una foto de galería que no era la portada de nadie
+        $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ?")->execute([$archivo]);
+    }
+
+    $pdo->prepare('UPDATE ajustes SET splash_imagen = NULL, splash_activo = 0 WHERE splash_imagen = ?')->execute([$archivo]);
+    $pdo->prepare('UPDATE ajustes SET inicio_imagen = NULL, inicio_imagen_titulo = NULL WHERE inicio_imagen = ?')->execute([$archivo]);
+    $pdo->prepare('UPDATE patrocinadores SET logo = NULL WHERE logo = ?')->execute([$archivo]);
+
+    $rutaCompleta = __DIR__ . '/../img/' . $archivo;
+    if (is_file($rutaCompleta)) {
+        @unlink($rutaCompleta);
+    }
 }
 
 function obtenerAjustes(PDO $pdo): array {

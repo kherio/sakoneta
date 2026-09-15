@@ -177,31 +177,60 @@ página con View Transitions).
 
 ## Seguridad
 
-Antes de esta versión el panel no tenía protección contra CSRF ni
-verificaba el contenido real de las imágenes subidas. Se ha reforzado con:
+El panel se ha reforzado con:
 
-- **Token CSRF** en todos los formularios y enlaces que crean, editan
+- **Token CSRF** en todos los formularios y acciones que crean, editan
   o borran datos.
+- **Todas las acciones que crean, editan o borran algo van por POST**,
+  nunca por GET (antes los enlaces "Borrar" eran GET, lo que además
+  del riesgo de CSRF es mala práctica: un enlace nunca debería borrar
+  nada solo con visitarlo — por ejemplo, si un antivirus, un
+  previsualizador de enlaces o el propio navegador precargan la URL).
+- **Bloqueo real de fuerza bruta en el login**: tras 6 intentos
+  fallidos, esa IP queda bloqueada 15 minutos (antes solo había un
+  pequeño retardo, insuficiente por sí solo).
+- **Contraseña de administrador cambiable desde el panel** ("Cambiar
+  contraseña" en el menú), guardada en la base de datos en vez de en
+  un archivo de código.
+- **La foto de portada de una galería solo puede ser una foto que
+  pertenezca de verdad a esa noticia/gimnasta/categoría/competición**
+  (antes se aceptaba cualquier ruta enviada en el formulario sin
+  comprobar que fuera realmente suya).
+- **Borrado de archivos unificado**: da igual desde dónde se borre una
+  foto (su propia galería, la biblioteca de medios, o un borrado en
+  bloque), siempre se limpia de la misma forma y se reasigna la
+  portada a otra foto disponible si la había.
 - **Verificación real de las imágenes subidas** (no solo la extensión
   del nombre de archivo) con `getimagesize()`.
 - **Cookie de sesión reforzada** (`HttpOnly`, `SameSite=Lax`, `Secure`
   automático si detecta HTTPS) y regeneración del ID de sesión al
   iniciar sesión.
-- **Pequeño retardo tras un login fallido** para dificultar ataques
-  de fuerza bruta automatizados.
 - **`img/subidas/` no puede ejecutar scripts** aunque alguien
   consiguiera subir un archivo con otra extensión.
+- **La carpeta `.git/` (y cualquier archivo oculto) no se puede
+  acceder desde el navegador**, bloqueado en `.htaccess`. Sin esto,
+  cualquiera podría descargarse todo el código y el historial del
+  repositorio conociendo la URL.
 - **`MODO_DEBUG`** en `config.php` (por defecto `false`): mantenlo así
   en un servidor real para que los errores de PHP no se muestren a
   los visitantes.
 - `robots.txt` con `/admin/` y `/data/` bloqueados para buscadores.
+- Ya no se incluye ningún script de diagnóstico en el proyecto
+  publicado (revelaba configuración interna del servidor).
 
 Aun así, antes de publicar el sitio en un dominio real:
-- Cambia la contraseña de administración (ver más abajo).
 - Sirve el sitio por HTTPS.
 - Revisa que `AllowOverride All` esté activo en Apache para que los
-  `.htaccess` de `data/` e `img/subidas/` funcionen (o traslada esas
-  reglas al `VirtualHost` si usas Nginx u otro servidor).
+  `.htaccess` de `data/`, `img/subidas/` y la raíz funcionen (o
+  traslada esas reglas al `VirtualHost` si usas Nginx u otro servidor).
+- Considera sacar `config.php` del control de versiones (añadirlo a
+  `.gitignore` y sustituirlo por una plantilla `config.example.php`)
+  para que ningún dato sensible quede nunca en el historial de git.
+  No lo hemos hecho automáticamente porque, si tu servidor ya está
+  desplegado como un clon de git, quitar `config.php` del repositorio
+  haría que el próximo `git pull` **borre ese archivo también del
+  servidor** y rompa el sitio — habría que hacerlo con cuidado,
+  avísame si quieres que lo preparemos paso a paso.
 
 ## Estructura del proyecto
 

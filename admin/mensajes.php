@@ -8,16 +8,16 @@ $pdo = getDb();
 $seccionActual = 'mensajes';
 $tituloPagina = 'Mensajes de contacto';
 
-if (isset($_GET['marcar'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar'])) {
     exigirCsrf();
     $stmt = $pdo->prepare('UPDATE mensajes_contacto SET leido = 1 WHERE id = ?');
-    $stmt->execute([(int)$_GET['marcar']]);
+    $stmt->execute([(int)$_POST['marcar']]);
     redirigir('mensajes.php');
 }
-if (isset($_GET['borrar'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrar'])) {
     exigirCsrf();
     $stmt = $pdo->prepare('DELETE FROM mensajes_contacto WHERE id = ?');
-    $stmt->execute([(int)$_GET['borrar']]);
+    $stmt->execute([(int)$_POST['borrar']]);
     redirigir('mensajes.php');
 }
 
@@ -40,8 +40,18 @@ require __DIR__ . '/includes/layout_header.php';
       <td><?= e($m['email']) ?></td>
       <td style="max-width:280px;"><?= e($m['mensaje']) ?></td>
       <td class="acciones">
-        <?php if (!$m['leido']): ?><a href="mensajes.php?marcar=<?= (int)$m['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="editar">Marcar leído</a><?php endif; ?>
-        <a href="mensajes.php?borrar=<?= (int)$m['id'] ?>&csrf_token=<?= e(tokenCsrf()) ?>" class="borrar" onclick="return confirm('¿Borrar este mensaje?');">Borrar</a>
+        <?php if (!$m['leido']): ?>
+        <form method="post">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="marcar" value="<?= (int)$m['id'] ?>">
+          <button type="submit" class="editar">Marcar leído</button>
+        </form>
+        <?php endif; ?>
+        <form method="post" onsubmit="return confirm('¿Borrar este mensaje?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="borrar" value="<?= (int)$m['id'] ?>">
+          <button type="submit" class="borrar">Borrar</button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>
