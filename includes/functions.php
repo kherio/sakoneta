@@ -90,7 +90,20 @@ function resetearIntentosLogin(PDO $pdo): void {
  * cuanto se sube código nuevo, sin depender de que alguien recuerde
  * ejecutar init_db.php a mano.
  */
+// Se incrementa cada vez que se añade una tabla o columna nueva al
+// esquema. Gracias a esto, ejecutarMigracionesEsquema() solo hace el
+// trabajo de verdad (CREATE TABLE / ALTER TABLE) la primera vez que
+// se ejecuta con código nuevo, y no en cada petición: en el caso
+// normal, se limita a una única consulta muy barata (PRAGMA
+// user_version) y sale enseguida.
+const VERSION_ESQUEMA_SAKONETA = 1;
+
 function ejecutarMigracionesEsquema(PDO $pdo): void {
+    $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
+    if ($versionActual >= VERSION_ESQUEMA_SAKONETA) {
+        return;
+    }
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS noticias (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         titulo TEXT NOT NULL,
@@ -197,6 +210,14 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         bloqueado_hasta TEXT
     )");
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS limite_envios (
+        ip TEXT NOT NULL,
+        tipo TEXT NOT NULL,
+        ventana_inicio TEXT NOT NULL,
+        intentos INTEGER NOT NULL DEFAULT 1,
+        PRIMARY KEY (ip, tipo)
+    )");
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS comentarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         noticia_id INTEGER NOT NULL,
@@ -253,6 +274,8 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         $stmt = $pdo->prepare('INSERT INTO usuarios (usuario, nombre, password_hash, rol, activo, creado, session_version) VALUES (?,?,?,?,1,?,1)');
         $stmt->execute([ADMIN_USER, 'Administrador', $hashInicial, 'administrador', date('Y-m-d H:i:s')]);
     }
+
+    $pdo->exec('PRAGMA user_version = ' . VERSION_ESQUEMA_SAKONETA);
 }
 
 /**
@@ -263,7 +286,18 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
 function agregarColumnaSiFalta(PDO $pdo, string $tabla, string $columna, string $definicionSql): void {
     $columnas = $pdo->query("PRAGMA table_info($tabla)")->fetchAll();
     if (!in_array($columna, array_column($columnas, 'name'), true)) {
-        $pdo->exec("ALTER TABLE $tabla ADD COLUMN $columna $definicionSql");
+        try {
+            $pdo->exec("ALTER TABLE $tabla ADD COLUMN $columna $definicionSql");
+        } catch (PDOException $e) {
+            // Si dos peticiones llegan a la vez justo después de un
+            // despliegue, ambas pueden ver la columna como "no
+            // existe todavía" y las dos intentar añadirla. La primera
+            // gana; a la segunda solo le toca ignorar el error de
+            // "ya existe" en vez de romper la petición.
+            if (stripos($e->getMessage(), 'duplicate column') === false) {
+                throw $e;
+            }
+        }
     }
 }
 
@@ -646,6 +680,38 @@ function posicionXY(?string $posicion): array {
 function posicionCss(?string $posicion): string {
     [$x, $y] = posicionXY($posicion);
     return "{$x}% {$y}%";
+}
+
+/**
+ * Límite de envíos por IP para formularios públicos (contacto,
+ * comentarios, likes...), independiente del de intentos de login.
+ * Cada $tipo lleva su propia cuenta. Devuelve true si esta IP ya ha
+ * superado el máximo permitido en la ventana de tiempo indicada (en
+ * ese caso, el que llama debe rechazar el envío).
+ */
+function superaLimiteEnvios(PDO $pdo, string $tipo, int $maxIntentos, int $minutosVentana): bool {
+    $ip = ipVisitante();
+    $ahora = time();
+
+    $stmt = $pdo->prepare('SELECT intentos, ventana_inicio FROM limite_envios WHERE ip = ? AND tipo = ?');
+    $stmt->execute([$ip, $tipo]);
+    $fila = $stmt->fetch();
+
+    $ventanaCaducada = !$fila || strtotime($fila['ventana_inicio']) < ($ahora - $minutosVentana * 60);
+
+    if ($ventanaCaducada) {
+        $pdo->prepare('INSERT INTO limite_envios (ip, tipo, ventana_inicio, intentos) VALUES (?, ?, ?, 1)
+                        ON CONFLICT(ip, tipo) DO UPDATE SET ventana_inicio = excluded.ventana_inicio, intentos = 1')
+            ->execute([$ip, $tipo, date('Y-m-d H:i:s', $ahora)]);
+        return false;
+    }
+
+    if ((int)$fila['intentos'] >= $maxIntentos) {
+        return true;
+    }
+
+    $pdo->prepare('UPDATE limite_envios SET intentos = intentos + 1 WHERE ip = ? AND tipo = ?')->execute([$ip, $tipo]);
+    return false;
 }
 
 function obtenerAjustes(PDO $pdo): array {
