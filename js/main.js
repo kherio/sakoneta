@@ -106,19 +106,19 @@ document.addEventListener('DOMContentLoaded', function () {
   var botonMeGusta = document.getElementById('boton-me-gusta');
   if (botonMeGusta) {
     botonMeGusta.addEventListener('click', function () {
-      if (botonMeGusta.classList.contains('activo') || botonMeGusta.disabled) return;
+      if (botonMeGusta.disabled) return;
       botonMeGusta.disabled = true;
       var datos = new URLSearchParams();
       datos.append('id', botonMeGusta.getAttribute('data-id'));
       fetch('dar_like.php', { method: 'POST', body: datos })
         .then(function (r) { return r.json(); })
         .then(function (r) {
+          botonMeGusta.disabled = false;
           if (r.ok) {
             document.getElementById('contador-me-gusta').textContent = r.likes;
-            botonMeGusta.classList.add('activo', 'animando');
+            botonMeGusta.classList.toggle('activo', r.yaLeGusta);
+            botonMeGusta.classList.add('animando');
             setTimeout(function () { botonMeGusta.classList.remove('animando'); }, 350);
-          } else {
-            botonMeGusta.disabled = false;
           }
         })
         .catch(function () { botonMeGusta.disabled = false; });

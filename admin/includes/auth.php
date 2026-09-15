@@ -5,11 +5,36 @@ function estaAutenticado(): bool {
     return !empty($_SESSION['admin_autenticado']);
 }
 
+/**
+ * Comprueba la sesión Y la vuelve a validar contra la base de datos en
+ * cada petición: que el usuario siga existiendo y activo, que su rol
+ * esté al día (por si otro administrador lo acaba de cambiar) y que
+ * su "session_version" coincida (se incrementa al cambiar la
+ * contraseña o desactivar la cuenta, para cerrar de golpe cualquier
+ * sesión abierta con las credenciales antiguas).
+ */
 function exigirAutenticacion(): void {
     if (!estaAutenticado()) {
         header('Location: index.php');
         exit;
     }
+
+    $id = (int)($_SESSION['admin_usuario_id'] ?? 0);
+    $stmt = getDb()->prepare('SELECT rol, activo, session_version FROM usuarios WHERE id = ?');
+    $stmt->execute([$id]);
+    $fila = $stmt->fetch();
+
+    $versionSesion = $_SESSION['admin_session_version'] ?? null;
+
+    if (!$fila || !$fila['activo'] || $versionSesion === null || (int)$fila['session_version'] !== (int)$versionSesion) {
+        session_unset();
+        session_destroy();
+        header('Location: index.php?cerrada=1');
+        exit;
+    }
+
+    // Mantener el rol de la sesión siempre al día con el de la base de datos
+    $_SESSION['admin_rol'] = $fila['rol'];
 }
 
 /**

@@ -32,6 +32,7 @@ if ($minutosRestantes > 0) {
         $_SESSION['admin_usuario_id'] = (int)$filaUsuario['id'];
         $_SESSION['admin_nombre'] = $filaUsuario['nombre'];
         $_SESSION['admin_rol'] = $filaUsuario['rol'];
+        $_SESSION['admin_session_version'] = (int)$filaUsuario['session_version'];
         unset($_SESSION['csrf_token']);
         header('Location: dashboard.php');
         exit;
@@ -63,6 +64,8 @@ if ($minutosRestantes > 0) {
 
     <?php if ($error): ?>
       <div class="aviso error"><?= htmlspecialchars($error) ?></div>
+    <?php elseif (isset($_GET['cerrada'])): ?>
+      <div class="aviso error">Tu sesión se ha cerrado (la cuenta se desactivó, cambió de rol de forma incompatible, o se cambió la contraseña desde otro sitio). Vuelve a entrar.</div>
     <?php endif; ?>
 
     <div class="campo">

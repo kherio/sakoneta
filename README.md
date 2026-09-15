@@ -103,8 +103,9 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   bienvenida se desvanece con un efecto de zoom hacia dentro, más
   lento y vistoso que un simple fundido.
 - **"Me gusta" en las noticias**: cada visitante puede darle a me
-  gusta una vez (se recuerda con una cookie, sin necesidad de
-  cuenta). El contador se actualiza al momento, sin recargar la página.
+  gusta, y quitarlo si vuelve a pulsar (se recuerda con una cookie,
+  sin necesidad de cuenta). El contador se actualiza al momento, sin
+  recargar la página.
 - **Comentarios con moderación**: cualquiera puede dejar un comentario
   en una noticia; queda pendiente hasta que alguien con permiso lo
   aprueba desde "Comentarios" en el panel (aprobar, rechazar o
@@ -125,6 +126,11 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   administradores). La cuenta `admin` de siempre se ha convertido
   automáticamente en el primer usuario, con rol administrador y la
   misma contraseña que ya tenía.
+- **Elegir fotos ya subidas**: al crear o editar una noticia o una
+  competición, además de subir fotos/vídeos nuevos se puede abrir "O
+  elige entre las fotos y vídeos ya subidos antes" y marcar cualquier
+  archivo que ya esté en la biblioteca de medios, sin tener que
+  volver a subirlo.
 - **Fotos subidas**: biblioteca con todas las imágenes subidas desde
   cualquier parte del panel, indicando dónde se usa cada una. Se
   pueden seleccionar varias a la vez (o "Seleccionar todos") y
@@ -205,27 +211,40 @@ página con View Transitions).
 
 El panel se ha reforzado con:
 
+- **Sin ningún secreto permanente en el código fuente**: ya no hay
+  ningún hash de contraseña fijo en `config.php`. Si no hay ninguna
+  contraseña de administrador guardada todavía, se genera una al azar
+  en el primer arranque y se escribe una única vez en
+  `data/contrasena-inicial-admin.txt` (no accesible desde el
+  navegador, no se sube a git). Bórralo en cuanto hayas anotado la
+  contraseña y la hayas cambiado desde el panel.
+- **`.git/` bloqueado correctamente**: el `.htaccess` usa
+  `RewriteRule` (válido ahí) en vez de `<DirectoryMatch>` (que NO es
+  válido dentro de un `.htaccess` y podía provocar un error 500 en
+  toda la web). Aun así, lo correcto es que la carpeta `.git/` nunca
+  llegue al servidor de producción.
+- **Revalidación en cada petición**: el rol y el estado (activo o no)
+  de quien está conectado se comprueban contra la base de datos en
+  cada página del panel, no solo al iniciar sesión. Si otro
+  administrador cambia tu rol o te desactiva, se nota en la siguiente
+  página que cargues, no hace falta esperar a que cierres sesión.
+- **Cambiar la contraseña (la tuya o la de otro usuario) cierra las
+  demás sesiones abiertas con la contraseña antigua al instante**
+  (menos la tuya propia, si eres tú quien la cambia).
+- **No te puedes quedar sin administradores**: no se puede desactivar,
+  borrar ni quitarle el rol de administrador al único administrador
+  activo que quede.
 - **Token CSRF** en todos los formularios y acciones que crean, editan
   o borran datos.
 - **Todas las acciones que crean, editan o borran algo van por POST**,
-  nunca por GET (antes los enlaces "Borrar" eran GET, lo que además
-  del riesgo de CSRF es mala práctica: un enlace nunca debería borrar
-  nada solo con visitarlo — por ejemplo, si un antivirus, un
-  previsualizador de enlaces o el propio navegador precargan la URL).
+  nunca por GET.
 - **Bloqueo real de fuerza bruta en el login**: tras 6 intentos
-  fallidos, esa IP queda bloqueada 15 minutos (antes solo había un
-  pequeño retardo, insuficiente por sí solo).
-- **Contraseña de administrador cambiable desde el panel** ("Cambiar
-  contraseña" en el menú), guardada en la base de datos en vez de en
-  un archivo de código.
+  fallidos, esa IP queda bloqueada 15 minutos.
 - **La foto de portada de una galería solo puede ser una foto que
-  pertenezca de verdad a esa noticia/gimnasta/categoría/competición**
-  (antes se aceptaba cualquier ruta enviada en el formulario sin
-  comprobar que fuera realmente suya).
+  pertenezca de verdad a esa noticia/gimnasta/categoría/competición**.
 - **Borrado de archivos unificado**: da igual desde dónde se borre una
-  foto (su propia galería, la biblioteca de medios, o un borrado en
-  bloque), siempre se limpia de la misma forma y se reasigna la
-  portada a otra foto disponible si la había.
+  foto, siempre se limpia de la misma forma y se reasigna la portada
+  a otra foto disponible si la había.
 - **Verificación real de las imágenes subidas** (no solo la extensión
   del nombre de archivo) con `getimagesize()`.
 - **Cookie de sesión reforzada** (`HttpOnly`, `SameSite=Lax`, `Secure`
@@ -233,30 +252,19 @@ El panel se ha reforzado con:
   iniciar sesión.
 - **`img/subidas/` no puede ejecutar scripts** aunque alguien
   consiguiera subir un archivo con otra extensión.
-- **La carpeta `.git/` (y cualquier archivo oculto) no se puede
-  acceder desde el navegador**, bloqueado en `.htaccess`. Sin esto,
-  cualquiera podría descargarse todo el código y el historial del
-  repositorio conociendo la URL.
 - **`MODO_DEBUG`** en `config.php` (por defecto `false`): mantenlo así
   en un servidor real para que los errores de PHP no se muestren a
   los visitantes.
 - `robots.txt` con `/admin/` y `/data/` bloqueados para buscadores.
-- Ya no se incluye ningún script de diagnóstico en el proyecto
-  publicado (revelaba configuración interna del servidor).
 
 Aun así, antes de publicar el sitio en un dominio real:
 - Sirve el sitio por HTTPS.
 - Revisa que `AllowOverride All` esté activo en Apache para que los
   `.htaccess` de `data/`, `img/subidas/` y la raíz funcionen (o
   traslada esas reglas al `VirtualHost` si usas Nginx u otro servidor).
-- Considera sacar `config.php` del control de versiones (añadirlo a
-  `.gitignore` y sustituirlo por una plantilla `config.example.php`)
-  para que ningún dato sensible quede nunca en el historial de git.
-  No lo hemos hecho automáticamente porque, si tu servidor ya está
-  desplegado como un clon de git, quitar `config.php` del repositorio
-  haría que el próximo `git pull` **borre ese archivo también del
-  servidor** y rompa el sitio — habría que hacerlo con cuidado,
-  avísame si quieres que lo preparemos paso a paso.
+- Idealmente, despliega el sitio sin la carpeta `.git/` (copiando solo
+  los archivos del proyecto, o con `git archive`), en vez de clonar el
+  repositorio directamente dentro de la carpeta pública del servidor.
 
 ## Estructura del proyecto
 

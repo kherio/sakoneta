@@ -1,6 +1,10 @@
 # Base de datos generada por init_db.php (no se versiona)
 data/club.sqlite
 
+# Contraseña de administrador generada automáticamente en la primera
+# instalación (nunca debe subirse a git)
+data/contrasena-inicial-admin.txt
+
 # Fotos subidas desde el panel (contenido, no código)
 img/subidas/*
 !img/subidas/.htaccess
