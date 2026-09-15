@@ -79,8 +79,10 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         contenido TEXT NOT NULL,
         imagen TEXT,
         fecha TEXT NOT NULL,
-        publicado INTEGER NOT NULL DEFAULT 1
+        publicado INTEGER NOT NULL DEFAULT 1,
+        likes INTEGER NOT NULL DEFAULT 0
     )");
+    agregarColumnaSiFalta($pdo, 'noticias', 'likes', 'INTEGER NOT NULL DEFAULT 0');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -170,6 +172,26 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         intentos INTEGER NOT NULL DEFAULT 0,
         ultimo_intento TEXT,
         bloqueado_hasta TEXT
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS comentarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        noticia_id INTEGER NOT NULL,
+        nombre TEXT NOT NULL,
+        email TEXT,
+        mensaje TEXT NOT NULL,
+        fecha TEXT NOT NULL,
+        estado TEXT NOT NULL DEFAULT 'pendiente'
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario TEXT NOT NULL UNIQUE,
+        nombre TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        rol TEXT NOT NULL DEFAULT 'colaborador',
+        activo INTEGER NOT NULL DEFAULT 1,
+        creado TEXT NOT NULL
     )");
 }
 

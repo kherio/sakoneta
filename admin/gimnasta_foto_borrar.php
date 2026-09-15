@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 exigirAutenticacion();
+exigirRol(['administrador','editor']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: gimnastas.php');

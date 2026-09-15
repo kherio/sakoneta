@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/includes/auth.php';
 exigirAutenticacion();
+exigirRol(['administrador','editor']);
 exigirCsrf();
 
 header('Content-Type: application/json');

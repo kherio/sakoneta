@@ -36,6 +36,12 @@ $stmtFotos->execute([$id]);
 $fotosNoticia = $stmtFotos->fetchAll();
 $otrasFotosNoticia = array_filter($fotosNoticia, function ($f) use ($noticia) { return $f['archivo'] !== $noticia['imagen']; });
 
+$yaLeGustaEstaNoticia = isset($_COOKIE['like_noticia_' . $id]);
+
+$comentarios = $pdo->prepare("SELECT * FROM comentarios WHERE noticia_id = ? AND estado = 'aprobado' ORDER BY fecha ASC");
+$comentarios->execute([$id]);
+$comentarios = $comentarios->fetchAll();
+
 require __DIR__ . '/includes/header.php';
 ?>
 
@@ -77,6 +83,14 @@ require __DIR__ . '/includes/header.php';
       </div>
       <?php endif; ?>
 
+      <div class="me-gusta-noticia">
+        <button type="button" id="boton-me-gusta" class="boton-me-gusta <?= $yaLeGustaEstaNoticia ? 'activo' : '' ?>" data-id="<?= (int)$noticia['id'] ?>">
+          <span class="corazon">♥</span>
+          <span id="contador-me-gusta"><?= (int)$noticia['likes'] ?></span>
+          <span class="me-gusta-etiqueta">Me gusta</span>
+        </button>
+      </div>
+
       <div class="compartir-noticia">
         <p><?= t('compartir') ?></p>
         <div class="compartir-botones">
@@ -85,6 +99,53 @@ require __DIR__ . '/includes/header.php';
           <a href="https://twitter.com/intent/tweet?text=<?= $tituloCodificado ?>&url=<?= $urlCodificada ?>" target="_blank" rel="noopener">X</a>
           <button type="button" class="boton-copiar-enlace" data-url="<?= e($urlActual) ?>" data-texto-copiar="<?= e(t('copiar_enlace')) ?>" data-texto-copiado="<?= e(t('enlace_copiado')) ?>"><?= t('copiar_enlace') ?></button>
         </div>
+      </div>
+
+      <div class="seccion-comentarios">
+        <h3><?= count($comentarios) ?> comentario<?= count($comentarios) === 1 ? '' : 's' ?></h3>
+
+        <?php if ($comentarios): ?>
+        <ul class="lista-comentarios">
+          <?php foreach ($comentarios as $c): ?>
+          <li>
+            <div class="comentario-cabecera">
+              <strong><?= e($c['nombre']) ?></strong>
+              <span class="comentario-fecha"><?= e(formatearFecha($c['fecha'])) ?></span>
+            </div>
+            <p><?= nl2br(e($c['mensaje'])) ?></p>
+          </li>
+          <?php endforeach; ?>
+        </ul>
+        <?php else: ?>
+          <p style="color:var(--gris-texto);font-size:14.5px;">Todavía no hay comentarios. ¡Sé el primero!</p>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['comentario']) && $_GET['comentario'] === 'enviado'): ?>
+          <div class="aviso-ok">Gracias por tu comentario. Se publicará en cuanto lo revisemos.</div>
+        <?php elseif (isset($_GET['comentario']) && $_GET['comentario'] === 'error'): ?>
+          <div class="aviso-ok" style="background:#FBE4E4;color:#9A2A2A;">Revisa los datos del formulario e inténtalo de nuevo.</div>
+        <?php endif; ?>
+
+        <form method="post" action="comentar.php" class="formulario formulario-comentario">
+          <input type="hidden" name="noticia_id" value="<?= (int)$noticia['id'] ?>">
+          <input type="hidden" name="volver" value="<?= e($_SERVER['REQUEST_URI'] ?? '') ?>">
+          <!-- Campo señuelo anti-spam: invisible para personas, tentador para bots -->
+          <div class="campo-senuelo" aria-hidden="true">
+            <label for="web">Deja este campo vacío</label>
+            <input type="text" id="web" name="web" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label for="comentario_nombre">Nombre</label>
+          <input type="text" id="comentario_nombre" name="nombre" required>
+
+          <label for="comentario_email">Correo electrónico (no se publica)</label>
+          <input type="email" id="comentario_email" name="email">
+
+          <label for="comentario_mensaje">Comentario</label>
+          <textarea id="comentario_mensaje" name="mensaje" required></textarea>
+
+          <button type="submit" class="boton oro" style="margin-top:14px;">Enviar comentario</button>
+        </form>
       </div>
 
       <p style="margin-top:24px;"><a href="noticias.php"><?= t('volver_noticias') ?></a></p>

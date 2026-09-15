@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 exigirAutenticacion();
+exigirRol(['administrador','editor','colaborador']);
 
 $pdo = getDb();
 $seccionActual = 'noticias';
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $noticia['resumen'] = trim($_POST['resumen'] ?? '');
     $noticia['contenido'] = trim($_POST['contenido'] ?? '');
     $noticia['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
-    $noticia['publicado'] = isset($_POST['publicado']) ? 1 : 0;
+    $noticia['publicado'] = (isset($_POST['publicado']) && rolActual() !== 'colaborador') ? 1 : 0;
 
     if ($noticia['titulo'] === '' || $noticia['resumen'] === '' || $noticia['contenido'] === '') {
         $error = 'Título, resumen y contenido son obligatorios.';
@@ -126,7 +127,11 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
 
   <div class="campo">
-    <label><input type="checkbox" name="publicado" <?= $noticia['publicado'] ? 'checked' : '' ?> style="width:auto;"> Publicada (visible en la web)</label>
+    <?php if (rolActual() === 'colaborador'): ?>
+      <p style="font-size:13px;color:var(--gris);">Como colaborador, tus noticias se guardan como borrador; un editor o administrador las revisará antes de publicarlas.</p>
+    <?php else: ?>
+      <label><input type="checkbox" name="publicado" <?= $noticia['publicado'] ? 'checked' : '' ?> style="width:auto;"> Publicada (visible en la web)</label>
+    <?php endif; ?>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">

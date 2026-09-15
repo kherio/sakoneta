@@ -102,6 +102,29 @@ document.addEventListener('DOMContentLoaded', function () {
   // por si el navegador todavía no tenía las medidas finales listas.
   window.addEventListener('load', ajustarTituloHero);
 
+  // --- Botón de me gusta en la noticia ---
+  var botonMeGusta = document.getElementById('boton-me-gusta');
+  if (botonMeGusta) {
+    botonMeGusta.addEventListener('click', function () {
+      if (botonMeGusta.classList.contains('activo') || botonMeGusta.disabled) return;
+      botonMeGusta.disabled = true;
+      var datos = new URLSearchParams();
+      datos.append('id', botonMeGusta.getAttribute('data-id'));
+      fetch('dar_like.php', { method: 'POST', body: datos })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (r.ok) {
+            document.getElementById('contador-me-gusta').textContent = r.likes;
+            botonMeGusta.classList.add('activo', 'animando');
+            setTimeout(function () { botonMeGusta.classList.remove('animando'); }, 350);
+          } else {
+            botonMeGusta.disabled = false;
+          }
+        })
+        .catch(function () { botonMeGusta.disabled = false; });
+    });
+  }
+
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');

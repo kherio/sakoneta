@@ -9,8 +9,6 @@ if (estaAutenticado()) {
 }
 
 $pdo = getDb();
-$ajustesLogin = obtenerAjustes($pdo);
-$hashActual = $ajustesLogin['admin_password_hash'] ?: ADMIN_PASS_HASH;
 
 $error = '';
 $minutosRestantes = minutosBloqueoRestantes($pdo);
@@ -22,11 +20,18 @@ if ($minutosRestantes > 0) {
     $usuario = trim($_POST['usuario'] ?? '');
     $clave = $_POST['clave'] ?? '';
 
-    if ($tokenValido && $usuario === ADMIN_USER && password_verify($clave, $hashActual)) {
+    $stmtUsuario = $pdo->prepare('SELECT * FROM usuarios WHERE usuario = ? AND activo = 1');
+    $stmtUsuario->execute([$usuario]);
+    $filaUsuario = $stmtUsuario->fetch();
+
+    if ($tokenValido && $filaUsuario && password_verify($clave, $filaUsuario['password_hash'])) {
         resetearIntentosLogin($pdo);
         session_regenerate_id(true);
         $_SESSION['admin_autenticado'] = true;
-        $_SESSION['admin_usuario'] = $usuario;
+        $_SESSION['admin_usuario'] = $filaUsuario['usuario'];
+        $_SESSION['admin_usuario_id'] = (int)$filaUsuario['id'];
+        $_SESSION['admin_nombre'] = $filaUsuario['nombre'];
+        $_SESSION['admin_rol'] = $filaUsuario['rol'];
         unset($_SESSION['csrf_token']);
         header('Location: dashboard.php');
         exit;
