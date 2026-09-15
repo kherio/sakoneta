@@ -20,6 +20,34 @@ if (!$competicion) {
     exit;
 }
 
+// Vista previa ligera en JSON, usada solo por el gesto de swipe en
+// móvil para poder mostrar el aspecto de la otra competición
+// mientras se arrastra, sin tener que cargar la página entera.
+if (isset($_GET['preview'])) {
+    $catsPreview = $pdo->prepare('
+        SELECT cc.categoria FROM competicion_categorias cc
+        JOIN categorias cat ON cat.nombre = cc.categoria
+        WHERE cc.competicion_id = ?
+        ORDER BY cat.orden ASC
+    ');
+    $catsPreview->execute([$id]);
+    $catsPreview = $catsPreview->fetchAll(PDO::FETCH_COLUMN) ?: [$competicion['categoria']];
+
+    $stmtFotoPreview = $pdo->prepare('SELECT archivo FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC LIMIT 1');
+    $stmtFotoPreview->execute([$id]);
+    $fotoPreview = $competicion['imagen_portada'] ?: ($stmtFotoPreview->fetchColumn() ?: 'competicion.svg');
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'nombre' => $competicion['nombre'],
+        'categorias' => implode(' · ', $catsPreview),
+        'imagen' => 'img/' . $fotoPreview,
+        'posicion' => posicionCss($competicion['imagen_posicion'] ?? null),
+        'fechaLugar' => formatearFecha($competicion['fecha']) . ' · ' . $competicion['lugar'],
+    ]);
+    exit;
+}
+
 // Competición anterior/siguiente por fecha, para poder deslizar entre
 // ellas en el móvil sin volver al listado
 $stmtSiguiente = $pdo->prepare('SELECT id FROM competiciones WHERE fecha > ? ORDER BY fecha ASC LIMIT 1');
@@ -127,6 +155,23 @@ require __DIR__ . '/includes/header.php';
      data-anterior="<?= $idAnterior ? 'competicion.php?id=' . (int)$idAnterior : '' ?>"
      data-siguiente="<?= $idSiguiente ? 'competicion.php?id=' . (int)$idSiguiente : '' ?>"
      style="display:none;" aria-hidden="true"></div>
+
+<div class="vista-previa-swipe vista-previa-swipe-anterior" id="vista-previa-anterior" aria-hidden="true">
+  <div class="vista-previa-swipe-imagen"></div>
+  <div class="vista-previa-swipe-texto">
+    <span class="vista-previa-swipe-categoria"></span>
+    <h3></h3>
+    <p></p>
+  </div>
+</div>
+<div class="vista-previa-swipe vista-previa-swipe-siguiente" id="vista-previa-siguiente" aria-hidden="true">
+  <div class="vista-previa-swipe-imagen"></div>
+  <div class="vista-previa-swipe-texto">
+    <span class="vista-previa-swipe-categoria"></span>
+    <h3></h3>
+    <p></p>
+  </div>
+</div>
 
 <?php if ($idAnterior || $idSiguiente): ?>
 <div class="aviso-swipe" id="aviso-swipe">

@@ -633,6 +633,49 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 @media (max-width: 860px) and (pointer: coarse) {
   html, body { overflow-x: clip; }
 }
+
+/* ---------- Vista previa deslizante de la otra competición (swipe) ---------- */
+.vista-previa-swipe {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background-size: cover;
+  background-color: var(--morado-oscuro);
+  pointer-events: none;
+}
+.vista-previa-swipe.visible { display: block; }
+.vista-previa-swipe-anterior { transform: translateX(-100%); }
+.vista-previa-swipe-siguiente { transform: translateX(100%); }
+.vista-previa-swipe-imagen {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.vista-previa-swipe-imagen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(6,16,40,.88) 0%, rgba(6,16,40,.4) 55%, rgba(6,16,40,.1) 100%);
+}
+.vista-previa-swipe-texto {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
+  color: #fff;
+}
+.vista-previa-swipe-categoria {
+  display: inline-block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 600;
+  color: var(--acento-suave);
+  margin-bottom: 8px;
+}
+.vista-previa-swipe-texto h3 { margin: 0 0 6px; font-size: clamp(22px, 6vw, 30px); }
+.vista-previa-swipe-texto p { margin: 0; font-size: 14px; opacity: .85; }
 .aviso-swipe {
   display: none;
 }
