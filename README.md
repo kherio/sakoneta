@@ -255,6 +255,26 @@ El panel se ha reforzado con:
   dejar editar o borrar fotos de una noticia — un colaborador que lo
   intente con una noticia ajena o ya publicada recibe un aviso claro
   de que no tiene permiso, en vez de poder modificarla igualmente.
+- **Límite de envíos en los formularios públicos**: contacto,
+  comentarios y "me gusta" tienen ahora un límite de longitud
+  aplicado en el servidor (no solo el `maxlength` del HTML, que
+  cualquiera puede saltarse) y un límite de envíos por IP en una
+  ventana de tiempo (5 mensajes/comentarios cada 10 minutos, 30
+  likes cada 5 minutos). Evita que alguien pueda hinchar la base de
+  datos automatizando envíos.
+- **Las migraciones ya no se repiten en cada petición**: antes,
+  cada página comprobaba de nuevo todas las tablas y columnas del
+  esquema; ahora se guarda la versión del esquema dentro de la propia
+  base de datos (`PRAGMA user_version`), así que en el caso normal es
+  solo una consulta muy barata, y el trabajo de verdad (crear tablas,
+  añadir columnas) solo se hace una vez, justo después de cada
+  actualización de código. También se ha blindado ante el caso raro
+  de que dos peticiones lleguen a la vez justo en ese momento.
+- **El ID de sesión se regenera al cambiar de rol**: si un
+  administrador asciende a otra persona (por ejemplo, de colaborador
+  a editor) mientras esa persona tiene la sesión abierta, su
+  identificador de sesión se renueva en su siguiente petición, como
+  recomienda la buena práctica de seguridad al elevar privilegios.
 - **Sin ningún secreto permanente en el código fuente**: ya no hay
   ningún hash de contraseña fijo en `config.php`. Si no hay ninguna
   contraseña de administrador guardada todavía, se genera una al azar

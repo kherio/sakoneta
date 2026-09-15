@@ -16,8 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($nombre === '' || $email === '' || $mensaje === '') {
         $error = 'Por favor, rellena todos los campos.';
+    } elseif (strlen($nombre) > 100 || strlen($email) > 190 || strlen($mensaje) > 4000) {
+        $error = 'Alguno de los campos es demasiado largo.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Revisa el correo electrónico, no parece válido.';
+    } elseif (superaLimiteEnvios($pdo, 'contacto', 5, 10)) {
+        $error = 'Se han enviado demasiados mensajes desde aquí en poco tiempo. Vuelve a intentarlo en unos minutos.';
     } else {
         $stmt = $pdo->prepare('INSERT INTO mensajes_contacto (nombre, email, mensaje, fecha) VALUES (?,?,?,?)');
         $stmt->execute([$nombre, $email, $mensaje, date('Y-m-d H:i:s')]);
@@ -45,13 +49,13 @@ require __DIR__ . '/includes/header.php';
 
         <form method="post" class="formulario">
           <label for="nombre"><?= t('contacto_nombre') ?></label>
-          <input type="text" id="nombre" name="nombre" value="<?= e($_POST['nombre'] ?? '') ?>" required>
+          <input type="text" id="nombre" name="nombre" value="<?= e($_POST['nombre'] ?? '') ?>" maxlength="100" required>
 
           <label for="email"><?= t('contacto_email') ?></label>
-          <input type="email" id="email" name="email" value="<?= e($_POST['email'] ?? '') ?>" required>
+          <input type="email" id="email" name="email" value="<?= e($_POST['email'] ?? '') ?>" maxlength="190" required>
 
           <label for="mensaje"><?= t('contacto_mensaje') ?></label>
-          <textarea id="mensaje" name="mensaje" required><?= e($_POST['mensaje'] ?? '') ?></textarea>
+          <textarea id="mensaje" name="mensaje" maxlength="4000" required><?= e($_POST['mensaje'] ?? '') ?></textarea>
 
           <button type="submit" class="boton oro"><?= t('contacto_enviar') ?></button>
         </form>

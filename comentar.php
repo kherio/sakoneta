@@ -25,7 +25,13 @@ if ($senuelo !== '') {
 $stmt = $pdo->prepare('SELECT id FROM noticias WHERE id = ? AND publicado = 1');
 $stmt->execute([$noticiaId]);
 
-if (!$stmt->fetchColumn() || $nombre === '' || $mensaje === '' || ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL))) {
+if (!$stmt->fetchColumn() || $nombre === '' || $mensaje === ''
+    || strlen($nombre) > 100 || strlen($email) > 190 || strlen($mensaje) > 2000
+    || ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL))) {
+    redirigir($volver . $separador . 'comentario=error');
+}
+
+if (superaLimiteEnvios($pdo, 'comentario', 5, 10)) {
     redirigir($volver . $separador . 'comentario=error');
 }
 

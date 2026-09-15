@@ -136,13 +136,13 @@ require __DIR__ . '/includes/header.php';
           </div>
 
           <label for="comentario_nombre">Nombre</label>
-          <input type="text" id="comentario_nombre" name="nombre" required>
+          <input type="text" id="comentario_nombre" name="nombre" maxlength="100" required>
 
           <label for="comentario_email">Correo electrónico (no se publica)</label>
-          <input type="email" id="comentario_email" name="email">
+          <input type="email" id="comentario_email" name="email" maxlength="190">
 
           <label for="comentario_mensaje">Comentario</label>
-          <textarea id="comentario_mensaje" name="mensaje" required></textarea>
+          <textarea id="comentario_mensaje" name="mensaje" maxlength="2000" required></textarea>
 
           <button type="submit" class="boton oro" style="margin-top:14px;">Enviar comentario</button>
         </form>

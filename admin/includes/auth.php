@@ -33,6 +33,14 @@ function exigirAutenticacion(): void {
         exit;
     }
 
+    // Si el rol ha cambiado desde la última petición (por ejemplo, un
+    // administrador acaba de ascender a esta persona), se regenera el
+    // ID de sesión: es la recomendación habitual al elevar privilegios,
+    // para no arrastrar un identificador de sesión de antes del cambio.
+    if (isset($_SESSION['admin_rol']) && $_SESSION['admin_rol'] !== $fila['rol']) {
+        session_regenerate_id(true);
+    }
+
     // Mantener el rol de la sesión siempre al día con el de la base de datos
     $_SESSION['admin_rol'] = $fila['rol'];
 }

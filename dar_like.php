@@ -9,7 +9,7 @@ $id = (int)($_POST['id'] ?? 0);
 
 $respuesta = ['ok' => false];
 
-if ($id > 0) {
+if ($id > 0 && !superaLimiteEnvios($pdo, 'like', 30, 5)) {
     $stmt = $pdo->prepare('SELECT id, likes FROM noticias WHERE id = ? AND publicado = 1');
     $stmt->execute([$id]);
     $noticia = $stmt->fetch();
