@@ -125,6 +125,40 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // --- Swipe entre competiciones (solo móvil/táctil) ---
+  var datosSwipe = document.getElementById('swipe-competicion');
+  if (datosSwipe && window.matchMedia('(max-width: 860px) and (pointer: coarse)').matches) {
+    var urlAnterior = datosSwipe.getAttribute('data-anterior');
+    var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
+    var inicioX = null, inicioY = null;
+
+    document.addEventListener('touchstart', function (e) {
+      inicioX = e.touches[0].clientX;
+      inicioY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function (e) {
+      if (inicioX === null) return;
+      var deltaX = e.changedTouches[0].clientX - inicioX;
+      var deltaY = e.changedTouches[0].clientY - inicioY;
+      inicioX = null;
+
+      // Solo cuenta como swipe si el movimiento es sobre todo horizontal
+      if (Math.abs(deltaX) < 70 || Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+
+      if (deltaX < 0 && urlSiguiente) {
+        window.location.href = urlSiguiente;
+      } else if (deltaX > 0 && urlAnterior) {
+        window.location.href = urlAnterior;
+      }
+    }, { passive: true });
+
+    var avisoSwipe = document.getElementById('aviso-swipe');
+    if (avisoSwipe) {
+      setTimeout(function () { avisoSwipe.remove(); }, 4200);
+    }
+  }
+
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');
@@ -197,22 +231,42 @@ document.addEventListener('DOMContentLoaded', function () {
     actualizarParallax();
   }
 
-  // --- Filtro de categorías (pestañas) ---
+  // --- Filtro de categorías (ahora con selección múltiple) ---
   document.querySelectorAll('.filtro-categorias').forEach(function (grupo) {
     var contenedor = document.getElementById(grupo.getAttribute('data-filtro-objetivo'));
     if (!contenedor) return;
     var tarjetas = contenedor.children;
-    grupo.querySelectorAll('button').forEach(function (boton) {
+    var botonTodas = grupo.querySelector('button[data-categoria="todas"]');
+    var botonesCategoria = grupo.querySelectorAll('button:not([data-categoria="todas"])');
+
+    function aplicarFiltro() {
+      var activas = Array.from(botonesCategoria)
+        .filter(function (b) { return b.classList.contains('activo'); })
+        .map(function (b) { return b.getAttribute('data-categoria'); });
+
+      var mostrarTodas = activas.length === 0;
+      if (botonTodas) botonTodas.classList.toggle('activo', mostrarTodas);
+
+      Array.from(tarjetas).forEach(function (tarjeta) {
+        var coincide = mostrarTodas || activas.indexOf(tarjeta.getAttribute('data-categoria')) !== -1;
+        tarjeta.style.display = coincide ? '' : 'none';
+      });
+    }
+
+    if (botonTodas) {
+      botonTodas.addEventListener('click', function () {
+        botonesCategoria.forEach(function (b) { b.classList.remove('activo'); });
+        aplicarFiltro();
+      });
+    }
+    botonesCategoria.forEach(function (boton) {
       boton.addEventListener('click', function () {
-        grupo.querySelectorAll('button').forEach(function (b) { b.classList.remove('activo'); });
-        boton.classList.add('activo');
-        var categoria = boton.getAttribute('data-categoria');
-        Array.from(tarjetas).forEach(function (tarjeta) {
-          var coincide = categoria === 'todas' || tarjeta.getAttribute('data-categoria') === categoria;
-          tarjeta.style.display = coincide ? '' : 'none';
-        });
+        boton.classList.toggle('activo');
+        aplicarFiltro();
       });
     });
+
+    aplicarFiltro();
   });
 
   // --- Copiar enlace al compartir una noticia ---

@@ -134,6 +134,16 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   administradores). La cuenta `admin` de siempre se ha convertido
   automáticamente en el primer usuario, con rol administrador y la
   misma contraseña que ya tenía.
+- **Filtro de categorías con selección múltiple**: en noticias,
+  gimnastas y competiciones se pueden marcar varias categorías a la
+  vez (antes solo una).
+- **Deslizar entre competiciones en el móvil**: al abrir una
+  competición desde un teléfono o tablet, se puede pasar a la
+  anterior o siguiente (por fecha) deslizando el dedo, como en una
+  galería. La primera vez aparece un aviso animado abajo indicándolo.
+- **Tamaño del titular de la portada configurable**: en Ajustes, se
+  puede elegir entre varios tamaños para el titular grande de la
+  portada. Sigue ajustándose solo para caber en una línea.
 - **Encuadre visual de la foto principal**: en noticias y
   competiciones, se puede hacer clic o arrastrar directamente sobre
   la foto (en el propio panel) para marcar el punto exacto que se

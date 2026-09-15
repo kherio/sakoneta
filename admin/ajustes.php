@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $sobrePalmares = trim($_POST['sobre_palmares'] ?? '');
     $heroKicker = trim($_POST['hero_kicker'] ?? '');
     $heroTitulo = trim($_POST['hero_titulo'] ?? '');
+    $heroTituloTamano = in_array((int)($_POST['hero_titulo_tamano'] ?? 100), [80, 90, 100, 115, 130, 150], true) ? (int)$_POST['hero_titulo_tamano'] : 100;
     $heroTexto = trim($_POST['hero_texto'] ?? '');
     $nombreSitioNuevo = trim($_POST['nombre_sitio'] ?? '');
     $esloganSitioNuevo = trim($_POST['eslogan_sitio'] ?? '');
@@ -55,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
-                $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null,
+                $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
                 $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null, $pieTituloNuevo ?: null, $pieTextoNuevo ?: null,
                 $estadisticas['est1_valor'], $estadisticas['est1_texto'],
                 $estadisticas['est2_valor'], $estadisticas['est2_texto'],
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['sobre_palmares'] = $sobrePalmares;
     $ajustes['hero_kicker'] = $heroKicker;
     $ajustes['hero_titulo'] = $heroTitulo;
+    $ajustes['hero_titulo_tamano'] = $heroTituloTamano;
     $ajustes['hero_texto'] = $heroTexto;
     $ajustes['nombre_sitio'] = $nombreSitioNuevo;
     $ajustes['eslogan_sitio'] = $esloganSitioNuevo;
@@ -160,6 +162,15 @@ $defectoEst = [
   <div class="campo">
     <label for="hero_titulo">Titular grande</label>
     <input type="text" id="hero_titulo" name="hero_titulo" value="<?= e($ajustes['hero_titulo'] ?? '') ?>" placeholder="Ej: Cada cinta, cada aro, cada ejercicio: un paso más hacia el podio.">
+  </div>
+  <div class="campo">
+    <label for="hero_titulo_tamano">Tamaño del titular</label>
+    <select id="hero_titulo_tamano" name="hero_titulo_tamano">
+      <?php foreach ([80 => 'Pequeño', 90 => 'Algo pequeño', 100 => 'Normal', 115 => 'Grande', 130 => 'Muy grande', 150 => 'Máximo'] as $valor => $etiqueta): ?>
+        <option value="<?= $valor ?>" <?= (int)($ajustes['hero_titulo_tamano'] ?? 100) === $valor ? 'selected' : '' ?>><?= $etiqueta ?> (<?= $valor ?>%)</option>
+      <?php endforeach; ?>
+    </select>
+    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">El titular se sigue ajustando solo para caber en una línea; esto cambia lo grande que empieza siendo.</p>
   </div>
   <div class="campo">
     <label for="hero_texto">Texto de presentación</label>

@@ -20,6 +20,16 @@ if (!$competicion) {
     exit;
 }
 
+// Competición anterior/siguiente por fecha, para poder deslizar entre
+// ellas en el móvil sin volver al listado
+$stmtSiguiente = $pdo->prepare('SELECT id FROM competiciones WHERE fecha > ? ORDER BY fecha ASC LIMIT 1');
+$stmtSiguiente->execute([$competicion['fecha']]);
+$idSiguiente = $stmtSiguiente->fetchColumn();
+
+$stmtAnterior = $pdo->prepare('SELECT id FROM competiciones WHERE fecha < ? ORDER BY fecha DESC LIMIT 1');
+$stmtAnterior->execute([$competicion['fecha']]);
+$idAnterior = $stmtAnterior->fetchColumn();
+
 $stmtFotos = $pdo->prepare('SELECT * FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC');
 $stmtFotos->execute([$id]);
 $fotos = $stmtFotos->fetchAll();
@@ -102,6 +112,18 @@ require __DIR__ . '/includes/header.php';
     <p><a href="competiciones.php"><?= t('volver_competiciones') ?></a></p>
   </div>
 </section>
+<?php endif; ?>
+
+<div id="swipe-competicion"
+     data-anterior="<?= $idAnterior ? 'competicion.php?id=' . (int)$idAnterior : '' ?>"
+     data-siguiente="<?= $idSiguiente ? 'competicion.php?id=' . (int)$idSiguiente : '' ?>"
+     style="display:none;" aria-hidden="true"></div>
+
+<?php if ($idAnterior || $idSiguiente): ?>
+<div class="aviso-swipe" id="aviso-swipe">
+  <span class="aviso-swipe-mano">👆</span>
+  <span>Desliza para ver otra competición</span>
+</div>
 <?php endif; ?>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
