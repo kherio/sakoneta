@@ -126,6 +126,11 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   administradores). La cuenta `admin` de siempre se ha convertido
   automáticamente en el primer usuario, con rol administrador y la
   misma contraseña que ya tenía.
+- **Próximas competiciones y resultados por separado**: la página
+  "Competiciones" solo muestra las pendientes, ordenadas de la más
+  próxima a la más lejana. Hay una página nueva, "Resultados"
+  (`resultados.php`), con las ya disputadas y su resultado, ordenadas
+  de la más reciente a la más antigua. Cada una enlaza a la otra.
 - **Elegir fotos ya subidas**: al crear o editar una noticia o una
   competición, además de subir fotos/vídeos nuevos se puede abrir "O
   elige entre las fotos y vídeos ya subidos antes" y marcar cualquier
