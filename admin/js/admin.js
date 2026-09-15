@@ -78,3 +78,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
   actualizarContador();
 });
+
+// Selector visual de encuadre de la foto principal (noticia_form.php,
+// competicion_form.php): clic o arrastre sobre la foto para marcar el
+// punto que se quiere ver en la cabecera.
+document.addEventListener('DOMContentLoaded', function () {
+  var selector = document.getElementById('selector-encuadre');
+  if (!selector) return;
+
+  var marca = document.getElementById('marca-encuadre');
+  var input = document.getElementById('imagen_posicion_input');
+  var arrastrando = false;
+
+  function actualizar(clientX, clientY) {
+    var rect = selector.getBoundingClientRect();
+    var x = Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
+    var y = Math.round(Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100)));
+    marca.style.left = x + '%';
+    marca.style.top = y + '%';
+    input.value = x + ' ' + y;
+  }
+
+  selector.addEventListener('mousedown', function (e) {
+    arrastrando = true;
+    actualizar(e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (arrastrando) actualizar(e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseup', function () { arrastrando = false; });
+
+  selector.addEventListener('touchstart', function (e) {
+    arrastrando = true;
+    var t = e.touches[0];
+    actualizar(t.clientX, t.clientY);
+  }, { passive: true });
+  selector.addEventListener('touchmove', function (e) {
+    if (!arrastrando) return;
+    var t = e.touches[0];
+    actualizar(t.clientX, t.clientY);
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchend', function () { arrastrando = false; });
+});

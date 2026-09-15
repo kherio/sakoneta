@@ -137,6 +137,39 @@ a { color: inherit; }
   box-shadow: 0 0 0 4px rgba(214,24,122,.12);
 }
 .campo textarea { min-height: 160px; resize: vertical; }
+
+.selector-encuadre {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  aspect-ratio: 21/8;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  border: 1.5px solid var(--borde);
+  cursor: crosshair;
+  overflow: hidden;
+  touch-action: none;
+  background-color: #ddd;
+}
+.selector-encuadre-rejilla {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px) 0 0 / 33.33% 100%,
+    linear-gradient(0deg, rgba(255,255,255,.35) 1px, transparent 1px) 0 0 / 100% 33.33%;
+  pointer-events: none;
+}
+.selector-encuadre-marca {
+  position: absolute;
+  width: 26px; height: 26px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: rgba(0,0,0,.3);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 2px rgba(0,0,0,.45), 0 2px 10px rgba(0,0,0,.4);
+  pointer-events: none;
+}
 .fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
 .btn {

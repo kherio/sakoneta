@@ -605,18 +605,28 @@ function listarMediaSubida(): array {
 }
 
 /**
- * Traduce el encuadre elegido para una foto de portada ('arriba',
- * 'centro' o 'abajo') al valor CSS background-position
- * correspondiente. Si el valor guardado no es ninguno de los tres
- * (por ejemplo, un dato antiguo o corrupto), se usa 'arriba' porque
- * es lo más habitual en fotos de personas (evita cortar caras).
+ * Convierte lo que haya guardado en imagen_posicion (nuevo formato
+ * "X Y" en porcentajes del selector visual, o el antiguo
+ * 'arriba'/'centro'/'abajo') en una pareja [x, y] de porcentajes.
+ */
+function posicionXY(?string $posicion): array {
+    if ($posicion && preg_match('/^(\d{1,3})\s+(\d{1,3})$/', trim($posicion), $m)) {
+        return [max(0, min(100, (int)$m[1])), max(0, min(100, (int)$m[2]))];
+    }
+    return match ($posicion) {
+        'centro' => [50, 50],
+        'abajo' => [50, 90],
+        default => [50, 12], // 'arriba', vacío o cualquier valor no reconocido
+    };
+}
+
+/**
+ * Traduce el encuadre elegido para una foto de portada al valor CSS
+ * background-position correspondiente.
  */
 function posicionCss(?string $posicion): string {
-    return match ($posicion) {
-        'centro' => 'center center',
-        'abajo' => 'center 90%',
-        default => 'center 12%',
-    };
+    [$x, $y] = posicionXY($posicion);
+    return "{$x}% {$y}%";
 }
 
 function obtenerAjustes(PDO $pdo): array {

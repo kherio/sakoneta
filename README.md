@@ -126,10 +126,11 @@ y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
   administradores). La cuenta `admin` de siempre se ha convertido
   automáticamente en el primer usuario, con rol administrador y la
   misma contraseña que ya tenía.
-- **Encuadre de la foto principal**: en noticias y competiciones, se
-  puede elegir si la cabecera (que es bastante alta) muestra la parte
-  de arriba, el centro o la de abajo de la foto — útil para no cortar
-  caras cuando la foto es vertical o tiene a la gente arriba del todo.
+- **Encuadre visual de la foto principal**: en noticias y
+  competiciones, se puede hacer clic o arrastrar directamente sobre
+  la foto (en el propio panel) para marcar el punto exacto que se
+  quiere ver en la cabecera — útil para no cortar caras cuando la
+  cabecera es alta o la foto no tiene la proporción ideal.
 - **Próximas competiciones y resultados por separado**: la página
   "Competiciones" solo muestra las pendientes, ordenadas de la más
   próxima a la más lejana. Hay una página nueva, "Resultados"
