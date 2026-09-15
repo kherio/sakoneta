@@ -157,8 +157,15 @@ document.addEventListener('DOMContentLoaded', function () {
     precargar(urlAnterior, capaAnterior, 'anterior');
     precargar(urlSiguiente, capaSiguiente, 'siguiente');
 
-    var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false;
+    var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false, vaASiguiente = null;
     var anchoPantalla = window.innerWidth;
+
+    function ocultarCapas() {
+      [capaAnterior, capaSiguiente].forEach(function (capa) {
+        capa.classList.remove('visible');
+        capa.style.transform = '';
+      });
+    }
 
     document.addEventListener('touchstart', function (e) {
       if (navegando) return;
@@ -166,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
       inicioY = e.touches[0].clientY;
       arrastrando = true;
       esHorizontal = null;
+      vaASiguiente = null;
       document.body.style.transition = 'none';
       capaAnterior.style.transition = 'none';
       capaSiguiente.style.transition = 'none';
@@ -178,26 +186,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (esHorizontal === null && (Math.abs(deltaX) > 12 || Math.abs(deltaY) > 12)) {
         esHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.3;
+        // La dirección se decide UNA sola vez, al confirmarse el gesto
+        // horizontal, y ya no cambia durante el resto del arrastre
+        // (si no, un pequeño temblor cerca del centro hacía parpadear
+        // la vista previa de un lado a otro).
+        if (esHorizontal) vaASiguiente = deltaX < 0;
       }
       if (!esHorizontal) return;
 
-      var vaASiguiente = deltaX < 0;
       var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
       document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
 
-      // La capa correspondiente entra desde su lado seguiendo el dedo,
-      // a la misma velocidad que se va el contenido actual
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
-      var otraCapa = vaASiguiente ? capaAnterior : capaSiguiente;
-      otraCapa.classList.remove('visible');
       if (tieneDestino) {
         capaActiva.classList.add('visible');
         var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
         capaActiva.style.transform = 'translateX(' + (base + desplazamiento) + 'px)';
-      } else {
-        capaActiva.classList.remove('visible');
       }
       e.preventDefault();
     }, { passive: false });
@@ -207,9 +213,8 @@ document.addEventListener('DOMContentLoaded', function () {
       arrastrando = false;
       var deltaX = e.changedTouches[0].clientX - inicioX;
       inicioX = null;
-      if (!esHorizontal) return;
+      if (!esHorizontal || vaASiguiente === null) { ocultarCapas(); return; }
 
-      var vaASiguiente = deltaX < 0;
       var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
       var umbralSuperado = tieneDestino && Math.abs(deltaX) > anchoPantalla * 0.22;
       var destino = vaASiguiente ? urlSiguiente : urlAnterior;
@@ -229,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.style.transform = 'translateX(0)';
         var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
         capaActiva.style.transform = 'translateX(' + base + 'px)';
-        setTimeout(function () { capaActiva.classList.remove('visible'); }, 290);
+        setTimeout(ocultarCapas, 290);
       }
     }, { passive: true });
 
