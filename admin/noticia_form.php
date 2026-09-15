@@ -160,7 +160,8 @@ require __DIR__ . '/includes/layout_header.php';
   <div class="campo">
     <label>Encuadre de la foto principal (en la cabecera de la noticia)</label>
     <?php if (!empty($noticia['imagen'])): [$posX, $posY] = posicionXY($noticia['imagen_posicion'] ?? null); ?>
-      <div class="selector-encuadre" id="selector-encuadre" style="background-image:url('../img/<?= e($noticia['imagen']) ?>');">
+      <div class="selector-encuadre" id="selector-encuadre">
+        <img src="../img/<?= e($noticia['imagen']) ?>" alt="">
         <div class="selector-encuadre-rejilla"></div>
         <div class="selector-encuadre-marca" id="marca-encuadre" style="left:<?= $posX ?>%;top:<?= $posY ?>%;"></div>
       </div>

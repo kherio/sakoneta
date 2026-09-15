@@ -174,7 +174,8 @@ require __DIR__ . '/includes/layout_header.php';
   <div class="campo">
     <label>Encuadre de la foto principal (en la cabecera de la competición)</label>
     <?php if (!empty($competicion['imagen_portada'])): [$posX, $posY] = posicionXY($competicion['imagen_posicion'] ?? null); ?>
-      <div class="selector-encuadre" id="selector-encuadre" style="background-image:url('../img/<?= e($competicion['imagen_portada']) ?>');">
+      <div class="selector-encuadre" id="selector-encuadre">
+        <img src="../img/<?= e($competicion['imagen_portada']) ?>" alt="">
         <div class="selector-encuadre-rejilla"></div>
         <div class="selector-encuadre-marca" id="marca-encuadre" style="left:<?= $posX ?>%;top:<?= $posY ?>%;"></div>
       </div>
