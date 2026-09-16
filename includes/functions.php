@@ -900,6 +900,40 @@ function borrarCompeticionCompleta(PDO $pdo, int $id): void {
     }
 }
 
+/**
+ * Datos ligeros de una competición (foto, categorías, título, fecha y
+ * lugar) para la vista previa del swipe entre competiciones. Se usan
+ * tanto para incrustarlos directamente en la página (sin depender de
+ * ninguna petición de red aparte) como en el endpoint ?preview=1.
+ */
+function datosVistaPreviaCompeticion(PDO $pdo, int $id): ?array {
+    $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE id = ?');
+    $stmt->execute([$id]);
+    $competicion = $stmt->fetch();
+    if (!$competicion) return null;
+
+    $stmtCats = $pdo->prepare('
+        SELECT cc.categoria FROM competicion_categorias cc
+        JOIN categorias cat ON cat.nombre = cc.categoria
+        WHERE cc.competicion_id = ?
+        ORDER BY cat.orden ASC
+    ');
+    $stmtCats->execute([$id]);
+    $categorias = $stmtCats->fetchAll(PDO::FETCH_COLUMN) ?: [$competicion['categoria']];
+
+    $stmtFoto = $pdo->prepare('SELECT archivo FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC LIMIT 1');
+    $stmtFoto->execute([$id]);
+    $foto = $competicion['imagen_portada'] ?: ($stmtFoto->fetchColumn() ?: 'competicion.svg');
+
+    return [
+        'nombre' => $competicion['nombre'],
+        'categorias' => implode(' · ', $categorias),
+        'imagen' => 'img/' . $foto,
+        'posicion' => posicionCss($competicion['imagen_posicion'] ?? null),
+        'fechaLugar' => formatearFecha($competicion['fecha']) . ' · ' . $competicion['lugar'],
+    ];
+}
+
 function obtenerAjustes(PDO $pdo): array {
     $ajustes = $pdo->query('SELECT * FROM ajustes WHERE id = 1')->fetch();
     if (!$ajustes) {

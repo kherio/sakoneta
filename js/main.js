@@ -143,29 +143,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // y solapadas de forma incorrecta. Se sacan a <html> para evitarlo.
     if (capaAnterior) document.documentElement.appendChild(capaAnterior);
     if (capaSiguiente) document.documentElement.appendChild(capaSiguiente);
-    var previewAnterior = null, previewSiguiente = null;
 
-    function rellenarCapa(capa, datos) {
-      if (!capa || !datos) return;
-      capa.querySelector('.vista-previa-swipe-imagen').style.backgroundImage = "url('" + datos.imagen + "')";
-      capa.querySelector('.vista-previa-swipe-imagen').style.backgroundPosition = datos.posicion;
-      capa.querySelector('.vista-previa-swipe-categoria').textContent = datos.categorias;
-      capa.querySelector('h3').textContent = datos.nombre;
-      capa.querySelector('p').textContent = datos.fechaLugar;
-    }
-
-    function precargar(url, capa, guardarEn) {
-      if (!url) return;
-      fetch(url + (url.indexOf('?') !== -1 ? '&' : '?') + 'preview=1')
-        .then(function (r) { return r.json(); })
-        .then(function (datos) {
-          rellenarCapa(capa, datos);
-          if (guardarEn === 'anterior') previewAnterior = datos; else previewSiguiente = datos;
-        })
-        .catch(function () {});
-    }
-    precargar(urlAnterior, capaAnterior, 'anterior');
-    precargar(urlSiguiente, capaSiguiente, 'siguiente');
+    // El servidor ya ha rellenado estas capas con la foto y el texto
+    // reales de la anterior/siguiente competición directamente en el
+    // HTML de la página (ver competicion.php); no hace falta pedir
+    // nada más por red al vuelo. Antes se pedían por fetch() justo al
+    // cargar la página, y si esa petición no llegaba a tiempo o
+    // fallaba en una conexión móvil floja, el swipe mostraba la foto
+    // (que carga aparte por CSS) pero el texto nunca llegaba a
+    // rellenarse. "Hay vista previa" se sabe solo con mirar si el
+    // servidor llegó a poner contenido dentro de la capa.
+    var hayPreviewAnterior = !!(capaAnterior && capaAnterior.querySelector('.vista-previa-swipe-imagen'));
+    var hayPreviewSiguiente = !!(capaSiguiente && capaSiguiente.querySelector('.vista-previa-swipe-imagen'));
 
     var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false, vaASiguiente = null;
     var anchoPantalla = window.innerWidth;
@@ -205,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (!esHorizontal) return;
 
-      var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
+      var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
       document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
@@ -231,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
       inicioX = null;
       if (!esHorizontal || vaASiguiente === null) { ocultarCapas(); return; }
 
-      var tieneDestino = (vaASiguiente && previewSiguiente) || (!vaASiguiente && previewAnterior);
+      var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
       var umbralSuperado = tieneDestino && Math.abs(deltaX) > anchoPantalla * 0.22;
       var destino = vaASiguiente ? urlSiguiente : urlAnterior;
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;

@@ -20,31 +20,12 @@ if (!$competicion) {
     exit;
 }
 
-// Vista previa ligera en JSON, usada solo por el gesto de swipe en
-// móvil para poder mostrar el aspecto de la otra competición
-// mientras se arrastra, sin tener que cargar la página entera.
+// Vista previa ligera en JSON de una competición cualquiera (se
+// mantiene por si hace falta en el futuro; la página normal ya no
+// depende de esto para el swipe, ver más abajo).
 if (isset($_GET['preview'])) {
-    $catsPreview = $pdo->prepare('
-        SELECT cc.categoria FROM competicion_categorias cc
-        JOIN categorias cat ON cat.nombre = cc.categoria
-        WHERE cc.competicion_id = ?
-        ORDER BY cat.orden ASC
-    ');
-    $catsPreview->execute([$id]);
-    $catsPreview = $catsPreview->fetchAll(PDO::FETCH_COLUMN) ?: [$competicion['categoria']];
-
-    $stmtFotoPreview = $pdo->prepare('SELECT archivo FROM competicion_fotos WHERE competicion_id = ? ORDER BY orden ASC LIMIT 1');
-    $stmtFotoPreview->execute([$id]);
-    $fotoPreview = $competicion['imagen_portada'] ?: ($stmtFotoPreview->fetchColumn() ?: 'competicion.svg');
-
     header('Content-Type: application/json');
-    echo json_encode([
-        'nombre' => $competicion['nombre'],
-        'categorias' => implode(' · ', $catsPreview),
-        'imagen' => 'img/' . $fotoPreview,
-        'posicion' => posicionCss($competicion['imagen_posicion'] ?? null),
-        'fechaLugar' => formatearFecha($competicion['fecha']) . ' · ' . $competicion['lugar'],
-    ]);
+    echo json_encode(datosVistaPreviaCompeticion($pdo, $id) ?: []);
     exit;
 }
 
@@ -57,6 +38,15 @@ $idSiguiente = $stmtSiguiente->fetchColumn();
 $stmtAnterior = $pdo->prepare('SELECT id FROM competiciones WHERE fecha < ? ORDER BY fecha DESC LIMIT 1');
 $stmtAnterior->execute([$competicion['fecha']]);
 $idAnterior = $stmtAnterior->fetchColumn();
+
+// Datos de la anterior/siguiente calculados aquí mismo, en el
+// servidor, para incrustarlos directamente en la página (ver más
+// abajo). Antes se pedían por una petición de red aparte (fetch) justo
+// al cargar la página; si esa petición no llegaba a tiempo o fallaba
+// en una conexión móvil floja, el swipe mostraba la foto (que carga
+// por CSS normal) pero nunca llegaba a rellenar el texto.
+$previaAnterior = $idAnterior ? datosVistaPreviaCompeticion($pdo, (int)$idAnterior) : null;
+$previaSiguiente = $idSiguiente ? datosVistaPreviaCompeticion($pdo, (int)$idSiguiente) : null;
 
 $categoriasCompeticion = $pdo->prepare('
     SELECT cc.categoria FROM competicion_categorias cc
@@ -156,22 +146,18 @@ require __DIR__ . '/includes/header.php';
      data-siguiente="<?= $idSiguiente ? 'competicion.php?id=' . (int)$idSiguiente : '' ?>"
      style="display:none;" aria-hidden="true"></div>
 
-<div class="vista-previa-swipe vista-previa-swipe-anterior" id="vista-previa-anterior" aria-hidden="true">
-  <div class="vista-previa-swipe-imagen"></div>
+<?php foreach (['anterior' => $previaAnterior, 'siguiente' => $previaSiguiente] as $lado => $previa): ?>
+<div class="vista-previa-swipe vista-previa-swipe-<?= $lado ?>" id="vista-previa-<?= $lado ?>" aria-hidden="true">
+  <?php if ($previa): ?>
+  <div class="vista-previa-swipe-imagen" style="background-image:url('<?= e($previa['imagen']) ?>');background-position:<?= e($previa['posicion']) ?>;"></div>
   <div class="vista-previa-swipe-texto">
-    <span class="vista-previa-swipe-categoria"></span>
-    <h3></h3>
-    <p></p>
+    <span class="vista-previa-swipe-categoria"><?= e($previa['categorias']) ?></span>
+    <h3><?= e($previa['nombre']) ?></h3>
+    <p><?= e($previa['fechaLugar']) ?></p>
   </div>
+  <?php endif; ?>
 </div>
-<div class="vista-previa-swipe vista-previa-swipe-siguiente" id="vista-previa-siguiente" aria-hidden="true">
-  <div class="vista-previa-swipe-imagen"></div>
-  <div class="vista-previa-swipe-texto">
-    <span class="vista-previa-swipe-categoria"></span>
-    <h3></h3>
-    <p></p>
-  </div>
-</div>
+<?php endforeach; ?>
 
 <?php if ($idAnterior || $idSiguiente): ?>
 <div class="aviso-swipe" id="aviso-swipe">
