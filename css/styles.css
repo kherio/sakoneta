@@ -1559,11 +1559,27 @@ img.cargando-esqueleto {
 }
 .hero-evento-foto {
   position: absolute;
-  inset: -40px 0;
+  inset: 0;
   background-size: cover;
   background-position: center;
-  will-change: transform;
+  will-change: transform, opacity;
+  opacity: 0;
+  animation-name: heroEventoPase;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
+/* Con una sola foto no hay pase que animar: se queda fija y visible,
+   para no parpadear entrando y saliendo sin ninguna otra foto que
+   mostrar mientras tanto. */
+.hero-evento-foto-fija { opacity: 1; animation: none; }
+/* Con movimiento reducido (preferencia explícita o dispositivo
+   modesto), el pase de fotos se detiene del todo y se queda solo la
+   primera visible, en vez de acelerarlo hasta parpadear. */
+:root[data-movimiento="reducido"] .hero-evento-foto {
+  animation: none !important;
+  opacity: 0;
+}
+:root[data-movimiento="reducido"] .hero-evento-foto:first-of-type { opacity: 1; }
 .hero-evento-capa {
   position: absolute;
   inset: 0;

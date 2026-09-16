@@ -24,8 +24,10 @@ ajustes generales del sitio.
   competición pendiente (2 días por defecto, configurable desde
   Ajustes), la página de inicio cambia por completo mientras dure esa
   cuenta atrás: en vez del titular y las estadísticas de siempre, se
-  ve la foto de esa competición a pantalla completa con parallax, su
-  nombre, categoría, fecha y lugar, y una cuenta atrás grande en
+  ve un pase de hasta 5 fotos de esa competición (su portada y las de
+  su galería) a pantalla completa, con fundido encadenado y un ligero
+  zoom entre una y otra; si solo hay una foto, se queda fija. Encima,
+  su nombre, categoría, fecha y lugar, y una cuenta atrás grande en
   cajas (días/horas/min/seg) con un botón directo a su ficha. Si esa
   competición no tiene foto de portada propia, la portada se queda
   como siempre.

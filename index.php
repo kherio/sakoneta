@@ -24,9 +24,25 @@ $ajustes = obtenerAjustes($pdo);
 // titular y las estadísticas de siempre.
 $diasModoEvento = isset($ajustes['modo_evento_dias']) && $ajustes['modo_evento_dias'] !== null ? (int)$ajustes['modo_evento_dias'] : 2;
 $modoEvento = false;
+$fotosModoEvento = [];
 if ($proxima && !empty($proxima['imagen_portada']) && $diasModoEvento > 0) {
     $diasHastaProxima = (strtotime($proxima['fecha']) - strtotime(date('Y-m-d'))) / 86400;
     $modoEvento = $diasHastaProxima >= 0 && $diasHastaProxima <= $diasModoEvento;
+
+    if ($modoEvento) {
+        // La portada siempre va primero, y detrás las fotos de la
+        // galería de esa competición (sin repetir la portada si
+        // también estuviera ahí, y sin vídeos), hasta un máximo de 5.
+        $fotosModoEvento[] = $proxima['imagen_portada'];
+        $stmtFotosEvento = $pdo->prepare("SELECT archivo FROM competicion_fotos WHERE competicion_id = ? AND tipo = 'imagen' ORDER BY orden ASC");
+        $stmtFotosEvento->execute([$proxima['id']]);
+        foreach ($stmtFotosEvento->fetchAll(PDO::FETCH_COLUMN) as $archivoGaleria) {
+            if (count($fotosModoEvento) >= 5) break;
+            if (!in_array($archivoGaleria, $fotosModoEvento, true)) {
+                $fotosModoEvento[] = $archivoGaleria;
+            }
+        }
+    }
 }
 
 $mostrarSplash = !empty($ajustes['splash_activo']) && !empty($ajustes['splash_imagen']);
@@ -64,7 +80,33 @@ require __DIR__ . '/includes/header.php';
 
 <?php if ($modoEvento): ?>
 <section class="hero-evento">
-  <div class="hero-evento-foto" data-parallax="0.08" data-parallax-limite="45" style="background-image:url('img/<?= e($proxima['imagen_portada']) ?>');"></div>
+  <?php
+  $numFotosEvento = count($fotosModoEvento);
+  $unaSolaFoto = $numFotosEvento <= 1;
+  if (!$unaSolaFoto):
+      // El hueco que ocupa cada foto dentro del ciclo completo depende
+      // de cuántas fotos haya (100% ÷ número de fotos): con esto se
+      // genera la animación de fundido a medida, para que se sucedan
+      // una detrás de otra sin ningún hueco ni solape entre ellas.
+      $huecoPorFoto = 100 / $numFotosEvento;
+      $duracionPorFoto = 6; // segundos que cada foto está "en primer plano"
+      $duracionTotal = $numFotosEvento * $duracionPorFoto;
+  ?>
+  <style>
+    @keyframes heroEventoPase {
+      0% { opacity: 0; transform: scale(1.12); }
+      <?= round($huecoPorFoto * 0.12, 2) ?>% { opacity: 1; }
+      <?= round($huecoPorFoto * 0.85, 2) ?>% { opacity: 1; transform: scale(1); }
+      <?= round($huecoPorFoto, 2) ?>% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <?php endif; ?>
+  <?php foreach ($fotosModoEvento as $i => $fotoEvento): ?>
+    <div class="hero-evento-foto<?= $unaSolaFoto ? ' hero-evento-foto-fija' : '' ?>"
+         style="background-image:url('img/<?= e($fotoEvento) ?>');
+                <?= $unaSolaFoto ? '' : 'animation-duration:' . $duracionTotal . 's; animation-delay:-' . ($i * $duracionPorFoto) . 's;' ?>"></div>
+  <?php endforeach; ?>
   <div class="hero-evento-capa"></div>
   <div class="contenedor hero-evento-contenido">
     <div class="hero-evento-etiqueta">¡Ya casi está aquí!</div>
