@@ -211,6 +211,32 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 ## Seguridad
 
+- **Bloqueo de fuerza bruta del login realmente atómico**: la
+  comprobación, la verificación de credenciales y el registro del
+  resultado ocurren dentro de una única transacción con bloqueo
+  inmediato de SQLite, así que ninguna petición concurrente puede
+  colarse viendo un estado ya desactualizado. Se bloquea tanto por IP
+  como por la cuenta de usuario a la que se apunta (cambiar de IP no
+  sirve de nada si se sigue atacando la misma cuenta).
+- **La IP real no se puede falsificar por cabecera HTTP**: por
+  defecto se usa siempre la IP de la conexión TCP; solo se mira
+  `X-Forwarded-For` si la petición viene de un proxy configurado
+  explícitamente como confiable (variable de entorno
+  `SAKONETA_TRUSTED_PROXIES`).
+- **Límites de conjunto en las subidas** por rol (más estrictos para
+  colaboradores), límite de dimensiones de imagen (evita imágenes
+  "bomba" de resolución absurda), límite de frecuencia de subidas por
+  IP, y un fallo al redimensionar ya no interrumpe el resto del envío.
+- **Ninguna foto sustituida (splash, portada de inicio, logo de
+  patrocinador) se queda huérfana en el disco**: se limpia la
+  anterior en cuanto se sube una nueva, solo si ya no la usa nada más.
+- **Borrado de archivos de la biblioteca de medios también
+  transaccional**: si algo falla a mitad al limpiar sus referencias
+  en noticias, gimnastas, categorías o competiciones, no se borra
+  nada de nada (rollback completo) y el archivo físico solo se
+  elimina después de confirmar que todas las referencias se
+  limpiaron bien.
+
 - **La migración de la base de datos antigua se comprueba de
   verdad**: si por lo que sea (permisos de archivo) no se puede
   mover ni eliminar la copia que hubiera dentro de la carpeta

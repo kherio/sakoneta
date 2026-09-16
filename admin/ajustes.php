@@ -66,6 +66,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
                 $estadisticas['est3_valor'], $estadisticas['est3_texto'],
                 $estadisticas['est4_valor'], $estadisticas['est4_texto'],
             ]);
+
+            // Si se ha subido una foto nueva sustituyendo a una
+            // anterior, la antigua se limpia (solo si ya no la usa
+            // ninguna otra entidad) para no dejarla huérfana en disco.
+            if ($nuevoSplash && $ajustes['splash_imagen'] && $ajustes['splash_imagen'] !== $nuevoSplash) {
+                eliminarArchivoSiNoSeUsa($pdo, $ajustes['splash_imagen']);
+            }
+            if ($nuevaInicio && $ajustes['inicio_imagen'] && $ajustes['inicio_imagen'] !== $nuevaInicio) {
+                eliminarArchivoSiNoSeUsa($pdo, $ajustes['inicio_imagen']);
+            }
+
             redirigir('ajustes.php?ok=1');
         }
     }

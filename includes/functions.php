@@ -38,56 +38,145 @@ function redirigir(string $ruta): void {
 const LOGIN_MAX_INTENTOS = 6;
 const LOGIN_BLOQUEO_MINUTOS = 15;
 
+/**
+ * IP real de quien visita, resistente a falsificación por cabecera
+ * HTTP. Por defecto se usa SIEMPRE la IP de la conexión TCP
+ * (REMOTE_ADDR), que un atacante no puede falsificar. Solo si esta
+ * petición viene de una IP configurada explícitamente como proxy de
+ * confianza (variable de entorno SAKONETA_TRUSTED_PROXIES, o
+ * definida en config.local.php con putenv()) se mira la cabecera
+ * X-Forwarded-For — y aun así, recorriéndola de derecha a izquierda
+ * y quedándose con el primer salto que YA NO sea uno de esos
+ * proxies, porque todo lo que hay a la izquierda de eso lo pudo
+ * escribir libremente quien hizo la petición.
+ */
 function ipVisitante(): string {
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $remoto = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+    $proxiesConfiables = array_filter(array_map('trim', explode(',', (string)(getenv('SAKONETA_TRUSTED_PROXIES') ?: ''))));
+    if (!$proxiesConfiables || !in_array($remoto, $proxiesConfiables, true)) {
+        return $remoto;
+    }
+
+    $cabecera = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+    $saltos = array_reverse(array_filter(array_map('trim', explode(',', $cabecera))));
+    foreach ($saltos as $ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP) && !in_array($ip, $proxiesConfiables, true)) {
+            return $ip;
+        }
+    }
+    return $remoto;
 }
 
 /**
- * Devuelve los minutos restantes de bloqueo para esta IP, o 0 si puede
- * intentar iniciar sesión.
+ * Minutos de bloqueo restantes para esta IP, solo para poder avisar
+ * al cargar el formulario de login (GET). La comprobación real y
+ * decisiva ocurre dentro de intentarLogin(), de forma atómica.
  */
-function minutosBloqueoRestantes(PDO $pdo): int {
+function minutosBloqueoRestantesIp(PDO $pdo, string $ip): int {
     $stmt = $pdo->prepare('SELECT bloqueado_hasta FROM intentos_login WHERE ip = ?');
-    $stmt->execute([ipVisitante()]);
-    $hasta = $stmt->fetchColumn();
+    $stmt->execute([$ip]);
+    return minutosDesdeFecha($stmt->fetchColumn());
+}
+
+function minutosDesdeFecha($hasta): int {
     if (!$hasta) return 0;
     $restante = strtotime($hasta) - time();
     return $restante > 0 ? (int)ceil($restante / 60) : 0;
 }
 
 /**
- * Registra un intento de login fallido para la IP actual. Si se supera
- * el máximo de intentos, bloquea esa IP durante un tiempo.
+ * Intenta un login de forma completamente atómica frente a
+ * concurrencia: la comprobación de si ya está bloqueado, la
+ * verificación de credenciales (a través de $verificarCredenciales,
+ * que debe devolver la fila del usuario si son correctas o null si
+ * no) y el registro del resultado ocurren TODOS dentro de una única
+ * transacción con bloqueo inmediato de SQLite (BEGIN IMMEDIATE).
+ * Mientras dura, ninguna otra petición puede leer ni escribir estas
+ * tablas, así que no existe ninguna ventana en la que dos intentos
+ * concurrentes (misma IP, u otra IP apuntando a la misma cuenta)
+ * puedan colarse viendo a la vez el estado "todavía sin bloquear".
+ *
+ * Se bloquea tanto por IP como por la cuenta de usuario a la que se
+ * apunta: cambiar de IP no sirve de nada si se sigue atacando la
+ * misma cuenta, y viceversa.
+ *
+ * Devuelve ['bloqueado' => bool, 'minutos' => int, 'usuario' => array|null].
  */
-function registrarIntentoFallido(PDO $pdo): void {
-    $ip = ipVisitante();
-
-    // El incremento del contador tiene que ser una única operación
-    // atómica en el propio SQL ("intentos = intentos + 1"), no un
-    // SELECT en PHP seguido de un UPDATE aparte: si dos peticiones
-    // llegan a la vez, ambas leerían el mismo valor de partida y el
-    // contador se quedaría corto, dejando pasar más intentos de los
-    // que debería el bloqueo por fuerza bruta.
-    $pdo->prepare('INSERT INTO intentos_login (ip, intentos, ultimo_intento) VALUES (?, 1, ?)
-                    ON CONFLICT(ip) DO UPDATE SET intentos = intentos + 1, ultimo_intento = excluded.ultimo_intento')
-        ->execute([$ip, date('Y-m-d H:i:s')]);
-
-    $stmt = $pdo->prepare('SELECT intentos FROM intentos_login WHERE ip = ?');
-    $stmt->execute([$ip]);
-    $intentos = (int)$stmt->fetchColumn();
-
-    if ($intentos >= LOGIN_MAX_INTENTOS) {
-        $pdo->prepare('UPDATE intentos_login SET bloqueado_hasta = ? WHERE ip = ?')
-            ->execute([date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60), $ip]);
+function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verificarCredenciales): array {
+    // Si SQLite estuviera ocupada por otra petición en este mismo
+    // instante, se reintenta el BEGIN unas cuantas veces en vez de
+    // fallar directamente.
+    for ($intento = 0; ; $intento++) {
+        try {
+            $pdo->exec('BEGIN IMMEDIATE');
+            break;
+        } catch (PDOException $e) {
+            if ($intento >= 8) throw $e;
+            usleep(150000);
+        }
     }
-}
 
-/**
- * Se llama tras un login correcto para olvidar los intentos fallidos
- * previos de esta IP.
- */
-function resetearIntentosLogin(PDO $pdo): void {
-    $pdo->prepare('DELETE FROM intentos_login WHERE ip = ?')->execute([ipVisitante()]);
+    try {
+        $stmtIp = $pdo->prepare('SELECT bloqueado_hasta FROM intentos_login WHERE ip = ?');
+        $stmtIp->execute([$ip]);
+        $minutos = minutosDesdeFecha($stmtIp->fetchColumn());
+
+        if ($usuario !== '') {
+            $stmtCuenta = $pdo->prepare('SELECT bloqueado_hasta FROM intentos_login_usuario WHERE usuario = ?');
+            $stmtCuenta->execute([$usuario]);
+            $minutos = max($minutos, minutosDesdeFecha($stmtCuenta->fetchColumn()));
+        }
+
+        if ($minutos > 0) {
+            $pdo->exec('COMMIT');
+            return ['bloqueado' => true, 'minutos' => $minutos, 'usuario' => null];
+        }
+
+        $filaUsuario = $verificarCredenciales();
+
+        if ($filaUsuario) {
+            $pdo->prepare('DELETE FROM intentos_login WHERE ip = ?')->execute([$ip]);
+            if ($usuario !== '') $pdo->prepare('DELETE FROM intentos_login_usuario WHERE usuario = ?')->execute([$usuario]);
+            $pdo->exec('COMMIT');
+            return ['bloqueado' => false, 'minutos' => 0, 'usuario' => $filaUsuario];
+        }
+
+        $pdo->prepare('INSERT INTO intentos_login (ip, intentos, ultimo_intento) VALUES (?, 1, ?)
+                        ON CONFLICT(ip) DO UPDATE SET intentos = intentos + 1, ultimo_intento = excluded.ultimo_intento')
+            ->execute([$ip, date('Y-m-d H:i:s')]);
+        $stmtIp2 = $pdo->prepare('SELECT intentos FROM intentos_login WHERE ip = ?');
+        $stmtIp2->execute([$ip]);
+        $intentosIp = (int)$stmtIp2->fetchColumn();
+        if ($intentosIp >= LOGIN_MAX_INTENTOS) {
+            $pdo->prepare('UPDATE intentos_login SET bloqueado_hasta = ? WHERE ip = ?')
+                ->execute([date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60), $ip]);
+        }
+
+        $intentosCuenta = 0;
+        if ($usuario !== '') {
+            $pdo->prepare('INSERT INTO intentos_login_usuario (usuario, intentos, ultimo_intento) VALUES (?, 1, ?)
+                            ON CONFLICT(usuario) DO UPDATE SET intentos = intentos + 1, ultimo_intento = excluded.ultimo_intento')
+                ->execute([$usuario, date('Y-m-d H:i:s')]);
+            $stmtCuenta2 = $pdo->prepare('SELECT intentos FROM intentos_login_usuario WHERE usuario = ?');
+            $stmtCuenta2->execute([$usuario]);
+            $intentosCuenta = (int)$stmtCuenta2->fetchColumn();
+            if ($intentosCuenta >= LOGIN_MAX_INTENTOS) {
+                $pdo->prepare('UPDATE intentos_login_usuario SET bloqueado_hasta = ? WHERE usuario = ?')
+                    ->execute([date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60), $usuario]);
+            }
+        }
+
+        $minutosTras = max(
+            $intentosIp >= LOGIN_MAX_INTENTOS ? LOGIN_BLOQUEO_MINUTOS : 0,
+            $intentosCuenta >= LOGIN_MAX_INTENTOS ? LOGIN_BLOQUEO_MINUTOS : 0
+        );
+        $pdo->exec('COMMIT');
+        return ['bloqueado' => $minutosTras > 0, 'minutos' => $minutosTras, 'usuario' => null];
+    } catch (Throwable $e) {
+        $pdo->exec('ROLLBACK');
+        throw $e;
+    }
 }
 
 /**
@@ -103,7 +192,7 @@ function resetearIntentosLogin(PDO $pdo): void {
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 4;
+const VERSION_ESQUEMA_SAKONETA = 5;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -225,6 +314,16 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS intentos_login (
         ip TEXT PRIMARY KEY,
+        intentos INTEGER NOT NULL DEFAULT 0,
+        ultimo_intento TEXT,
+        bloqueado_hasta TEXT
+    )");
+
+    // Bloqueo por cuenta de usuario, además del de por IP: así,
+    // atacar la misma cuenta desde muchas IP distintas no sirve de
+    // nada para saltarse el límite.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS intentos_login_usuario (
+        usuario TEXT PRIMARY KEY,
         intentos INTEGER NOT NULL DEFAULT 0,
         ultimo_intento TEXT,
         bloqueado_hasta TEXT
@@ -364,7 +463,21 @@ function esImagenValida(string $rutaTemporal, string $extensionEsperada): bool {
         'png' => IMAGETYPE_PNG,
         'webp' => IMAGETYPE_WEBP,
     ];
-    return isset($tiposValidos[$extensionEsperada]) && $info[2] === $tiposValidos[$extensionEsperada];
+    if (!isset($tiposValidos[$extensionEsperada]) || $info[2] !== $tiposValidos[$extensionEsperada]) {
+        return false;
+    }
+
+    // Límite de dimensiones: una imagen con una resolución absurda
+    // (por ejemplo, un PNG de 40000x40000 píxeles que en bytes pesa
+    // poco pero al descomprimirla en memoria para procesarla ocupa
+    // muchísima RAM) podría usarse para forzar un consumo de memoria
+    // desproporcionado, aunque pase el límite de tamaño en bytes.
+    $megapixeles = ($info[0] * $info[1]) / 1_000_000;
+    if ($info[0] > 8000 || $info[1] > 8000 || $megapixeles > 40) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -409,9 +522,23 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
     // vez en un único envío. Se comprueban ANTES de tocar ningún
     // archivo, para poder rechazar el envío entero de golpe en vez de
     // dejar una subida a medias.
-    $maxArchivosPorPeticion = 15;
-    $maxBytesTotalPeticion = 150 * 1024 * 1024; // 150 MB combinados
+    //
+    // Los colaboradores (el rol menos fiable con acceso a subir
+    // archivos) tienen un límite bastante más estricto que
+    // editores/administradores.
+    $esColaborador = function_exists('rolActual') && rolActual() === 'colaborador';
+    $maxArchivosPorPeticion = $esColaborador ? 5 : 15;
+    $maxBytesTotalPeticion = ($esColaborador ? 40 : 150) * 1024 * 1024;
     $margenEspacioLibre = 200 * 1024 * 1024; // no dejar el disco a menos de esto
+
+    // Límite de frecuencia: como máximo un número razonable de
+    // envíos de subida por IP en una ventana de tiempo, para que no
+    // se pueda automatizar un bombardeo de subidas aunque cada una
+    // cumpla el resto de límites por separado.
+    if (function_exists('getDb') && superaLimiteEnvios(getDb(), 'subida_admin', $esColaborador ? 8 : 20, 10)) {
+        $errores[] = 'Se han hecho demasiadas subidas seguidas desde aquí en poco tiempo. Espera unos minutos y vuelve a intentarlo.';
+        return [];
+    }
 
     if ($total > $maxArchivosPorPeticion) {
         $errores[] = 'Se pueden subir como máximo ' . $maxArchivosPorPeticion . ' archivos en un mismo envío.';
@@ -492,7 +619,15 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
 
         if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
             if ($esImagen) {
-                redimensionarImagenSiHaceFalta($rutaFinal, $extensionFinal);
+                try {
+                    redimensionarImagenSiHaceFalta($rutaFinal, $extensionFinal);
+                } catch (Throwable $e) {
+                    // Un fallo al redimensionar no es motivo para
+                    // perder el resto del envío: se queda con el
+                    // archivo original (ya validado y dentro de
+                    // límites), sin redimensionar.
+                    error_log('Sakoneta: no se pudo redimensionar ' . $rutaFinal . ': ' . $e->getMessage());
+                }
             }
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
         } else {
@@ -668,28 +803,38 @@ function limpiarReferenciasArchivo(PDO $pdo, string $archivo): void {
         'competiciones' => ['fotos' => 'competicion_fotos', 'columna_id' => 'competicion_id', 'columna_portada' => 'imagen_portada'],
     ];
 
-    foreach ($entidades as $tabla => $info) {
-        $columnaPortada = $info['columna_portada'];
-        $tablaFotos = $info['fotos'];
-        $columnaId = $info['columna_id'];
+    $pdo->beginTransaction();
+    try {
+        foreach ($entidades as $tabla => $info) {
+            $columnaPortada = $info['columna_portada'];
+            $tablaFotos = $info['fotos'];
+            $columnaId = $info['columna_id'];
 
-        $stmt = $pdo->prepare("SELECT id FROM $tabla WHERE $columnaPortada = ?");
-        $stmt->execute([$archivo]);
-        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $id) {
-            $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ? AND $columnaId = ?")->execute([$archivo, $id]);
-            $siguiente = $pdo->prepare("SELECT archivo FROM $tablaFotos WHERE $columnaId = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
-            $siguiente->execute([$id]);
-            $nuevaPortada = $siguiente->fetchColumn() ?: null;
-            $pdo->prepare("UPDATE $tabla SET $columnaPortada = ? WHERE id = ?")->execute([$nuevaPortada, $id]);
+            $stmt = $pdo->prepare("SELECT id FROM $tabla WHERE $columnaPortada = ?");
+            $stmt->execute([$archivo]);
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $id) {
+                $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ? AND $columnaId = ?")->execute([$archivo, $id]);
+                $siguiente = $pdo->prepare("SELECT archivo FROM $tablaFotos WHERE $columnaId = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
+                $siguiente->execute([$id]);
+                $nuevaPortada = $siguiente->fetchColumn() ?: null;
+                $pdo->prepare("UPDATE $tabla SET $columnaPortada = ? WHERE id = ?")->execute([$nuevaPortada, $id]);
+            }
+            // Por si el archivo era una foto de galería que no era la portada de nadie
+            $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ?")->execute([$archivo]);
         }
-        // Por si el archivo era una foto de galería que no era la portada de nadie
-        $pdo->prepare("DELETE FROM $tablaFotos WHERE archivo = ?")->execute([$archivo]);
+
+        $pdo->prepare('UPDATE ajustes SET splash_imagen = NULL, splash_activo = 0 WHERE splash_imagen = ?')->execute([$archivo]);
+        $pdo->prepare('UPDATE ajustes SET inicio_imagen = NULL, inicio_imagen_titulo = NULL WHERE inicio_imagen = ?')->execute([$archivo]);
+        $pdo->prepare('UPDATE patrocinadores SET logo = NULL WHERE logo = ?')->execute([$archivo]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
     }
 
-    $pdo->prepare('UPDATE ajustes SET splash_imagen = NULL, splash_activo = 0 WHERE splash_imagen = ?')->execute([$archivo]);
-    $pdo->prepare('UPDATE ajustes SET inicio_imagen = NULL, inicio_imagen_titulo = NULL WHERE inicio_imagen = ?')->execute([$archivo]);
-    $pdo->prepare('UPDATE patrocinadores SET logo = NULL WHERE logo = ?')->execute([$archivo]);
-
+    // El archivo físico se borra después de confirmar la transacción,
+    // nunca antes: si algo hubiera fallado a mitad, con el rollback
+    // ya hecho, no queremos habernos cargado el archivo de todas formas.
     $rutaCompleta = __DIR__ . '/../img/' . $archivo;
     if (is_file($rutaCompleta)) {
         @unlink($rutaCompleta);

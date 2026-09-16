@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
             $logoFinal = $nuevoLogo ?: $patrocinador['logo'];
             $stmt = $pdo->prepare('UPDATE patrocinadores SET nombre=?, logo=?, url=?, orden=? WHERE id=?');
             $stmt->execute([$nombre, $logoFinal, $url ?: null, $orden, $id]);
+            if ($nuevoLogo && $patrocinador['logo'] && $patrocinador['logo'] !== $nuevoLogo) {
+                eliminarArchivoSiNoSeUsa($pdo, $patrocinador['logo']);
+            }
             redirigir('patrocinadores.php?ok=1');
         }
     }

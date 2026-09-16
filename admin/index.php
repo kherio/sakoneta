@@ -11,21 +11,25 @@ if (estaAutenticado()) {
 $pdo = getDb();
 
 $error = '';
-$minutosRestantes = minutosBloqueoRestantes($pdo);
+$usuarioTecleado = trim($_POST['usuario'] ?? '');
+$minutosRestantes = minutosBloqueoRestantesIp($pdo, ipVisitante());
 
 if ($minutosRestantes > 0) {
     $error = 'Demasiados intentos fallidos. Vuelve a probar en unos ' . $minutosRestantes . ' minutos.';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tokenValido = !empty($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '');
-    $usuario = trim($_POST['usuario'] ?? '');
     $clave = $_POST['clave'] ?? '';
 
-    $stmtUsuario = $pdo->prepare('SELECT * FROM usuarios WHERE usuario = ? AND activo = 1');
-    $stmtUsuario->execute([$usuario]);
-    $filaUsuario = $stmtUsuario->fetch();
+    $resultado = intentarLogin($pdo, ipVisitante(), $usuarioTecleado, function () use ($pdo, $tokenValido, $usuarioTecleado, $clave) {
+        if (!$tokenValido) return null;
+        $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE usuario = ? AND activo = 1');
+        $stmt->execute([$usuarioTecleado]);
+        $fila = $stmt->fetch();
+        return ($fila && password_verify($clave, $fila['password_hash'])) ? $fila : null;
+    });
 
-    if ($tokenValido && $filaUsuario && password_verify($clave, $filaUsuario['password_hash'])) {
-        resetearIntentosLogin($pdo);
+    if ($resultado['usuario']) {
+        $filaUsuario = $resultado['usuario'];
         session_regenerate_id(true);
         $_SESSION['admin_autenticado'] = true;
         $_SESSION['admin_usuario'] = $filaUsuario['usuario'];
@@ -38,11 +42,9 @@ if ($minutosRestantes > 0) {
         exit;
     }
 
-    registrarIntentoFallido($pdo);
     usleep(700000);
-    $minutosRestantes = minutosBloqueoRestantes($pdo);
-    $error = $minutosRestantes > 0
-        ? 'Demasiados intentos fallidos. Vuelve a probar en unos ' . $minutosRestantes . ' minutos.'
+    $error = $resultado['minutos'] > 0
+        ? 'Demasiados intentos fallidos. Vuelve a probar en unos ' . $resultado['minutos'] . ' minutos.'
         : 'Usuario o contraseña incorrectos.';
 }
 ?>
