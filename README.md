@@ -305,9 +305,14 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
   consiguiera subir un archivo con otra extensión.
 - **Cookie de sesión reforzada** (`HttpOnly`, `SameSite=Lax`,
   `Secure` automático si detecta HTTPS).
-- **Sin listado de carpetas** (`Options -Indexes`) y `.git/`
-  bloqueado en `.htaccess`; aun así, lo correcto es que esa carpeta
-  nunca llegue al servidor de producción.
+- **Sin listado de carpetas, funcione o no `Options -Indexes` en el
+  servidor**: además de esa directiva en `.htaccess` (que depende de
+  que `AllowOverride` lo permita), cada carpeta sin nada público que
+  mostrar (`img/`, `css/`, `js/`, `includes/`, `data/`...) tiene su
+  propio `index.php` que redirige a la portada del sitio en vez de
+  dejar que el servidor liste su contenido. `.git/` sigue bloqueado
+  en `.htaccess`; aun así, lo correcto es que esa carpeta nunca llegue
+  al servidor de producción.
 - `robots.txt` bloquea `/admin/` y `/data/` para los buscadores.
 
 Aun con todo esto, antes de servir el sitio en un dominio real

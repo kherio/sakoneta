@@ -5,6 +5,14 @@
 # lo contrario (ninguna lo hace en este proyecto).
 Options -Indexes
 
+# Redundante con el "Options -Indexes" de arriba y con el index.php
+# que hay dentro de cada carpeta sin nada público que mostrar (ver
+# css/, js/, includes/, img/, data/...), pero por si "Options" no
+# estuviera permitido en este servidor (según cómo tenga configurado
+# AllowOverride), esto asegura que si hay un index.php, se sirva ese
+# en vez de intentar listar la carpeta.
+DirectoryIndex index.php index.html
+
 # Los valores por defecto de PHP (upload_max_filesize=2M en muchas
 # instalaciones de Debian) son demasiado bajos para fotos de móvil
 # normales. Esto los eleva para este sitio sin tocar la configuración
