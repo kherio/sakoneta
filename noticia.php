@@ -22,12 +22,11 @@ if (!$noticia) {
 
 $tituloPagina = $noticia['titulo'];
 $descripcionOG = $noticia['resumen'];
-$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . ($noticia['imagen'] ?: 'competicion.svg');
+$origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+$imagenOG = $origenSeguro . '/img/' . ($noticia['imagen'] ?: 'competicion.svg');
 $migas = [['texto' => t('nav_noticias'), 'url' => 'noticias.php'], ['texto' => $noticia['titulo']]];
 
-$esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$urlActual = $esquema . ($_SERVER['HTTP_HOST'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '');
+$urlActual = $origenSeguro . ($_SERVER['REQUEST_URI'] ?? '');
 $tituloCodificado = rawurlencode($noticia['titulo']);
 $urlCodificada = rawurlencode($urlActual);
 

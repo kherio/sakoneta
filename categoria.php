@@ -39,8 +39,8 @@ $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $
 
 $tituloPagina = 'Categoría ' . $nombreCategoria;
 $descripcionOG = count($gimnastas) . ' gimnastas · ' . count($competiciones) . ' competiciones en la categoría ' . $nombreCategoria;
-$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+$imagenOG = $origenSeguro . '/img/' . $fotoPrincipal;
 $migas = [['texto' => $nombreCategoria]];
 require __DIR__ . '/includes/header.php';
 ?>

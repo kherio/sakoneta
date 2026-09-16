@@ -29,8 +29,8 @@ $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $
 
 $tituloPagina = $gimnasta['nombre'];
 $descripcionOG = $gimnasta['nombre'] . ' · ' . $gimnasta['categoria'] . ' · ' . $gimnasta['modalidad'];
-$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+$imagenOG = $origenSeguro . '/img/' . $fotoPrincipal;
 $migas = [['texto' => t('nav_gimnastas'), 'url' => 'gimnastas.php'], ['texto' => $gimnasta['nombre']]];
 require __DIR__ . '/includes/header.php';
 ?>

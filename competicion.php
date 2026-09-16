@@ -74,8 +74,8 @@ $documentosCompeticion = $stmtDocs->fetchAll();
 
 $tituloPagina = $competicion['nombre'];
 $descripcionOG = $competicion['descripcion'] ? recortarTexto(trim(explode("\n\n", $competicion['descripcion'])[0]), 160) : ($competicion['lugar'] . ' · ' . formatearFecha($competicion['fecha']));
-$esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$imagenOG = $esquemaImg . ($_SERVER['HTTP_HOST'] ?? '') . '/img/' . $fotoPrincipal;
+$origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+$imagenOG = $origenSeguro . '/img/' . $fotoPrincipal;
 $migas = [['texto' => t('nav_competiciones'), 'url' => 'competiciones.php'], ['texto' => $competicion['nombre']]];
 require __DIR__ . '/includes/header.php';
 ?>
