@@ -22,7 +22,8 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
       <?php for ($vuelta = 0; $vuelta < 2; $vuelta++): ?>
         <?php foreach ($patrocinadoresFooter as $p): ?>
           <div class="carrusel-patrocinador-item">
-            <?php if ($p['url']): ?>
+            <?php $urlSegura = $p['url'] && esUrlPermitida($p['url']); ?>
+            <?php if ($urlSegura): ?>
               <a href="<?= e($p['url']) ?>" target="_blank" rel="noopener" title="<?= e($p['nombre']) ?>">
             <?php endif; ?>
             <?php if ($p['logo']): ?>
@@ -30,7 +31,7 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
             <?php else: ?>
               <span class="patrocinador-texto"><?= e($p['nombre']) ?></span>
             <?php endif; ?>
-            <?php if ($p['url']): ?></a><?php endif; ?>
+            <?php if ($urlSegura): ?></a><?php endif; ?>
           </div>
         <?php endforeach; ?>
       <?php endfor; ?>

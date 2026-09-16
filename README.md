@@ -211,6 +211,21 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 ## Seguridad
 
+- **La ubicación de los datos privados se comprueba pase lo que
+  pase**: tanto si se detecta automáticamente como si se configura a
+  mano con `SAKONETA_PRIVATE_DIR`, se verifica igual contra el
+  `DOCUMENT_ROOT` real; una configuración accidentalmente insegura se
+  rechaza igual que la automática, en vez de confiar en que "se habrá
+  configurado bien".
+- **Proteger al último administrador es realmente atómico**:
+  cambiarle el rol, desactivarlo o borrarlo pasa por una transacción
+  con bloqueo inmediato de SQLite, así que ninguna combinación de
+  peticiones concurrentes puede dejar la web sin ningún administrador
+  activo.
+- **Los enlaces de patrocinadores solo admiten `http://` o
+  `https://`**, comprobado explícitamente por esquema (no solo "tiene
+  forma de URL"), tanto al guardarlo como al mostrarlo.
+
 - **Bloqueo de fuerza bruta del login realmente atómico**: la
   comprobación, la verificación de credenciales y el registro del
   resultado ocurren dentro de una única transacción con bloqueo

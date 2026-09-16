@@ -1083,6 +1083,53 @@ function datosVistaPreviaCompeticion(PDO $pdo, int $id): ?array {
     ];
 }
 
+/**
+ * Ejecuta $accion() dentro de una transacción con bloqueo inmediato
+ * de SQLite (BEGIN IMMEDIATE), reintentando unas cuantas veces si la
+ * base de datos estuviera ocupada por otra petición en ese instante.
+ * Así, comprobar una condición (por ejemplo, "¿queda algún otro
+ * administrador?") y la escritura que depende de ese resultado
+ * ocurren de forma realmente atómica frente a peticiones
+ * concurrentes: nadie más puede leer ni escribir estas tablas hasta
+ * que termine, así que no hay ninguna ventana en la que dos
+ * peticiones vean a la vez la misma condición todavía sin aplicar.
+ */
+function ejecutarConBloqueo(PDO $pdo, callable $accion) {
+    for ($intento = 0; ; $intento++) {
+        try {
+            $pdo->exec('BEGIN IMMEDIATE');
+            break;
+        } catch (PDOException $e) {
+            if ($intento >= 8) throw $e;
+            usleep(150000);
+        }
+    }
+    try {
+        $resultado = $accion();
+        $pdo->exec('COMMIT');
+        return $resultado;
+    } catch (Throwable $e) {
+        $pdo->exec('ROLLBACK');
+        throw $e;
+    }
+}
+
+/**
+ * Comprueba que una URL es realmente http:// o https://, no solo que
+ * "parece una URL" (FILTER_VALIDATE_URL también da por buenos otros
+ * esquemas como javascript:, data: o file:, que no deberían acabar
+ * nunca en un href de la web). Se usa en cualquier campo del panel
+ * que pueda acabar en un href/src/action.
+ */
+function esUrlPermitida(string $url): bool {
+    if ($url === '') return true; // el campo es opcional en los sitios donde se usa
+    $partes = parse_url($url);
+    return $partes !== false
+        && isset($partes['scheme'], $partes['host'])
+        && in_array(strtolower($partes['scheme']), ['http', 'https'], true)
+        && filter_var($url, FILTER_VALIDATE_URL) !== false;
+}
+
 function obtenerAjustes(PDO $pdo): array {
     $ajustes = $pdo->query('SELECT * FROM ajustes WHERE id = 1')->fetch();
     if (!$ajustes) {

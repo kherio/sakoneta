@@ -65,7 +65,13 @@ if ($carpetaEnv) {
     if (!is_dir($carpetaEnv)) {
         @mkdir($carpetaEnv, 0770, true);
     }
-    if (is_dir($carpetaEnv) && is_writable($carpetaEnv)) {
+    // Aunque la ruta venga configurada explícitamente por quien
+    // administra el servidor, se comprueba igual que la automática:
+    // no basta con confiar en que "se habrá configurado bien". Si por
+    // error apuntara dentro del DocumentRoot (por ejemplo, dentro del
+    // propio proyecto), se rechaza exactamente igual que la ruta
+    // automática insegura, en vez de usarla de todas formas.
+    if (is_dir($carpetaEnv) && is_writable($carpetaEnv) && sakonetaCarpetaEsSegura($carpetaEnv)) {
         $carpetaPrivada = rtrim($carpetaEnv, '/');
     }
 } else {

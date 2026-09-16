@@ -51,46 +51,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['cambiar_rol'])) {
         $id = (int)$_POST['id'];
         $rol = $_POST['rol'] ?? '';
-        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
-        $stmtObjetivo->execute([$id]);
-        $objetivo = $stmtObjetivo->fetch();
+        $miId = (int)($_SESSION['admin_usuario_id'] ?? 0);
 
-        if (!array_key_exists($rol, $roles) || $id === (int)($_SESSION['admin_usuario_id'] ?? 0)) {
-            // nada que hacer: rol inválido o intentando cambiarse el rol a sí mismo
-        } elseif ($objetivo && $objetivo['rol'] === 'administrador' && $objetivo['activo'] && $rol !== 'administrador' && numeroAdministradoresActivos($pdo) <= 1) {
-            $error = 'No puedes quitarle el rol de administrador: es el único que queda activo.';
-        } else {
+        ejecutarConBloqueo($pdo, function () use ($pdo, $id, $rol, $roles, $miId, &$error) {
+            if (!array_key_exists($rol, $roles) || $id === $miId) {
+                return; // rol inválido o intentando cambiarse el rol a sí mismo
+            }
+            $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+            $stmtObjetivo->execute([$id]);
+            $objetivo = $stmtObjetivo->fetch();
+
+            if ($objetivo && $objetivo['rol'] === 'administrador' && $objetivo['activo'] && $rol !== 'administrador' && numeroAdministradoresActivos($pdo) <= 1) {
+                $error = 'No puedes quitarle el rol de administrador: es el único que queda activo.';
+                return;
+            }
             $pdo->prepare('UPDATE usuarios SET rol = ? WHERE id = ?')->execute([$rol, $id]);
-        }
+        });
         if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['alternar_activo'])) {
         $id = (int)$_POST['id'];
-        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
-        $stmtObjetivo->execute([$id]);
-        $objetivo = $stmtObjetivo->fetch();
+        $miId = (int)($_SESSION['admin_usuario_id'] ?? 0);
 
-        if ($objetivo && $id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+        ejecutarConBloqueo($pdo, function () use ($pdo, $id, $miId, &$error) {
+            if ($id === $miId) return;
+            $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+            $stmtObjetivo->execute([$id]);
+            $objetivo = $stmtObjetivo->fetch();
+            if (!$objetivo) return;
+
             if ($objetivo['rol'] === 'administrador' && $objetivo['activo'] && numeroAdministradoresActivos($pdo) <= 1) {
                 $error = 'No puedes desactivar al único administrador activo que queda.';
-            } else {
-                // Al desactivar, invalidamos también cualquier sesión abierta de esa cuenta
-                $pdo->prepare('UPDATE usuarios SET activo = 1 - activo, session_version = session_version + 1 WHERE id = ?')->execute([$id]);
+                return;
             }
-        }
+            // Al desactivar, invalidamos también cualquier sesión abierta de esa cuenta
+            $pdo->prepare('UPDATE usuarios SET activo = 1 - activo, session_version = session_version + 1 WHERE id = ?')->execute([$id]);
+        });
         if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['borrar'])) {
         $id = (int)$_POST['id'];
-        $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
-        $stmtObjetivo->execute([$id]);
-        $objetivo = $stmtObjetivo->fetch();
+        $miId = (int)($_SESSION['admin_usuario_id'] ?? 0);
 
-        if ($objetivo && $id !== (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+        ejecutarConBloqueo($pdo, function () use ($pdo, $id, $miId, &$error) {
+            if ($id === $miId) return;
+            $stmtObjetivo = $pdo->prepare('SELECT rol, activo FROM usuarios WHERE id = ?');
+            $stmtObjetivo->execute([$id]);
+            $objetivo = $stmtObjetivo->fetch();
+            if (!$objetivo) return;
+
             if ($objetivo['rol'] === 'administrador' && $objetivo['activo'] && numeroAdministradoresActivos($pdo) <= 1) {
                 $error = 'No puedes borrar al único administrador activo que queda.';
-            } else {
-                $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+                return;
             }
-        }
+            $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+        });
         if (!$error) redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['resetear_clave'])) {
         $id = (int)$_POST['id'];

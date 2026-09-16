@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 
     if ($nombre === '') {
         $error = 'El nombre no puede estar vacío.';
-    } elseif ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) {
+    } elseif (!esUrlPermitida($url)) {
         $error = 'El enlace no parece una URL válida (debe empezar por http:// o https://).';
     } else {
         $errorLogo = null;
