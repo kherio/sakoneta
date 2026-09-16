@@ -94,10 +94,10 @@ require __DIR__ . '/includes/header.php';
   ?>
   <style>
     @keyframes heroEventoPase {
-      0% { opacity: 0; transform: scale(1.12); }
-      <?= round($huecoPorFoto * 0.12, 2) ?>% { opacity: 1; }
-      <?= round($huecoPorFoto * 0.85, 2) ?>% { opacity: 1; transform: scale(1); }
-      <?= round($huecoPorFoto, 2) ?>% { opacity: 0; }
+      0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
+      <?= round($huecoPorFoto * 0.11, 2) ?>% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
+      <?= round($huecoPorFoto * 0.85, 2) ?>% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
+      <?= round($huecoPorFoto, 2) ?>% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
       100% { opacity: 0; }
     }
   </style>
@@ -105,7 +105,7 @@ require __DIR__ . '/includes/header.php';
   <?php foreach ($fotosModoEvento as $i => $fotoEvento): ?>
     <div class="hero-evento-foto<?= $unaSolaFoto ? ' hero-evento-foto-fija' : '' ?>"
          style="background-image:url('img/<?= e($fotoEvento) ?>');
-                <?= $unaSolaFoto ? '' : 'animation-duration:' . $duracionTotal . 's; animation-delay:-' . ($i * $duracionPorFoto) . 's;' ?>"></div>
+                <?= $unaSolaFoto ? '' : '--dir:' . ($i % 2 === 0 ? '1' : '-1') . '; animation-duration:' . $duracionTotal . 's; animation-delay:-' . ($i * $duracionPorFoto) . 's;' ?>"></div>
   <?php endforeach; ?>
   <div class="hero-evento-capa"></div>
   <div class="contenedor hero-evento-contenido">
