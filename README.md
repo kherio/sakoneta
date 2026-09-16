@@ -39,9 +39,10 @@ ajustes generales del sitio.
   más de una categoría a una misma competición (por ejemplo, si
   compiten juntas Base y Alevín). En el móvil, se puede deslizar el
   dedo dentro de una competición para pasar a la anterior o
-  siguiente, con una vista previa real de la otra competición
-  entrando en pantalla con sombra y oscureciendo la actual, dando
-  sensación de una página deslizándose sobre otra. El filtro por categoría admite marcar varias
+  siguiente, viendo entrar la otra con la misma composición exacta
+  que su cabecera real (foto con degradado, categoría y título),
+  dando sensación de una página deslizándose sobre otra en vez de un
+  salto brusco al aterrizar. El filtro por categoría admite marcar varias
   a la vez.
 - **Categorías**: cada categoría del club (Base, Alevín, Infantil...)
   tiene su propia página pública, con galería de fotos propia y el

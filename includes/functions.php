@@ -927,10 +927,14 @@ function datosVistaPreviaCompeticion(PDO $pdo, int $id): ?array {
 
     return [
         'nombre' => $competicion['nombre'],
-        'categorias' => implode(' · ', $categorias),
+        'categorias' => $categorias,
         'imagen' => 'img/' . $foto,
         'posicion' => posicionCss($competicion['imagen_posicion'] ?? null),
-        'fechaLugar' => formatearFecha($competicion['fecha']) . ' · ' . $competicion['lugar'],
+        'fecha' => $competicion['fecha'],
+        'hora' => $competicion['hora'],
+        'lugar' => $competicion['lugar'],
+        'disputada' => (bool)$competicion['disputada'],
+        'resultado' => $competicion['resultado'],
     ];
 }
 

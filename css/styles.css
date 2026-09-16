@@ -642,8 +642,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   width: 100vw;
   height: 100vh;
   z-index: 9000;
-  background-size: cover;
-  background-position: center;
   background-color: var(--morado-oscuro);
   pointer-events: none;
   overflow: hidden;
@@ -651,43 +649,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .vista-previa-swipe.visible { display: block; }
 .vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
 .vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
-.vista-previa-swipe-imagen {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: var(--morado-oscuro);
-}
-.vista-previa-swipe-imagen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgba(4,10,28,.95) 0%, rgba(4,10,28,.72) 40%, rgba(4,10,28,.25) 70%, rgba(4,10,28,.05) 100%);
-}
-.vista-previa-swipe-texto {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
-  color: #fff;
-  z-index: 2;
-}
-.vista-previa-swipe-categoria {
-  display: inline-block;
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  font-weight: 700;
-  color: #fff;
-  background: rgba(255,255,255,.18);
-  padding: 4px 12px;
-  border-radius: 999px;
-  margin-bottom: 12px;
-}
-.vista-previa-swipe-texto h3 { margin: 0 0 8px; font-size: clamp(24px, 7vw, 32px); font-weight: 700; text-shadow: 0 2px 12px rgba(0,0,0,.5); line-height: 1.15; }
-.vista-previa-swipe-texto p { margin: 0; font-size: 14.5px; opacity: .9; }
 .aviso-swipe {
   display: none;
 }

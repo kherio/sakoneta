@@ -149,12 +149,21 @@ require __DIR__ . '/includes/header.php';
 <?php foreach (['anterior' => $previaAnterior, 'siguiente' => $previaSiguiente] as $lado => $previa): ?>
 <div class="vista-previa-swipe vista-previa-swipe-<?= $lado ?>" id="vista-previa-<?= $lado ?>" aria-hidden="true">
   <?php if ($previa): ?>
-  <div class="vista-previa-swipe-imagen" style="background-image:url('<?= e($previa['imagen']) ?>');background-position:<?= e($previa['posicion']) ?>;"></div>
-  <div class="vista-previa-swipe-texto">
-    <span class="vista-previa-swipe-categoria"><?= e($previa['categorias']) ?></span>
-    <h3><?= e($previa['nombre']) ?></h3>
-    <p><?= e($previa['fechaLugar']) ?></p>
-  </div>
+  <section class="franja-portada franja-competicion" style="position:absolute;inset:0;height:100%;min-height:0;max-height:none;">
+    <div class="franja-portada-imagen franja-hero-foto" style="background-image:url('<?= e($previa['imagen']) ?>');background-position:<?= e($previa['posicion']) ?>;"></div>
+    <div class="contenedor franja-portada-texto">
+      <div class="franja-competicion-subtitulo">
+        <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e(implode(' · ', $previa['categorias'])) ?></span>
+        · <?= e(formatearFecha($previa['fecha'])) ?><?= !empty($previa['hora']) ? ' a las ' . e($previa['hora']) : '' ?> · <?= e($previa['lugar']) ?>
+        <?php if ($previa['disputada']): ?>
+          · <?= e($previa['resultado'] ?: t('disputada')) ?>
+        <?php else: ?>
+          · <?= t('pendiente') ?>
+        <?php endif; ?>
+      </div>
+      <h2><?= e($previa['nombre']) ?></h2>
+    </div>
+  </section>
   <?php endif; ?>
 </div>
 <?php endforeach; ?>
