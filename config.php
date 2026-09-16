@@ -43,6 +43,22 @@ function sakonetaCarpetaEsSegura(string $ruta): bool {
 }
 
 $carpetaPrivada = null;
+
+// Alternativa a la variable de entorno para servidores donde no se
+// tiene acceso a un <VirtualHost> propio (por ejemplo, un sitio
+// colgado del VirtualHost por defecto de Apache): un archivo local,
+// que NUNCA se sube a git (está en .gitignore), donde definir la
+// ruta directamente. Créalo una sola vez en el servidor:
+//
+//   <?php
+//   putenv('SAKONETA_PRIVATE_DIR=/ruta/fuera/del/docroot');
+//
+// y sobrevive a los "git pull" de después, porque git nunca lo toca.
+$configLocal = __DIR__ . '/config.local.php';
+if (is_file($configLocal)) {
+    require $configLocal;
+}
+
 $carpetaEnv = getenv('SAKONETA_PRIVATE_DIR');
 
 if ($carpetaEnv) {
@@ -68,14 +84,19 @@ if ($carpetaPrivada === null) {
     die(
         "No se ha podido confirmar una ubicación segura y escribible, fuera de la carpeta " .
         "pública del servidor, para guardar la base de datos y otros datos sensibles.\n\n" .
-        "Soluciónalo definiendo la variable de entorno SAKONETA_PRIVATE_DIR con una ruta " .
-        "fuera del DocumentRoot del servidor, por ejemplo:\n\n" .
-        "  Apache (dentro del <VirtualHost>):\n" .
-        "    SetEnv SAKONETA_PRIVATE_DIR /var/lib/sakoneta\n\n" .
-        "  PHP-FPM (en el pool, por ejemplo /etc/php/8.3/fpm/pool.d/www.conf):\n" .
-        "    env[SAKONETA_PRIVATE_DIR] = /var/lib/sakoneta\n\n" .
-        "Esa carpeta debe existir (o poder crearse) y ser escribible por el usuario con el " .
-        "que corre PHP (normalmente www-data). Después, recarga Apache/PHP-FPM."
+        "Soluciónalo con UNA de estas dos opciones:\n\n" .
+        "  1) Variable de entorno SAKONETA_PRIVATE_DIR (si tienes un <VirtualHost> propio):\n" .
+        "       Apache: SetEnv SAKONETA_PRIVATE_DIR /var/lib/sakoneta\n" .
+        "       PHP-FPM (en el pool): env[SAKONETA_PRIVATE_DIR] = /var/lib/sakoneta\n\n" .
+        "  2) Si no tienes acceso a un <VirtualHost> propio (por ejemplo, el sitio cuelga\n" .
+        "     del VirtualHost por defecto de Apache), crea el archivo config.local.php\n" .
+        "     junto a este config.php, con este contenido:\n" .
+        "       <?php\n" .
+        "       putenv('SAKONETA_PRIVATE_DIR=/var/lib/sakoneta');\n" .
+        "     Ese archivo nunca se sube a git (está en .gitignore), así que sobrevive a\n" .
+        "     futuras actualizaciones del código.\n\n" .
+        "En ambos casos, esa carpeta debe existir (o poder crearse) y ser escribible por " .
+        "el usuario con el que corre PHP (normalmente www-data). Después, recarga Apache/PHP-FPM."
     );
 }
 

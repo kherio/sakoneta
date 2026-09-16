@@ -1,6 +1,11 @@
 # Base de datos generada por init_db.php (no se versiona)
 data/club.sqlite
 
+# Configuración específica de este servidor (ruta de datos privados
+# cuando no hay VirtualHost propio). Nunca se sube: cada servidor
+# tiene la suya, y no debe pisarse entre despliegues.
+config.local.php
+
 # Contraseña de administrador generada automáticamente en la primera
 # instalación (nunca debe subirse a git)
 data/contrasena-inicial-admin.txt

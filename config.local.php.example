@@ -1,0 +1,17 @@
+<?php
+// Copia este archivo como "config.local.php" (sin ".example") en esta
+// misma carpeta, y ajusta la ruta. Ese archivo NUNCA se sube a git
+// (está en .gitignore), así que sobrevive a futuras actualizaciones
+// del código con "git pull".
+//
+// Solo hace falta si el sitio NO tiene un <VirtualHost> propio de
+// Apache donde poder poner "SetEnv SAKONETA_PRIVATE_DIR ..." (por
+// ejemplo, si cuelga del VirtualHost por defecto del servidor). Si sí
+// tienes un <VirtualHost> propio, usa esa opción en su lugar y no
+// hace falta este archivo.
+//
+// La ruta debe existir (o poder crearse) y ser escribible por el
+// usuario con el que corre PHP (normalmente www-data), y debe quedar
+// FUERA de cualquier carpeta que Apache/Nginx puedan llegar a servir.
+
+putenv('SAKONETA_PRIVATE_DIR=/var/lib/sakoneta');
