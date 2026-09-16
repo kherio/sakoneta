@@ -281,6 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');
+  var fondoMenuMovil = document.getElementById('menu-movil-fondo');
   var contenidoTrasMenu = document.getElementById('contenido-pagina');
   var pieTrasMenu = document.querySelector('footer');
   if (botonMenu && menuMovil) {
@@ -294,6 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
       menuMovil.classList.add('abierto');
       botonMenu.classList.add('activo');
       botonMenu.setAttribute('aria-expanded', 'true');
+      if (fondoMenuMovil) fondoMenuMovil.classList.add('visible');
       // El contenido de detrás del menú no debe poder recibir el foco
       // por teclado (Tab) mientras el menú está abierto y lo tapa.
       fijarInertTrasMenu(true);
@@ -302,6 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
       menuMovil.classList.remove('abierto');
       botonMenu.classList.remove('activo');
       botonMenu.setAttribute('aria-expanded', 'false');
+      if (fondoMenuMovil) fondoMenuMovil.classList.remove('visible');
       fijarInertTrasMenu(false);
       if (devolverFoco) botonMenu.focus();
     }
@@ -309,6 +312,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if (menuMovil.classList.contains('abierto')) cerrarMenuMovil(false);
       else abrirMenuMovil();
     });
+    // Pulsar fuera del menú (sobre el fondo oscurecido) lo cierra. El
+    // contenido de la página queda con "inert" mientras el menú está
+    // abierto, que también bloquea sus propios clics, así que hace
+    // falta este fondo aparte —no inert— para poder recibir ese clic.
+    if (fondoMenuMovil) {
+      fondoMenuMovil.addEventListener('click', function () { cerrarMenuMovil(false); });
+    }
     // Escape cierra el menú y devuelve el foco al botón que lo abrió,
     // esté el foco donde esté en ese momento (no solo dentro del menú).
     document.addEventListener('keydown', function (e) {

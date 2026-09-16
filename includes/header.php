@@ -112,6 +112,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
     <a href="buscar.php" class="<?= ($paginaActual ?? '') === 'buscar' ? 'activo' : '' ?>"><?= t('nav_buscar') ?></a>
     <a href="admin/index.php" class="nav-acceso"><?= t('nav_acceso') ?></a>
   </div>
+  <div class="menu-movil-fondo" id="menu-movil-fondo" aria-hidden="true"></div>
 </header>
 
 <div id="contenido-pagina">
