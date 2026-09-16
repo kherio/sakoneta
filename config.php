@@ -106,10 +106,39 @@ define('DB_PATH', CARPETA_PRIVADA . '/club.sqlite');
 // Migración automática, una sola vez: si ya había una base de datos
 // en la ubicación antigua (dentro de la carpeta pública) y todavía no
 // existe ninguna en la nueva ubicación privada, se traslada sola.
-// No hace falta mover nada a mano por SSH.
+// No hace falta mover nada a mano por SSH — PERO se comprueba de
+// verdad que la copia antigua ha desaparecido. Si por lo que sea
+// (permisos del sistema de archivos) no se puede mover ni eliminar,
+// el sitio se detiene en vez de seguir funcionando con una copia de
+// la base de datos (con usuarios, hashes y datos privados) dentro de
+// la carpeta pública, donde un servidor mal configurado podría
+// llegar a servirla directamente.
 $dbAntigua = __DIR__ . '/data/club.sqlite';
-if ($dbAntigua !== DB_PATH && is_file($dbAntigua) && !is_file(DB_PATH)) {
-    @rename($dbAntigua, DB_PATH);
+if ($dbAntigua !== DB_PATH && is_file($dbAntigua)) {
+    if (!is_file(DB_PATH)) {
+        @rename($dbAntigua, DB_PATH);
+        clearstatcache(true, $dbAntigua);
+        clearstatcache(true, DB_PATH);
+    }
+    if (is_file($dbAntigua)) {
+        http_response_code(500);
+        error_log('Sakoneta: no se ha podido eliminar/mover la base de datos antigua de ' . $dbAntigua . ' — sigue dentro de la carpeta pública del sitio.');
+        die(
+            "Hay una copia de la base de datos dentro de la carpeta pública del sitio\n" .
+            "($dbAntigua) que no se ha podido trasladar ni eliminar automáticamente\n" .
+            "(seguramente por permisos de archivo).\n\n" .
+            "Por seguridad, el sitio no continúa mientras esa copia siga ahí: contiene\n" .
+            "usuarios, contraseñas y datos privados, y si el servidor no protegiera bien\n" .
+            "esa carpeta (por ejemplo, con Nginx sin la regla adecuada), podría llegar a\n" .
+            "descargarse directamente.\n\n" .
+            "Soluciónalo por SSH con uno de estos dos pasos, y recarga la página:\n\n" .
+            "  Si " . DB_PATH . " ya existe y es la copia buena y actualizada:\n" .
+            "    rm " . $dbAntigua . "\n\n" .
+            "  Si no, da permisos de escritura a PHP sobre esa carpeta y vuelve a\n" .
+            "  intentarlo (recargando la página, no hace falta reiniciar nada):\n" .
+            "    sudo chown www-data:www-data " . dirname($dbAntigua) . " " . $dbAntigua
+        );
+    }
 }
 
 // Nombre de usuario del primer administrador. La contraseña NUNCA se

@@ -61,18 +61,25 @@ function minutosBloqueoRestantes(PDO $pdo): int {
  */
 function registrarIntentoFallido(PDO $pdo): void {
     $ip = ipVisitante();
+
+    // El incremento del contador tiene que ser una única operación
+    // atómica en el propio SQL ("intentos = intentos + 1"), no un
+    // SELECT en PHP seguido de un UPDATE aparte: si dos peticiones
+    // llegan a la vez, ambas leerían el mismo valor de partida y el
+    // contador se quedaría corto, dejando pasar más intentos de los
+    // que debería el bloqueo por fuerza bruta.
+    $pdo->prepare('INSERT INTO intentos_login (ip, intentos, ultimo_intento) VALUES (?, 1, ?)
+                    ON CONFLICT(ip) DO UPDATE SET intentos = intentos + 1, ultimo_intento = excluded.ultimo_intento')
+        ->execute([$ip, date('Y-m-d H:i:s')]);
+
     $stmt = $pdo->prepare('SELECT intentos FROM intentos_login WHERE ip = ?');
     $stmt->execute([$ip]);
-    $intentos = (int)$stmt->fetchColumn() + 1;
+    $intentos = (int)$stmt->fetchColumn();
 
-    $bloqueadoHasta = null;
     if ($intentos >= LOGIN_MAX_INTENTOS) {
-        $bloqueadoHasta = date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60);
+        $pdo->prepare('UPDATE intentos_login SET bloqueado_hasta = ? WHERE ip = ?')
+            ->execute([date('Y-m-d H:i:s', time() + LOGIN_BLOQUEO_MINUTOS * 60), $ip]);
     }
-
-    $pdo->prepare('INSERT INTO intentos_login (ip, intentos, ultimo_intento, bloqueado_hasta) VALUES (?, ?, ?, ?)
-                    ON CONFLICT(ip) DO UPDATE SET intentos = excluded.intentos, ultimo_intento = excluded.ultimo_intento, bloqueado_hasta = excluded.bloqueado_hasta')
-        ->execute([$ip, $intentos, date('Y-m-d H:i:s'), $bloqueadoHasta]);
 }
 
 /**
@@ -388,6 +395,46 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
         return [];
     }
 
+    $carpetaDestino = __DIR__ . '/../img/subidas';
+    if (!is_dir($carpetaDestino)) {
+        mkdir($carpetaDestino, 0775, true);
+    }
+
+    $total = count($_FILES[$campo]['name']);
+
+    // Límites de CONJUNTO para toda la petición, además de los límites
+    // por archivo (20 MB foto / 80 MB vídeo) que ya había: sin esto,
+    // alguien con acceso al panel podría forzar un consumo excesivo de
+    // CPU, RAM, disco y tiempo subiendo muchos archivos grandes a la
+    // vez en un único envío. Se comprueban ANTES de tocar ningún
+    // archivo, para poder rechazar el envío entero de golpe en vez de
+    // dejar una subida a medias.
+    $maxArchivosPorPeticion = 15;
+    $maxBytesTotalPeticion = 150 * 1024 * 1024; // 150 MB combinados
+    $margenEspacioLibre = 200 * 1024 * 1024; // no dejar el disco a menos de esto
+
+    if ($total > $maxArchivosPorPeticion) {
+        $errores[] = 'Se pueden subir como máximo ' . $maxArchivosPorPeticion . ' archivos en un mismo envío.';
+        return [];
+    }
+
+    $bytesTotales = 0;
+    foreach ($_FILES[$campo]['size'] as $tamano) {
+        $bytesTotales += (int)$tamano;
+    }
+    if ($bytesTotales > $maxBytesTotalPeticion) {
+        $errores[] = 'El conjunto de archivos pesa demasiado (máximo ' . round($maxBytesTotalPeticion / (1024 * 1024)) . ' MB en total por envío, aunque cada uno esté dentro de su propio límite).';
+        return [];
+    }
+
+    $espacioLibre = @disk_free_space($carpetaDestino);
+    if ($espacioLibre !== false && $espacioLibre < ($bytesTotales + $margenEspacioLibre)) {
+        $errores[] = 'No hay espacio suficiente en el servidor para esta subida. Avisa a quien administre el hosting.';
+        return [];
+    }
+
+    $tiempoLimite = time() + 240; // deja margen antes de que salte el límite de PHP (300s)
+
     $extensionesImagen = ['jpg' => 'jpg', 'jpeg' => 'jpg', 'png' => 'png', 'webp' => 'webp'];
     $extensionesVideo = ['mp4' => 'mp4', 'webm' => 'webm', 'mov' => 'mov'];
     $mimesVideo = [
@@ -396,15 +443,14 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
         'mov' => ['video/quicktime', 'video/mp4'],
     ];
 
-    $carpetaDestino = __DIR__ . '/../img/subidas';
-    if (!is_dir($carpetaDestino)) {
-        mkdir($carpetaDestino, 0775, true);
-    }
-
     $guardados = [];
-    $total = count($_FILES[$campo]['name']);
 
     for ($i = 0; $i < $total; $i++) {
+        if (time() > $tiempoLimite) {
+            $errores[] = 'Se ha tardado demasiado procesando los archivos anteriores; el resto de este envío no se ha subido. Súbelos en un envío aparte, con menos archivos o más pequeños.';
+            break;
+        }
+
         if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
 
         if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_INI_SIZE || $_FILES[$campo]['error'][$i] === UPLOAD_ERR_FORM_SIZE) {
@@ -706,25 +752,29 @@ function superaLimiteEnvios(PDO $pdo, string $tipo, int $maxIntentos, int $minut
     $ip = ipVisitante();
     $ahora = time();
 
-    $stmt = $pdo->prepare('SELECT intentos, ventana_inicio FROM limite_envios WHERE ip = ? AND tipo = ?');
+    $stmt = $pdo->prepare('SELECT ventana_inicio FROM limite_envios WHERE ip = ? AND tipo = ?');
     $stmt->execute([$ip, $tipo]);
-    $fila = $stmt->fetch();
+    $ventanaActual = $stmt->fetchColumn();
 
-    $ventanaCaducada = !$fila || strtotime($fila['ventana_inicio']) < ($ahora - $minutosVentana * 60);
+    $ventanaCaducada = $ventanaActual === false || strtotime($ventanaActual) < ($ahora - $minutosVentana * 60);
 
+    // El incremento (o el reinicio de la ventana) se hace en una única
+    // operación SQL atómica, y solo DESPUÉS se comprueba el resultado.
+    // Antes se leía "intentos" en PHP y, según ese valor ya desfasado,
+    // se decidía si incrementar o no — con varias peticiones a la vez,
+    // todas podían leer el mismo valor por debajo del límite y colarse
+    // a la vez. Así, cada petición suma su propio +1 de verdad.
     if ($ventanaCaducada) {
         $pdo->prepare('INSERT INTO limite_envios (ip, tipo, ventana_inicio, intentos) VALUES (?, ?, ?, 1)
                         ON CONFLICT(ip, tipo) DO UPDATE SET ventana_inicio = excluded.ventana_inicio, intentos = 1')
             ->execute([$ip, $tipo, date('Y-m-d H:i:s', $ahora)]);
-        return false;
+    } else {
+        $pdo->prepare('UPDATE limite_envios SET intentos = intentos + 1 WHERE ip = ? AND tipo = ?')->execute([$ip, $tipo]);
     }
 
-    if ((int)$fila['intentos'] >= $maxIntentos) {
-        return true;
-    }
-
-    $pdo->prepare('UPDATE limite_envios SET intentos = intentos + 1 WHERE ip = ? AND tipo = ?')->execute([$ip, $tipo]);
-    return false;
+    $stmt = $pdo->prepare('SELECT intentos FROM limite_envios WHERE ip = ? AND tipo = ?');
+    $stmt->execute([$ip, $tipo]);
+    return (int)$stmt->fetchColumn() > $maxIntentos;
 }
 
 /**

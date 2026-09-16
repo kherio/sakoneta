@@ -209,6 +209,30 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 ## Seguridad
 
+- **La migración de la base de datos antigua se comprueba de
+  verdad**: si por lo que sea (permisos de archivo) no se puede
+  mover ni eliminar la copia que hubiera dentro de la carpeta
+  pública, el sitio se detiene con un error explicando qué hacer, en
+  vez de seguir funcionando con esa copia (con usuarios, hashes y
+  datos privados) accesible dentro de la carpeta pública.
+- **Contadores de intentos sin condición de carrera**: tanto el
+  bloqueo de fuerza bruta del login como el límite de envíos de los
+  formularios públicos incrementan su contador con una única
+  operación SQL atómica, no con una lectura y una escritura por
+  separado — así, aunque lleguen varios intentos a la vez, ninguno se
+  pierde ni dos peticiones pueden pisarse entre ellas.
+- **Buscador con límites**: longitud máxima y mínima de la búsqueda,
+  límite de resultados por sección, y límite de búsquedas por IP en
+  una ventana de tiempo.
+- **Límites de conjunto en las subidas**: además del límite por
+  archivo (20 MB foto / 80 MB vídeo), un máximo de archivos y de
+  bytes combinados por envío, comprobación de espacio libre en disco
+  antes de procesar nada, y un límite de tiempo que corta el envío
+  con un aviso claro en vez de dejar que salte el límite de PHP a
+  medias.
+- **`init_db.php` solo se puede ejecutar por línea de comandos**
+  (SSH), nunca desde el navegador.
+
 - **Contraseñas por usuario**, guardadas con hash, nunca en el código
   fuente. Si no hay ninguna contraseña de administrador guardada
   todavía, se genera una al azar en el primer arranque y se escribe

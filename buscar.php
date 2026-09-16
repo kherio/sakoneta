@@ -7,22 +7,34 @@ $pdo = getDb();
 $paginaActual = 'buscar';
 
 $consulta = trim($_GET['q'] ?? '');
+// Límite de longitud (una búsqueda no necesita más de esto) y un
+// mínimo de caracteres, para no lanzar un LIKE '%%' casi vacío que
+// recorra prácticamente toda la tabla. Además, un límite de
+// peticiones por IP: el buscador hace varias consultas por cada
+// búsqueda, así que es más costoso que un formulario normal.
+if (strlen($consulta) > 80) {
+    $consulta = substr($consulta, 0, 80);
+}
+$consultaDemasiadoCorta = $consulta !== '' && strlen($consulta) < 2;
+$demasiadasBusquedas = $consulta !== '' && superaLimiteEnvios($pdo, 'buscar', 30, 5);
+
 $resultadosNoticias = [];
 $resultadosGimnastas = [];
 $resultadosCompeticiones = [];
+$maxResultadosPorTabla = 20;
 
-if ($consulta !== '') {
+if ($consulta !== '' && !$consultaDemasiadoCorta && !$demasiadasBusquedas) {
     $comodin = '%' . $consulta . '%';
 
-    $stmt = $pdo->prepare('SELECT * FROM noticias WHERE publicado = 1 AND (titulo LIKE ? OR resumen LIKE ? OR contenido LIKE ?) ORDER BY fecha DESC');
+    $stmt = $pdo->prepare('SELECT * FROM noticias WHERE publicado = 1 AND (titulo LIKE ? OR resumen LIKE ? OR contenido LIKE ?) ORDER BY fecha DESC LIMIT ' . $maxResultadosPorTabla);
     $stmt->execute([$comodin, $comodin, $comodin]);
     $resultadosNoticias = $stmt->fetchAll();
 
-    $stmt = $pdo->prepare('SELECT * FROM gimnastas WHERE nombre LIKE ? OR aparato LIKE ? ORDER BY orden ASC');
+    $stmt = $pdo->prepare('SELECT * FROM gimnastas WHERE nombre LIKE ? OR aparato LIKE ? ORDER BY orden ASC LIMIT ' . $maxResultadosPorTabla);
     $stmt->execute([$comodin, $comodin]);
     $resultadosGimnastas = $stmt->fetchAll();
 
-    $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE nombre LIKE ? OR lugar LIKE ? ORDER BY fecha DESC');
+    $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE nombre LIKE ? OR lugar LIKE ? ORDER BY fecha DESC LIMIT ' . $maxResultadosPorTabla);
     $stmt->execute([$comodin, $comodin]);
     $resultadosCompeticiones = $stmt->fetchAll();
 }
@@ -47,6 +59,10 @@ require __DIR__ . '/includes/header.php';
 
     <?php if ($consulta === ''): ?>
       <p style="color:var(--gris-texto);margin-top:24px;">Escribe algo para buscar en todo el sitio.</p>
+    <?php elseif ($consultaDemasiadoCorta): ?>
+      <p style="color:var(--gris-texto);margin-top:24px;">Escribe al menos 2 caracteres para buscar.</p>
+    <?php elseif ($demasiadasBusquedas): ?>
+      <p style="color:var(--gris-texto);margin-top:24px;">Se han hecho demasiadas búsquedas seguidas desde aquí. Espera un momento y vuelve a intentarlo.</p>
     <?php elseif ($totalResultados === 0): ?>
       <p style="color:var(--gris-texto);margin-top:24px;">No hemos encontrado nada para "<?= e($consulta) ?>".</p>
     <?php else: ?>

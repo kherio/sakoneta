@@ -1,10 +1,19 @@
 <?php
 // Ejecuta este script UNA VEZ, la primera vez que instales el sitio
-// (desde el navegador o con "php init_db.php"), para cargar los
-// datos de ejemplo. La creación de tablas y las migraciones de
-// columnas nuevas ya NO dependen de este script: se ejecutan solas
-// en cada petición desde includes/db.php, así que un simple
-// "git pull" con código nuevo ya deja la base de datos al día.
+// (solo por SSH, con "php init_db.php" — ya NO se puede ejecutar
+// desde el navegador, ver más abajo), para cargar los datos de
+// ejemplo. La creación de tablas y las migraciones de columnas nuevas
+// ya NO dependen de este script: se ejecutan solas en cada petición
+// desde includes/db.php, así que un simple "git pull" con código
+// nuevo ya deja la base de datos al día.
+
+// Solo por línea de comandos: un script de instalación accesible
+// desde el navegador es superficie de ataque innecesaria, aunque hoy
+// no permita tomar el control de una instalación ya inicializada.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit("Este script solo se puede ejecutar por línea de comandos (SSH), no desde el navegador.\n");
+}
 
 require_once __DIR__ . '/includes/db.php';
 
