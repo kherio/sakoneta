@@ -84,6 +84,9 @@ require __DIR__ . '/includes/header.php';
 
     <form method="get" class="formulario-buscar" style="position:relative;" autocomplete="off">
       <input type="search" name="q" id="campo-busqueda" value="<?= e($consulta) ?>" placeholder="Busca noticias, gimnastas, competiciones..." autofocus>
+      <?php if ($consulta !== ''): ?>
+        <button type="button" id="boton-limpiar-busqueda" class="boton-limpiar-busqueda" aria-label="Borrar la búsqueda">✕</button>
+      <?php endif; ?>
       <button type="submit" class="boton oro" style="padding:11px 24px;">Buscar</button>
       <div id="sugerencias-busqueda" class="sugerencias-busqueda"></div>
     </form>
@@ -95,11 +98,16 @@ require __DIR__ . '/includes/header.php';
     <?php elseif ($demasiadasBusquedas): ?>
       <p style="color:var(--gris-texto);margin-top:24px;">Se han hecho demasiadas búsquedas seguidas desde aquí. Espera un momento y vuelve a intentarlo.</p>
     <?php elseif ($totalResultados === 0): ?>
-      <p style="color:var(--gris-texto);margin-top:24px;">No hemos encontrado nada para "<?= e($consulta) ?>".</p>
+      <div class="busqueda-vacia">
+        <p style="font-size:17px;margin-bottom:6px;">No hemos encontrado nada para "<strong><?= e($consulta) ?></strong>".</p>
+        <p style="color:var(--gris-texto);">Prueba con otra palabra, o revisa que esté bien escrita.</p>
+      </div>
     <?php else: ?>
 
+      <p class="contador-resultados"><?= $totalResultados ?> resultado<?= $totalResultados === 1 ? '' : 's' ?> para "<strong><?= e($consulta) ?></strong>"</p>
+
       <?php if ($resultadosNoticias): ?>
-      <h3 class="resultados-titulo"><?= t('nav_noticias') ?></h3>
+      <h3 class="resultados-titulo"><?= t('nav_noticias') ?> <span class="resultados-titulo-contador">(<?= count($resultadosNoticias) ?>)</span></h3>
       <div class="pagina-noticias">
         <?php foreach ($resultadosNoticias as $n): ?>
         <a href="noticia.php?id=<?= (int)$n['id'] ?>" class="tarjeta-noticia">
@@ -115,7 +123,7 @@ require __DIR__ . '/includes/header.php';
       <?php endif; ?>
 
       <?php if ($resultadosGimnastas): ?>
-      <h3 class="resultados-titulo"><?= t('nav_gimnastas') ?></h3>
+      <h3 class="resultados-titulo"><?= t('nav_gimnastas') ?> <span class="resultados-titulo-contador">(<?= count($resultadosGimnastas) ?>)</span></h3>
       <div class="grid-plantilla">
         <?php foreach ($resultadosGimnastas as $g): ?>
         <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador" style="display:block;">
@@ -131,7 +139,7 @@ require __DIR__ . '/includes/header.php';
       <?php endif; ?>
 
       <?php if ($resultadosCompeticiones): ?>
-      <h3 class="resultados-titulo"><?= t('nav_competiciones') ?></h3>
+      <h3 class="resultados-titulo"><?= t('nav_competiciones') ?> <span class="resultados-titulo-contador">(<?= count($resultadosCompeticiones) ?>)</span></h3>
       <div class="grid-competiciones">
         <?php foreach ($resultadosCompeticiones as $c): ?>
         <article class="tarjeta-competicion">

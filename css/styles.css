@@ -1456,3 +1456,53 @@ img.cargando-esqueleto {
   transition: background .2s ease;
 }
 .splash-saltar:hover, .splash-saltar:focus-visible { background: rgba(255,255,255,.25); }
+
+/* ---------- Mejoras de UX del buscador ---------- */
+.boton-limpiar-busqueda {
+  position: absolute;
+  right: 100px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--papel);
+  color: var(--gris-texto);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background var(--paso), color var(--paso);
+}
+.boton-limpiar-busqueda:hover { background: var(--borde-suave); color: var(--tinta); }
+.contador-resultados {
+  color: var(--gris-texto);
+  font-size: 14px;
+  margin: 20px 0 4px;
+}
+.resultados-titulo-contador {
+  color: var(--gris-texto);
+  font-weight: 400;
+  font-size: 15px;
+}
+.busqueda-vacia {
+  margin-top: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--superficie);
+  border: 1px dashed var(--borde-suave);
+  border-radius: var(--radio);
+}
+
+/* Oculta contenido visualmente sin quitarlo para lectores de
+   pantalla (a diferencia de display:none, que también lo oculta ahí). */
+.oculto-visual {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}

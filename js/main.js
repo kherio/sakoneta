@@ -700,6 +700,20 @@ document.addEventListener('DOMContentLoaded', function () {
     campoBusqueda.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') ocultarSugerencias();
     });
+
+    var botonLimpiarBusqueda = document.getElementById('boton-limpiar-busqueda');
+    if (botonLimpiarBusqueda) {
+      botonLimpiarBusqueda.addEventListener('click', function () {
+        campoBusqueda.value = '';
+        ocultarSugerencias();
+        campoBusqueda.focus();
+        // Al enviar el formulario ya vacío, la página recarga sin
+        // "q" y vuelve al estado inicial (contador, agrupados y
+        // botón de limpiar desaparecen, tal como si no se hubiera
+        // buscado nada todavía).
+        campoBusqueda.closest('form').submit();
+      });
+    }
   }
 
   // --- Botones "Volver a...": si se ha llegado aquí desde el propio

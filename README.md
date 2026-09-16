@@ -97,6 +97,20 @@ ajustes generales del sitio.
 - **Confeti** al abrir una competición cuyo resultado sea de podio
   (oro, plata, bronce, campeón...).
 - **Línea de tiempo visual** para el palmarés en "Sobre el club".
+- **Botones "Volver a..."** en las páginas de detalle (noticia,
+  gimnasta, competición), que conservan el filtro de categoría si se
+  llegó desde el propio listado filtrado.
+- **Menú móvil accesible**: se cierra con Escape, al elegir una
+  opción, devuelve el foco al botón que lo abrió, y bloquea que el
+  teclado navegue por el contenido de detrás mientras está abierto.
+- **Movimiento reducido respetado** en todas las animaciones
+  (parallax, conteo de estadísticas, confeti, transiciones), no solo
+  en algunas.
+- El splash de bienvenida tiene un botón visible **"Saltar intro"**, y
+  con movimiento reducido no llega a mostrarse.
+- El **buscador** muestra un contador de resultados (total y por
+  grupo), un botón para limpiar la búsqueda, y un aviso claro cuando
+  no hay resultados.
 
 Todos los efectos visuales respetan la preferencia de "reducir
 movimiento" del sistema operativo, y se degradan sin errores si el
@@ -188,6 +202,11 @@ Los valores generales viven en `config.php`:
 - `SITE_NAME`, `SITE_SHORT`, `SITE_CLAIM`: nombre completo, nombre
   corto y lema del club, usados como valor por defecto si no se
   rellenan desde Ajustes en el panel.
+- `SITE_URL`: dominio real del sitio (con la subcarpeta, si la
+  hubiera), usado para las direcciones absolutas que la web ofrece
+  hacia fuera (Open Graph, enlace para compartir). Si el dominio
+  cambia, se puede ajustar sin tocar código con la variable de entorno
+  `SAKONETA_SITE_URL`.
 - `MODO_DEBUG`: debe estar en `false` en un servidor real; muestra
   los errores de PHP en pantalla solo cuando está en `true`, pensado
   únicamente para desarrollo en local.
@@ -239,6 +258,24 @@ comando a mano tras actualizar el código — solo la primera vez que se
 instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 ## Seguridad
+
+- **Cabeceras HTTP de seguridad** en todas las páginas: `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`
+  (solo cuando la petición ya es HTTPS de verdad) y una
+  `Content-Security-Policy` ajustada a lo que la web usa realmente.
+- **URL de confianza configurable** (`SITE_URL` en `config.php`, o la
+  variable de entorno `SAKONETA_SITE_URL`): todas las direcciones
+  absolutas que la web ofrece hacia fuera (Open Graph, enlace para
+  compartir) se construyen a partir de ahí, nunca de la cabecera
+  `Host` de la petición.
+- **CSRF también en los formularios públicos** (contacto, comentarios,
+  suscripción), sin pedir cuenta ni inicio de sesión.
+- **Patrón "enviar y redirigir"** en esos mismos formularios: refrescar
+  la página después de enviar nunca reenvía el formulario.
+- **El borrado de una foto de galería nunca afecta a otra entidad**
+  que comparta ese mismo archivo (elegido de la biblioteca de medios
+  ya subidos): solo se quita la relación de la entidad concreta, y el
+  archivo físico se borra únicamente cuando ya no lo usa nada más.
 
 - **La ubicación de los datos privados se comprueba pase lo que
   pase**: tanto si se detecta automáticamente como si se configura a

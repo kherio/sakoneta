@@ -24,14 +24,14 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
           <div class="carrusel-patrocinador-item">
             <?php $urlSegura = $p['url'] && esUrlPermitida($p['url']); ?>
             <?php if ($urlSegura): ?>
-              <a href="<?= e($p['url']) ?>" target="_blank" rel="noopener" title="<?= e($p['nombre']) ?>">
+              <a href="<?= e($p['url']) ?>" target="_blank" rel="noopener" title="<?= e($p['nombre']) ?> (se abre en una pestaña nueva)">
             <?php endif; ?>
             <?php if ($p['logo']): ?>
               <img src="img/<?= e($p['logo']) ?>" alt="<?= e($p['nombre']) ?>" <?= $vuelta === 1 ? 'aria-hidden="true"' : '' ?>>
             <?php else: ?>
               <span class="patrocinador-texto"><?= e($p['nombre']) ?></span>
             <?php endif; ?>
-            <?php if ($urlSegura): ?></a><?php endif; ?>
+            <?php if ($urlSegura): ?><span class="oculto-visual"> (se abre en una pestaña nueva)</span></a><?php endif; ?>
           </div>
         <?php endforeach; ?>
       <?php endfor; ?>
