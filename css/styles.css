@@ -1318,7 +1318,7 @@ img.cargando-esqueleto {
   cursor: pointer;
   transition: color .32s ease;
 }
-.vista-cambio button.activo { color: #fff; }
+.vista-cambio button.activo { color: #fff; font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
   .vista-cambio-pastilla { transition: none; }
 }

@@ -47,8 +47,8 @@ require __DIR__ . '/includes/header.php';
     <?php else: ?>
     <div class="vista-cambio" role="tablist" aria-label="Vista de las competiciones">
       <span class="vista-cambio-pastilla" id="vista-cambio-pastilla" aria-hidden="true"></span>
-      <button type="button" class="activo" data-vista="lista">☰ Lista</button>
-      <button type="button" data-vista="calendario">▦ Calendario</button>
+      <button type="button" id="pestana-lista" role="tab" aria-selected="true" aria-controls="vista-lista-competiciones" tabindex="0" class="activo" data-vista="lista">☰ Lista</button>
+      <button type="button" id="pestana-calendario" role="tab" aria-selected="false" aria-controls="vista-calendario-competiciones" tabindex="-1" data-vista="calendario">▦ Calendario</button>
     </div>
 
     <script type="application/json" id="datos-calendario-competiciones"><?= json_encode(array_map(fn($c) => [
@@ -56,9 +56,9 @@ require __DIR__ . '/includes/header.php';
         'fecha' => $c['fecha'],
         'nombre' => $c['nombre'],
     ], $competiciones)) ?></script>
-    <div id="vista-calendario-competiciones" style="display:none;"></div>
+    <div id="vista-calendario-competiciones" role="tabpanel" aria-labelledby="pestana-calendario" style="display:none;"></div>
 
-    <div id="vista-lista-competiciones">
+    <div id="vista-lista-competiciones" role="tabpanel" aria-labelledby="pestana-lista">
     <?php if (count($categoriasPresentes) > 1): ?>
     <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-competiciones">
       <button type="button" class="activo" data-categoria="todas"><?= t('filtro_todas') ?></button>

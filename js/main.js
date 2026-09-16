@@ -636,15 +636,39 @@ document.addEventListener('DOMContentLoaded', function () {
       if (actual) moverPastilla(actual, false);
     });
 
-    document.querySelectorAll('.vista-cambio button').forEach(function (boton) {
-      boton.addEventListener('click', function () {
-        document.querySelectorAll('.vista-cambio button').forEach(function (b) { b.classList.remove('activo'); });
-        boton.classList.add('activo');
-        moverPastilla(boton, true);
-        var esCalendario = boton.getAttribute('data-vista') === 'calendario';
-        vistaLista.style.display = esCalendario ? 'none' : '';
-        contenedorCalendario.style.display = esCalendario ? '' : 'none';
-        if (esCalendario && !contenedorCalendario.innerHTML) pintarCalendario();
+    var botonesPestana = Array.from(document.querySelectorAll('.vista-cambio button'));
+
+    function activarPestana(boton) {
+      botonesPestana.forEach(function (b) {
+        var esEsta = b === boton;
+        b.classList.toggle('activo', esEsta);
+        b.setAttribute('aria-selected', esEsta ? 'true' : 'false');
+        b.setAttribute('tabindex', esEsta ? '0' : '-1');
+      });
+      moverPastilla(boton, true);
+      var esCalendario = boton.getAttribute('data-vista') === 'calendario';
+      vistaLista.style.display = esCalendario ? 'none' : '';
+      contenedorCalendario.style.display = esCalendario ? '' : 'none';
+      if (esCalendario && !contenedorCalendario.innerHTML) pintarCalendario();
+    }
+
+    botonesPestana.forEach(function (boton, indice) {
+      boton.addEventListener('click', function () { activarPestana(boton); });
+      // Flechas izquierda/derecha para moverse entre pestañas, como
+      // se espera de un role="tablist" (Inicio/Fin también van al
+      // primer/último). La pestaña a la que se llega se activa
+      // directamente, no solo recibe el foco.
+      boton.addEventListener('keydown', function (e) {
+        var siguiente = null;
+        if (e.key === 'ArrowRight') siguiente = botonesPestana[(indice + 1) % botonesPestana.length];
+        else if (e.key === 'ArrowLeft') siguiente = botonesPestana[(indice - 1 + botonesPestana.length) % botonesPestana.length];
+        else if (e.key === 'Home') siguiente = botonesPestana[0];
+        else if (e.key === 'End') siguiente = botonesPestana[botonesPestana.length - 1];
+        if (siguiente) {
+          e.preventDefault();
+          siguiente.focus();
+          activarPestana(siguiente);
+        }
       });
     });
   }
