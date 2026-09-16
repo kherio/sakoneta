@@ -14,7 +14,11 @@ $competiciones = $pdo->query("
             WHERE cc.competicion_id = c.id
             ORDER BY cat.orden ASC
         )
-    ) AS categorias_lista
+    ) AS categorias_lista,
+    EXISTS (
+        SELECT 1 FROM competicion_documentos cd
+        WHERE cd.competicion_id = c.id AND cd.archivo LIKE '%.pdf'
+    ) AS tiene_pdf
     FROM competiciones c
     WHERE c.disputada = 0
     ORDER BY c.fecha ASC
@@ -69,6 +73,7 @@ require __DIR__ . '/includes/header.php';
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
           <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.05" data-parallax-limite="16">
           <span class="tarjeta-competicion-categoria" style="background:<?= e(colorCategoria($pdo, explode(',', $c['categorias_lista'] ?? '')[0] ?? null)) ?>;"><?= e(str_replace(',', ' · ', $c['categorias_lista'] ?? '')) ?></span>
+          <?php if ($c['tiene_pdf']): ?><span class="tarjeta-competicion-pdf">PDF</span><?php endif; ?>
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
