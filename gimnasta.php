@@ -66,12 +66,12 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
-<?php else: ?>
-<section class="seccion">
+<?php endif; ?>
+
+<section class="seccion" style="padding-top:0;padding-bottom:48px;">
   <div class="contenedor">
-    <p><a href="gimnastas.php">← <?= t('nav_gimnastas') ?></a></p>
+    <a href="gimnastas.php" class="boton-volver" data-volver-listado="gimnastas.php"><?= t('volver_gimnastas') ?></a>
   </div>
 </section>
-<?php endif; ?>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

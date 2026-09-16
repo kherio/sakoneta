@@ -1426,3 +1426,33 @@ img.cargando-esqueleto {
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
+
+.boton-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  color: var(--tinta);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--paso), transform var(--paso);
+}
+.boton-volver:hover { background: var(--papel); transform: translateX(-2px); }
+
+.splash-saltar {
+  margin-top: 22px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.splash-saltar:hover, .splash-saltar:focus-visible { background: rgba(255,255,255,.25); }

@@ -155,17 +155,19 @@ require __DIR__ . '/includes/header.php';
 
 <?php if (!$otrasFotos && empty($competicion['descripcion'])): ?>
 <section class="seccion">
-  <div class="contenedor">
-    <p><a href="competiciones.php">← <?= t('nav_competiciones') ?></a></p>
-  </div>
+  <div class="contenedor"></div>
 </section>
 <?php else: ?>
 <section class="seccion" style="padding-top:0;">
-  <div class="contenedor">
-    <p><a href="competiciones.php"><?= t('volver_competiciones') ?></a></p>
-  </div>
+  <div class="contenedor"></div>
 </section>
 <?php endif; ?>
+
+<section class="seccion" style="padding-top:0;padding-bottom:48px;">
+  <div class="contenedor">
+    <a href="competiciones.php" class="boton-volver" data-volver-listado="competiciones.php,resultados.php"><?= t('volver_competiciones') ?></a>
+  </div>
+</section>
 
 <div id="swipe-competicion"
      data-podio="<?= $esResultadoPodio ? '1' : '' ?>"

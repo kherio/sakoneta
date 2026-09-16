@@ -56,6 +56,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
     <strong><?= e(nombreSitio()) ?></strong>
     <span><?= e(claimSitio()) ?></span>
     <div class="splash-cargando" aria-hidden="true"></div>
+    <button type="button" class="splash-saltar" id="splash-saltar">Saltar intro →</button>
   </div>
 </div>
 <?php endif; ?>

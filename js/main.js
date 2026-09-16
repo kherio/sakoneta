@@ -6,8 +6,12 @@ document.addEventListener('DOMContentLoaded', function () {
   var splash = document.getElementById('splash');
   if (splash) {
     var yaVisto = sessionStorage.getItem('sakoneta_splash_visto');
-    if (yaVisto) {
+    var movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (yaVisto || movimientoReducido) {
+      // Con movimiento reducido, nadie debería tener que esperar ni
+      // ver una animación de entrada/salida: se retira directamente.
       splash.remove();
+      if (!yaVisto) sessionStorage.setItem('sakoneta_splash_visto', '1');
     } else {
       document.body.style.overflow = 'hidden';
       var cerrarSplash = function () {
@@ -20,6 +24,13 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { splash.remove(); }, 1150);
       };
       splash.addEventListener('click', cerrarSplash);
+      var botonSaltarSplash = document.getElementById('splash-saltar');
+      if (botonSaltarSplash) {
+        botonSaltarSplash.addEventListener('click', function (e) {
+          e.stopPropagation(); // que no dispare también el clic del fondo
+          cerrarSplash();
+        });
+      }
       setTimeout(cerrarSplash, 2800);
     }
   }
@@ -67,6 +78,11 @@ document.addEventListener('DOMContentLoaded', function () {
         animado.add(entrada.target);
         var elemento = entrada.target;
         var meta = parseInt(elemento.getAttribute('data-hasta'), 10) || 0;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          elemento.textContent = meta;
+          obs.unobserve(elemento);
+          return;
+        }
         var duracion = 1200;
         var inicio = null;
         var paso = function (marca) {
@@ -265,11 +281,44 @@ document.addEventListener('DOMContentLoaded', function () {
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');
+  var contenidoTrasMenu = document.getElementById('contenido-pagina');
+  var pieTrasMenu = document.querySelector('footer');
   if (botonMenu && menuMovil) {
+    function fijarInertTrasMenu(bloqueado) {
+      [contenidoTrasMenu, pieTrasMenu].forEach(function (el) {
+        if (!el) return;
+        if (bloqueado) el.setAttribute('inert', ''); else el.removeAttribute('inert');
+      });
+    }
+    function abrirMenuMovil() {
+      menuMovil.classList.add('abierto');
+      botonMenu.classList.add('activo');
+      botonMenu.setAttribute('aria-expanded', 'true');
+      // El contenido de detrás del menú no debe poder recibir el foco
+      // por teclado (Tab) mientras el menú está abierto y lo tapa.
+      fijarInertTrasMenu(true);
+    }
+    function cerrarMenuMovil(devolverFoco) {
+      menuMovil.classList.remove('abierto');
+      botonMenu.classList.remove('activo');
+      botonMenu.setAttribute('aria-expanded', 'false');
+      fijarInertTrasMenu(false);
+      if (devolverFoco) botonMenu.focus();
+    }
     botonMenu.addEventListener('click', function () {
-      var abierto = menuMovil.classList.toggle('abierto');
-      botonMenu.classList.toggle('activo', abierto);
-      botonMenu.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+      if (menuMovil.classList.contains('abierto')) cerrarMenuMovil(false);
+      else abrirMenuMovil();
+    });
+    // Escape cierra el menú y devuelve el foco al botón que lo abrió,
+    // esté el foco donde esté en ese momento (no solo dentro del menú).
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && menuMovil.classList.contains('abierto')) cerrarMenuMovil(true);
+    });
+    // Elegir cualquier opción del menú lo cierra (antes de seguir el
+    // enlace; como es un enlace normal, el cambio de página ya hace
+    // el resto).
+    menuMovil.querySelectorAll('a').forEach(function (enlace) {
+      enlace.addEventListener('click', function () { cerrarMenuMovil(false); });
     });
   }
 
@@ -442,6 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function lanzarConfeti() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var colores = ['#D6187A', '#5B2A86', '#F5A9CE', '#FBF5F9'];
     for (var i = 0; i < 26; i++) {
       var pieza = document.createElement('div');
@@ -651,6 +701,26 @@ document.addEventListener('DOMContentLoaded', function () {
       if (e.key === 'Escape') ocultarSugerencias();
     });
   }
+
+  // --- Botones "Volver a...": si se ha llegado aquí desde el propio
+  // listado (con un filtro de categoría aplicado, por ejemplo), el
+  // botón vuelve exactamente a esa URL con su filtro, en vez de al
+  // listado sin filtrar. Si se ha llegado de cualquier otro sitio
+  // (buscador, enlace directo, otra página), se queda con el enlace
+  // sencillo de toda la vida.
+  document.querySelectorAll('.boton-volver[data-volver-listado]').forEach(function (boton) {
+    var referencia = document.referrer;
+    if (!referencia) return;
+    try {
+      var urlReferencia = new URL(referencia);
+      if (urlReferencia.origin !== window.location.origin) return;
+      var paginasValidas = boton.getAttribute('data-volver-listado').split(',');
+      var nombreArchivo = urlReferencia.pathname.split('/').pop();
+      if (paginasValidas.indexOf(nombreArchivo) !== -1) {
+        boton.href = urlReferencia.pathname + urlReferencia.search;
+      }
+    } catch (e) {}
+  });
 
   // --- Esqueleto de carga en imágenes de contenido (mientras descargan) ---
   document.querySelectorAll('.galeria-parallax-item img, .tarjeta-noticia img, .tarjeta-jugador img, .tarjeta-competicion-foto img, .franja-tarjeta img').forEach(function (img) {

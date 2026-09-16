@@ -148,7 +148,7 @@ require __DIR__ . '/includes/header.php';
         </form>
       </div>
 
-      <p style="margin-top:24px;"><a href="noticias.php"><?= t('volver_noticias') ?></a></p>
+      <p style="margin-top:24px;"><a href="noticias.php" class="boton-volver" data-volver-listado="noticias.php"><?= t('volver_noticias') ?></a></p>
     </article>
   </div>
 </section>
