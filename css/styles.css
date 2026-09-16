@@ -649,20 +649,32 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .vista-previa-swipe.visible { display: block; }
 .vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
 .vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
-/* El degradado de .franja-portada::after termina en var(--papel), el
-   blanco de fondo del resto de la página, porque en la página real
-   la cabecera se funde con el contenido que viene justo debajo. Aquí
-   dentro no hay nada debajo (la vista previa ocupa toda la pantalla),
-   así que ese mismo degradado dejaba el texto sobre un fondo casi
-   blanco en vez de oscuro. Este lo sustituye por uno que se queda
-   oscuro del todo, pensado para un recuadro suelto a pantalla completa. */
-.vista-previa-swipe .franja-portada::after {
+.vista-previa-swipe-foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: var(--morado-oscuro);
+}
+.vista-previa-swipe-foto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(0deg,
     rgba(6,16,40,.94) 0%,
     rgba(6,16,40,.6) 38%,
     rgba(6,16,40,.2) 68%,
     rgba(6,16,40,0) 100%);
 }
+.vista-previa-swipe-texto {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  padding: 24px 24px calc(34px + env(safe-area-inset-bottom));
+}
+.vista-previa-swipe-texto h2 { color: #fff; font-size: clamp(24px, 3vw, 34px); margin: 0 0 6px; }
 .aviso-swipe {
   display: none;
 }
