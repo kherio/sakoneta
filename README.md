@@ -101,17 +101,31 @@ ajustes generales del sitio.
   gimnasta, competición), que conservan el filtro de categoría si se
   llegó desde el propio listado filtrado.
 - **Menú móvil accesible**: se cierra con Escape, al elegir una
-  opción, devuelve el foco al botón que lo abrió, y bloquea que el
-  teclado navegue por el contenido de detrás mientras está abierto.
-- **Movimiento reducido respetado** en todas las animaciones
-  (parallax, conteo de estadísticas, confeti, transiciones), no solo
-  en algunas.
+  opción, devuelve el foco al botón que lo abrió, bloquea que el
+  teclado navegue por el contenido de detrás mientras está abierto, y
+  también se cierra al pulsar fuera de él.
+- **Política global de rendimiento**: además de respetar
+  `prefers-reduced-motion`, se desactivan también los efectos
+  decorativos (parallax, conteo de estadísticas, confeti, animaciones
+  de tarjetas, transición del swipe) cuando el propio dispositivo da
+  señales de ir justo de recursos (poca RAM, pocos núcleos) o de tener
+  una conexión limitada (ahorro de datos, red lenta), aunque la
+  persona no lo haya pedido explícitamente.
 - El splash de bienvenida tiene un botón visible **"Saltar intro"**, y
   con movimiento reducido no llega a mostrarse.
 - El **buscador** muestra un contador de resultados (total y por
-  grupo), un botón para limpiar la búsqueda, y un aviso claro cuando
-  no hay resultados.
-
+  grupo), un enlace "ver todos" cuando una categoría supera los 20
+  resultados, un botón para limpiar la búsqueda, un aviso claro con
+  accesos directos cuando no hay resultados, y un autocompletado con
+  navegación completa por teclado (flechas, Enter, Escape) y roles
+  ARIA de combobox/listbox para lectores de pantalla.
+- El interruptor **Lista/Calendario** de Competiciones sigue el
+  patrón de accesibilidad de pestañas completo (`role="tab"`,
+  navegación con flechas), y su estado activo se distingue también
+  sin depender del color.
+- El cambio de idioma (ES/EU) conserva siempre el resto de parámetros
+  de la URL actual (una noticia abierta, una búsqueda, un filtro...),
+  en vez de perderlos.
 Todos los efectos visuales respetan la preferencia de "reducir
 movimiento" del sistema operativo, y se degradan sin errores si el
 navegador no soporta alguna característica.
