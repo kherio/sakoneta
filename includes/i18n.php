@@ -11,6 +11,20 @@ function idiomaActual(): string {
     return $_SESSION['idioma'] ?? 'es';
 }
 
+/**
+ * Enlace para cambiar de idioma SIN perder el resto de parámetros de
+ * la URL actual (id de una noticia, filtros, la búsqueda escrita...).
+ * Se genera de forma centralizada aquí, para que ninguna página tenga
+ * que ocuparse de conservar sus propios parámetros al construir el
+ * enlace de idioma.
+ */
+function urlConIdioma(string $idioma): string {
+    $parametros = $_GET;
+    $parametros['lang'] = $idioma;
+    $ruta = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: 'index.php');
+    return $ruta . '?' . http_build_query($parametros);
+}
+
 function t(string $clave): string {
     static $textos = [
         'es' => [

@@ -69,8 +69,8 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
     <span class="cabecera-top-derecha">
       <button type="button" id="interruptor-tema" class="interruptor-tema" aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">🌙</button>
       <span class="selector-idioma">
-        <a href="?lang=es" class="<?= idiomaActual() === 'es' ? 'activo' : '' ?>">ES</a> /
-        <a href="?lang=eu" class="<?= idiomaActual() === 'eu' ? 'activo' : '' ?>">EU</a>
+        <a href="<?= e(urlConIdioma('es')) ?>" class="<?= idiomaActual() === 'es' ? 'activo' : '' ?>">ES</a> /
+        <a href="<?= e(urlConIdioma('eu')) ?>" class="<?= idiomaActual() === 'eu' ? 'activo' : '' ?>">EU</a>
       </span>
     </span>
   </div>
