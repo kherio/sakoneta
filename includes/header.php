@@ -83,6 +83,8 @@
   </div>
 </header>
 
+<div id="contenido-pagina">
+
 <?php if (!empty($migas)): ?>
 <nav class="migas-pan" aria-label="Ruta de navegación">
   <div class="contenedor">

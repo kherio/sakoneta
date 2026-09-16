@@ -39,6 +39,8 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
 </div>
 <?php endif; ?>
 
+</div>
+
 <footer>
   <div class="contenedor pie-grid">
     <div>

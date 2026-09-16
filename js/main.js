@@ -136,35 +136,48 @@ document.addEventListener('DOMContentLoaded', function () {
     var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
     var capaAnterior = document.getElementById('vista-previa-anterior');
     var capaSiguiente = document.getElementById('vista-previa-siguiente');
-    // Importante: si se mueven o quedan como hijas de <body>, en cuanto
-    // body reciba un transform (como hacemos aquí abajo) pasaría a ser
-    // el contenedor de referencia de sus position:fixed, y dejarían de
-    // estar ancladas de verdad a la pantalla — se verían mal, movidas
-    // y solapadas de forma incorrecta. Se sacan a <html> para evitarlo.
+    // Solo se desplaza el contenido propio de la página (noticia,
+    // galería, etc.), nunca la cabecera del sitio: la cabecera es
+    // igual en todas las páginas, así que se queda fija arriba en
+    // todo momento, como en la página real.
+    var contenido = document.getElementById('contenido-pagina');
+    var cabeceraSitio = document.getElementById('cabecera-principal');
+    // Importante: si se mueven o quedan como hijas del contenedor que
+    // recibe el transform, en cuanto ese contenedor lo reciba pasaría
+    // a ser el punto de referencia de sus position:fixed, y dejarían
+    // de estar anclados de verdad a la pantalla — se verían mal,
+    // movidos y solapados de forma incorrecta. Se sacan a <html> para
+    // evitarlo, y su posición (justo debajo de la cabecera) se
+    // calcula por JavaScript en cada gesto.
     if (capaAnterior) document.documentElement.appendChild(capaAnterior);
     if (capaSiguiente) document.documentElement.appendChild(capaSiguiente);
 
     // El servidor ya ha rellenado estas capas con la foto y el texto
     // reales de la anterior/siguiente competición directamente en el
     // HTML de la página (ver competicion.php); no hace falta pedir
-    // nada más por red al vuelo. Antes se pedían por fetch() justo al
-    // cargar la página, y si esa petición no llegaba a tiempo o
-    // fallaba en una conexión móvil floja, el swipe mostraba la foto
-    // (que carga aparte por CSS) pero el texto nunca llegaba a
-    // rellenarse. "Hay vista previa" se sabe solo con mirar si el
-    // servidor llegó a poner contenido dentro de la capa.
+    // nada más por red al vuelo. "Hay vista previa" se sabe solo con
+    // mirar si el servidor llegó a poner contenido dentro de la capa.
     var hayPreviewAnterior = !!(capaAnterior && capaAnterior.querySelector('.vista-previa-swipe-foto'));
     var hayPreviewSiguiente = !!(capaSiguiente && capaSiguiente.querySelector('.vista-previa-swipe-foto'));
 
     var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false, vaASiguiente = null;
     var anchoPantalla = window.innerWidth;
 
+    function posicionarCapasBajoCabecera() {
+      var altoCabecera = cabeceraSitio ? cabeceraSitio.getBoundingClientRect().height : 0;
+      [capaAnterior, capaSiguiente].forEach(function (capa) {
+        if (!capa) return;
+        capa.style.top = altoCabecera + 'px';
+        capa.style.height = 'calc(100% - ' + altoCabecera + 'px)';
+      });
+    }
+
     function ocultarCapas() {
       [capaAnterior, capaSiguiente].forEach(function (capa) {
         capa.classList.remove('visible');
         capa.style.transform = '';
       });
-      document.body.style.filter = '';
+      contenido.style.filter = '';
     }
 
     document.addEventListener('touchstart', function (e) {
@@ -174,7 +187,8 @@ document.addEventListener('DOMContentLoaded', function () {
       arrastrando = true;
       esHorizontal = null;
       vaASiguiente = null;
-      document.body.style.transition = 'none';
+      posicionarCapasBajoCabecera();
+      contenido.style.transition = 'none';
       capaAnterior.style.transition = 'none';
       capaSiguiente.style.transition = 'none';
     }, { passive: true });
@@ -197,12 +211,14 @@ document.addEventListener('DOMContentLoaded', function () {
       var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
-      document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
-      // Oscurece un poco la página actual según avanza el arrastre,
-      // para que se note que "pierde protagonismo" frente a la que
-      // entra, en vez de verse como dos mitades sueltas sin relación.
+      contenido.style.transform = 'translateX(' + desplazamiento + 'px)';
+      // Oscurece un poco el contenido actual según avanza el
+      // arrastre, para que se note que "pierde protagonismo" frente
+      // al que entra, en vez de verse como dos mitades sueltas sin
+      // relación. La cabecera del sitio no se oscurece: se queda fija
+      // e intacta arriba durante todo el gesto.
       var progreso = Math.min(Math.abs(desplazamiento) / anchoPantalla, 1);
-      document.body.style.filter = tieneDestino ? 'brightness(' + (1 - progreso * 0.35) + ')' : '';
+      contenido.style.filter = tieneDestino ? 'brightness(' + (1 - progreso * 0.35) + ')' : '';
 
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
       if (tieneDestino) {
@@ -226,19 +242,19 @@ document.addEventListener('DOMContentLoaded', function () {
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
 
       var transicion = 'transform .28s cubic-bezier(.32,.72,0,1), filter .28s ease';
-      document.body.style.transition = transicion;
+      contenido.style.transition = transicion;
       capaActiva.style.transition = transicion;
 
       if (umbralSuperado) {
         navegando = true;
         var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
-        document.body.style.transform = 'translateX(' + destinoX + 'px)';
-        document.body.style.filter = 'brightness(.65)';
+        contenido.style.transform = 'translateX(' + destinoX + 'px)';
+        contenido.style.filter = 'brightness(.65)';
         capaActiva.style.transform = 'translateX(0)';
         setTimeout(function () { window.location.href = destino; }, 260);
       } else {
-        document.body.style.transform = 'translateX(0)';
-        document.body.style.filter = '';
+        contenido.style.transform = 'translateX(0)';
+        contenido.style.filter = '';
         var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
         capaActiva.style.transform = 'translateX(' + base + 'px)';
         setTimeout(ocultarCapas, 290);

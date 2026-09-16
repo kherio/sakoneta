@@ -638,17 +638,27 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .vista-previa-swipe {
   display: none;
   position: fixed;
-  inset: 0;
+  /* top y height los fija JavaScript en cada gesto, para empezar
+     justo debajo de la cabecera real del sitio (que se queda fija,
+     nunca se desplaza ni se tapa) */
+  left: 0;
+  right: 0;
   width: 100vw;
-  height: 100vh;
   z-index: 9000;
-  background-color: var(--morado-oscuro);
+  background-color: var(--papel);
   pointer-events: none;
   overflow: hidden;
 }
 .vista-previa-swipe.visible { display: block; }
 .vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
 .vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
+.vista-previa-swipe-cabecera-foto {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  height: min(56vh, 560px);
+  overflow: hidden;
+}
 .vista-previa-swipe-foto {
   position: absolute;
   inset: 0;
@@ -672,7 +682,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   position: absolute;
   left: 0; right: 0; bottom: 0;
   z-index: 1;
-  padding: 24px 24px calc(34px + env(safe-area-inset-bottom));
+  padding: 24px 24px 22px;
 }
 .vista-previa-swipe-texto h2 { color: #fff; font-size: clamp(24px, 3vw, 34px); margin: 0 0 6px; }
 .aviso-swipe {
