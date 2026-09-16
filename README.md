@@ -20,6 +20,16 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Modo evento en la portada**: cuando falta poco para la próxima
+  competición pendiente (2 días por defecto, configurable desde
+  Ajustes), la página de inicio cambia por completo mientras dure esa
+  cuenta atrás: en vez del titular y las estadísticas de siempre, se
+  ve la foto de esa competición a pantalla completa con parallax, su
+  nombre, categoría, fecha y lugar, y una cuenta atrás grande en
+  cajas (días/horas/min/seg) con un botón directo a su ficha. Si esa
+  competición no tiene foto de portada propia, la portada se queda
+  como siempre.
+
 - **Portada** con foto de fondo a pantalla completa (parallax al
   hacer scroll), titular grande de tamaño configurable, cuatro
   estadísticas del club (gimnastas, competiciones disputadas,
@@ -170,10 +180,12 @@ navegador no soporta alguna característica.
   la pantalla de bienvenida; foto de portada de inicio con pie de
   foto opcional; textos de la portada (entradilla, titular grande y
   párrafo de presentación) y su tamaño de letra; las 4 estadísticas
-  bajo el titular; historia y palmarés de "Sobre el club"; título y
-  texto del pie de página. Cualquier campo que se deje en blanco usa
-  el valor por defecto de `config.php` o se calcula solo (número de
-  gimnastas, competiciones disputadas, categorías...).
+  bajo el titular; a partir de cuántos días activar el "modo evento"
+  de la portada (o desactivarlo del todo, con 0); historia y palmarés
+  de "Sobre el club"; título y texto del pie de página. Cualquier
+  campo que se deje en blanco usa el valor por defecto de
+  `config.php` o se calcula solo (número de gimnastas, competiciones
+  disputadas, categorías...).
 - **Cambiar contraseña**: cada persona cambia la suya propia desde el
   menú del panel.
 

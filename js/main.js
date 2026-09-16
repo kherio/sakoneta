@@ -354,26 +354,43 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --- Countdown a la próxima competición ---
-  var cuentasAtras = document.querySelectorAll('.cuenta-atras[data-fecha]');
+  var cuentasAtras = document.querySelectorAll('.cuenta-atras[data-fecha], .cuenta-atras-grande[data-fecha]');
   if (cuentasAtras.length) {
     var actualizarCuentas = function () {
       cuentasAtras.forEach(function (caja) {
-        var num = caja.querySelector('.cuenta-atras-num');
         var objetivo = new Date(caja.getAttribute('data-fecha')).getTime();
         var restante = objetivo - Date.now();
+        var cajasUnidad = caja.querySelectorAll('[data-unidad]');
+
         if (isNaN(objetivo) || restante <= 0) {
+          var num = caja.querySelector('.cuenta-atras-num:not([data-unidad])');
           if (num) num.textContent = '';
+          cajasUnidad.forEach(function (el) { el.textContent = '0'; });
           return;
         }
+
         var dias = Math.floor(restante / 86400000);
         var horas = Math.floor((restante % 86400000) / 3600000);
         var min = Math.floor((restante % 3600000) / 60000);
         var seg = Math.floor((restante % 60000) / 1000);
-        if (num) {
-          num.textContent = dias + ' ' + caja.getAttribute('data-dias') + ' · ' +
-            horas + ' ' + caja.getAttribute('data-horas') + ' · ' +
-            min + ' ' + caja.getAttribute('data-min') + ' · ' +
-            seg + ' ' + caja.getAttribute('data-seg');
+
+        if (cajasUnidad.length) {
+          // Cuenta atrás "en cajas" (modo evento de la portada): cada
+          // unidad tiene su propio hueco, con los números siempre a 2
+          // cifras para que las cajas no cambien de ancho cada segundo.
+          var valores = { dias: dias, horas: horas, min: min, seg: seg };
+          cajasUnidad.forEach(function (el) {
+            var valor = valores[el.getAttribute('data-unidad')];
+            el.textContent = (valor < 10 ? '0' : '') + valor;
+          });
+        } else {
+          var numTexto = caja.querySelector('.cuenta-atras-num');
+          if (numTexto) {
+            numTexto.textContent = dias + ' ' + caja.getAttribute('data-dias') + ' · ' +
+              horas + ' ' + caja.getAttribute('data-horas') + ' · ' +
+              min + ' ' + caja.getAttribute('data-min') + ' · ' +
+              seg + ' ' + caja.getAttribute('data-seg');
+          }
         }
       });
     };

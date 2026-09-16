@@ -1543,3 +1543,113 @@ img.cargando-esqueleto {
   background: rgba(6,16,40,.4);
 }
 .menu-movil-fondo.visible { display: block; }
+
+/* ---------- Modo evento de la portada (cuenta atrás a un torneo próximo) ---------- */
+.hero-evento {
+  position: relative;
+  min-height: 560px;
+  height: 82vh;
+  max-height: 880px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+}
+.hero-evento-foto {
+  position: absolute;
+  inset: -40px 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+.hero-evento-capa {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6,16,40,.72) 0%, rgba(6,16,40,.4) 42%, rgba(6,16,40,.82) 100%);
+}
+.hero-evento-contenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 20px;
+}
+.hero-evento-etiqueta {
+  display: inline-block;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.32);
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero-evento h1 {
+  color: #fff;
+  font-size: clamp(30px, 6vw, 60px);
+  margin: 0 0 10px;
+  text-shadow: 0 4px 24px rgba(0,0,0,.45);
+  max-width: 18ch;
+}
+.hero-evento-detalle {
+  font-size: clamp(14.5px, 2vw, 18px);
+  color: rgba(255,255,255,.88);
+  margin: 0 0 20px;
+}
+.cuenta-atras-grande {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.cuenta-atras-caja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 16px 16px 14px;
+  min-width: 78px;
+  box-shadow: 0 16px 34px -14px rgba(0,0,0,.55);
+  animation: cuentaAtrasLatido 2.4s ease-in-out infinite;
+}
+.cuenta-atras-caja:nth-child(2) { animation-delay: .15s; }
+.cuenta-atras-caja:nth-child(3) { animation-delay: .3s; }
+.cuenta-atras-caja:nth-child(4) { animation-delay: .45s; }
+@keyframes cuentaAtrasLatido {
+  0%, 100% { box-shadow: 0 16px 34px -14px rgba(0,0,0,.55), 0 0 0 0 rgba(255,255,255,0); }
+  50% { box-shadow: 0 16px 34px -14px rgba(0,0,0,.55), 0 0 0 6px rgba(255,255,255,.06); }
+}
+.cuenta-atras-caja .cuenta-atras-num {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #fff, var(--acento-suave));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cuenta-atras-caja .cuenta-atras-etiqueta {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,.78);
+  margin-top: 4px;
+}
+@media (max-width: 640px) {
+  .cuenta-atras-grande { gap: 8px; }
+  .cuenta-atras-caja { min-width: 60px; padding: 12px 8px 10px; border-radius: 12px; }
+}

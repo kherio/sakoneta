@@ -17,6 +17,18 @@ if ($proxima) {
 }
 
 $ajustes = obtenerAjustes($pdo);
+
+// "Modo evento": cuando falta poco para la próxima competición
+// pendiente (y esa competición tiene foto propia), la portada entera
+// cambia para darle todo el protagonismo, en vez de mostrar el
+// titular y las estadísticas de siempre.
+$diasModoEvento = isset($ajustes['modo_evento_dias']) && $ajustes['modo_evento_dias'] !== null ? (int)$ajustes['modo_evento_dias'] : 2;
+$modoEvento = false;
+if ($proxima && !empty($proxima['imagen_portada']) && $diasModoEvento > 0) {
+    $diasHastaProxima = (strtotime($proxima['fecha']) - strtotime(date('Y-m-d'))) / 86400;
+    $modoEvento = $diasHastaProxima >= 0 && $diasHastaProxima <= $diasModoEvento;
+}
+
 $mostrarSplash = !empty($ajustes['splash_activo']) && !empty($ajustes['splash_imagen']);
 $splashImagen = $ajustes['splash_imagen'] ?? null;
 
@@ -49,6 +61,27 @@ function iconoStat(string $nombre): string {
 
 require __DIR__ . '/includes/header.php';
 ?>
+
+<?php if ($modoEvento): ?>
+<section class="hero-evento">
+  <div class="hero-evento-foto" data-parallax="0.08" data-parallax-limite="45" style="background-image:url('img/<?= e($proxima['imagen_portada']) ?>');"></div>
+  <div class="hero-evento-capa"></div>
+  <div class="contenedor hero-evento-contenido">
+    <div class="hero-evento-etiqueta">¡Ya casi está aquí!</div>
+    <h1><?= e($proxima['nombre']) ?></h1>
+    <p class="hero-evento-detalle"><?= e($proxima['categoria']) ?> · <?= e(formatearFecha($proxima['fecha'])) ?><?= !empty($proxima['hora']) ? ' a las ' . e($proxima['hora']) : '' ?> · <?= e($proxima['lugar']) ?></p>
+
+    <div class="cuenta-atras-grande" data-fecha="<?= e($fechaProximaISO) ?>">
+      <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="dias">–</span><span class="cuenta-atras-etiqueta"><?= e(t('dias')) ?></span></div>
+      <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="horas">–</span><span class="cuenta-atras-etiqueta"><?= e(t('horas')) ?></span></div>
+      <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="min">–</span><span class="cuenta-atras-etiqueta"><?= e(t('min')) ?></span></div>
+      <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="seg">–</span><span class="cuenta-atras-etiqueta"><?= e(t('seg')) ?></span></div>
+    </div>
+
+    <a href="competicion.php?id=<?= (int)$proxima['id'] ?>" class="boton oro hero-evento-boton">Ver todos los detalles del torneo →</a>
+  </div>
+</section>
+<?php else: ?>
 
 <section class="hero <?= !empty($ajustes['inicio_imagen']) ? 'hero-con-foto' : '' ?>">
   <?php if (!empty($ajustes['inicio_imagen'])): ?>
@@ -131,5 +164,7 @@ require __DIR__ . '/includes/header.php';
     <?php endif; ?>
   </div>
 </section>
+
+<?php endif; ?>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

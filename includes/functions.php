@@ -192,7 +192,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 7;
+const VERSION_ESQUEMA_SAKONETA = 8;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -300,6 +300,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_valor", 'INTEGER');
         agregarColumnaSiFalta($pdo, 'ajustes', "est{$n}_texto", 'TEXT');
     }
+    agregarColumnaSiFalta($pdo, 'ajustes', 'modo_evento_dias', 'INTEGER');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS mensajes_contacto (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

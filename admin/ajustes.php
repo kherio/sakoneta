@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $esloganSitioNuevo = trim($_POST['eslogan_sitio'] ?? '');
     $pieTituloNuevo = trim($_POST['pie_titulo'] ?? '');
     $pieTextoNuevo = trim($_POST['pie_texto'] ?? '');
+    $modoEventoDias = trim($_POST['modo_evento_dias'] ?? '');
+    $modoEventoDias = ($modoEventoDias !== '' && (int)$modoEventoDias >= 0) ? min((int)$modoEventoDias, 14) : null;
     $estadisticas = [];
     foreach ([1, 2, 3, 4] as $n) {
         $valor = trim($_POST["est{$n}_valor"] ?? '');
@@ -56,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
                 $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
-                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null, $pieTituloNuevo ?: null, $pieTextoNuevo ?: null,
+                $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null, $pieTituloNuevo ?: null, $pieTextoNuevo ?: null, $modoEventoDias,
                 $estadisticas['est1_valor'], $estadisticas['est1_texto'],
                 $estadisticas['est2_valor'], $estadisticas['est2_texto'],
                 $estadisticas['est3_valor'], $estadisticas['est3_texto'],
@@ -189,6 +191,20 @@ $defectoEst = [
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+
+  <h3>Modo evento en la portada</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    Cuando falten pocos días para la próxima competición pendiente (y
+    esa competición tenga foto de portada), la página de inicio
+    cambia por completo: en vez del titular y las estadísticas de
+    siempre, se muestra la foto de esa competición a pantalla
+    completa con una cuenta atrás grande.
+  </p>
+  <div class="campo">
+    <label for="modo_evento_dias">Activarlo cuando falten estos días o menos</label>
+    <input type="number" id="modo_evento_dias" name="modo_evento_dias" min="0" max="14" style="max-width:120px;" value="<?= e((string)($ajustes['modo_evento_dias'] ?? 2)) ?>">
+    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">Por defecto, 2 días. Pon 0 para desactivarlo del todo.</p>
+  </div>
 
   <h3>Foto de fondo de la portada</h3>
   <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
