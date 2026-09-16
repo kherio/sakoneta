@@ -192,7 +192,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 6;
+const VERSION_ESQUEMA_SAKONETA = 7;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -254,6 +254,17 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         competicion_id INTEGER NOT NULL,
         categoria TEXT NOT NULL,
         PRIMARY KEY (competicion_id, categoria)
+    )");
+
+    // Documentos (PDF, DOCX) adjuntos a una competición: convocatoria,
+    // hoja de resultados oficial, etc. Separados de las fotos porque
+    // se muestran como una lista de descargas, no como una galería.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_documentos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        competicion_id INTEGER NOT NULL,
+        archivo TEXT NOT NULL,
+        nombre_original TEXT NOT NULL,
+        orden INTEGER NOT NULL DEFAULT 0
     )");
     // Migración: cada competición que ya tuviera una categoría en la
     // columna antigua pasa a tener también esa misma categoría aquí,
@@ -633,6 +644,106 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
         } else {
             $errores[] = 'No se ha podido guardar "' . $_FILES[$campo]['name'][$i] . '".';
+        }
+    }
+
+    return $guardados;
+}
+
+/**
+ * Procesa la subida de documentos (PDF, DOCX) adjuntos a una
+ * competición: convocatoria, resultados oficiales, etc. Con las
+ * mismas comprobaciones de seguridad que procesarImagenesMultiples()
+ * (tipo real del archivo, no solo la extensión; límites de tamaño,
+ * de conjunto y de frecuencia por rol), adaptadas a documentos.
+ */
+function procesarDocumentosMultiples(string $campo, array &$errores = []): array {
+    if (empty($_FILES[$campo]) || !is_array($_FILES[$campo]['name'])) {
+        return [];
+    }
+
+    $carpetaDestino = __DIR__ . '/../img/subidas';
+    if (!is_dir($carpetaDestino)) {
+        mkdir($carpetaDestino, 0775, true);
+    }
+
+    $total = count($_FILES[$campo]['name']);
+    $esColaborador = function_exists('rolActual') && rolActual() === 'colaborador';
+    $maxArchivosPorPeticion = $esColaborador ? 3 : 10;
+    $maxBytesTotalPeticion = ($esColaborador ? 20 : 80) * 1024 * 1024;
+    $limiteMb = 20;
+
+    if (function_exists('getDb') && superaLimiteEnvios(getDb(), 'subida_admin', $esColaborador ? 8 : 20, 10)) {
+        $errores[] = 'Se han hecho demasiadas subidas seguidas desde aquí en poco tiempo. Espera unos minutos y vuelve a intentarlo.';
+        return [];
+    }
+    if ($total > $maxArchivosPorPeticion) {
+        $errores[] = 'Se pueden subir como máximo ' . $maxArchivosPorPeticion . ' documentos en un mismo envío.';
+        return [];
+    }
+
+    $bytesTotales = 0;
+    foreach ($_FILES[$campo]['size'] as $tamano) {
+        $bytesTotales += (int)$tamano;
+    }
+    if ($bytesTotales > $maxBytesTotalPeticion) {
+        $errores[] = 'El conjunto de documentos pesa demasiado (máximo ' . round($maxBytesTotalPeticion / (1024 * 1024)) . ' MB en total por envío).';
+        return [];
+    }
+
+    $espacioLibre = @disk_free_space($carpetaDestino);
+    if ($espacioLibre !== false && $espacioLibre < ($bytesTotales + 200 * 1024 * 1024)) {
+        $errores[] = 'No hay espacio suficiente en el servidor para esta subida. Avisa a quien administre el hosting.';
+        return [];
+    }
+
+    $tiposValidos = [
+        'pdf' => ['application/pdf'],
+        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'],
+    ];
+
+    $guardados = [];
+    for ($i = 0; $i < $total; $i++) {
+        if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
+        if ($_FILES[$campo]['error'][$i] === UPLOAD_ERR_INI_SIZE || $_FILES[$campo]['error'][$i] === UPLOAD_ERR_FORM_SIZE) {
+            $errores[] = '"' . $_FILES[$campo]['name'][$i] . '" supera el límite de subida configurado en el servidor.';
+            continue;
+        }
+        if ($_FILES[$campo]['error'][$i] !== UPLOAD_ERR_OK) {
+            $errores[] = 'No se ha podido subir "' . $_FILES[$campo]['name'][$i] . '".';
+            continue;
+        }
+
+        $nombreOriginal = $_FILES[$campo]['name'][$i];
+        $extension = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+
+        if (!isset($tiposValidos[$extension])) {
+            $errores[] = '"' . $nombreOriginal . '" no es un formato admitido (solo PDF o DOCX).';
+            continue;
+        }
+        if ($_FILES[$campo]['size'][$i] > $limiteMb * 1024 * 1024) {
+            $errores[] = '"' . $nombreOriginal . '" pesa demasiado (máximo ' . $limiteMb . ' MB).';
+            continue;
+        }
+
+        // Comprobar el tipo real del archivo, no solo su extensión.
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeReal = finfo_file($finfo, $_FILES[$campo]['tmp_name'][$i]);
+            finfo_close($finfo);
+            if (!in_array($mimeReal, $tiposValidos[$extension], true)) {
+                $errores[] = '"' . $nombreOriginal . '" no es un archivo ' . strtoupper($extension) . ' válido.';
+                continue;
+            }
+        }
+
+        $nombreFinal = 'documento-' . date('Ymd-His') . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . $extension;
+        $rutaFinal = $carpetaDestino . '/' . $nombreFinal;
+
+        if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
+            $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'nombre_original' => $nombreOriginal];
+        } else {
+            $errores[] = 'No se ha podido guardar "' . $nombreOriginal . '".';
         }
     }
 
@@ -1030,9 +1141,14 @@ function borrarCompeticionCompleta(PDO $pdo, int $id): void {
     $stmt->execute([$id]);
     $archivos = array_merge($archivos, $stmt->fetchAll(PDO::FETCH_COLUMN));
 
+    $stmt = $pdo->prepare('SELECT archivo FROM competicion_documentos WHERE competicion_id = ?');
+    $stmt->execute([$id]);
+    $documentos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
     $pdo->beginTransaction();
     try {
         $pdo->prepare('DELETE FROM competicion_fotos WHERE competicion_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM competicion_documentos WHERE competicion_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM competicion_categorias WHERE competicion_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM competiciones WHERE id = ?')->execute([$id]);
         $pdo->commit();
@@ -1043,6 +1159,13 @@ function borrarCompeticionCompleta(PDO $pdo, int $id): void {
 
     foreach (array_unique(array_filter($archivos)) as $archivo) {
         eliminarArchivoSiNoSeUsa($pdo, $archivo);
+    }
+    // Los documentos no se comparten nunca entre varias competiciones
+    // (a diferencia de las fotos, no hay un selector de "elegir uno ya
+    // subido"), así que su archivo físico se borra directamente.
+    foreach (array_unique(array_filter($documentos)) as $documento) {
+        $rutaDocumento = __DIR__ . '/../img/' . $documento;
+        if (is_file($rutaDocumento)) @unlink($rutaDocumento);
     }
 }
 

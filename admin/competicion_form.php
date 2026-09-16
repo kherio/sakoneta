@@ -94,6 +94,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
             }
         }
 
+        // Documentos (PDF, DOCX): convocatoria, resultados oficiales...
+        $erroresDocumentos = [];
+        $documentosNuevos = procesarDocumentosMultiples('documentos', $erroresDocumentos);
+        if ($documentosNuevos) {
+            $maxOrdenDoc = (int)$pdo->query('SELECT COALESCE(MAX(orden), 0) m FROM competicion_documentos WHERE competicion_id = ' . (int)$id)->fetch()['m'];
+            $stmtDoc = $pdo->prepare('INSERT INTO competicion_documentos (competicion_id, archivo, nombre_original, orden) VALUES (?, ?, ?, ?)');
+            foreach ($documentosNuevos as $i => $doc) {
+                $stmtDoc->execute([$id, $doc['archivo'], $doc['nombre_original'], $maxOrdenDoc + $i + 1]);
+            }
+        }
+        $erroresFotos = array_merge($erroresFotos, $erroresDocumentos);
+
         // Determinar la foto de portada (solo puede ser una imagen): la
         // elegida entre las existentes, o si no había ninguna todavía, la
         // primera imagen añadida en este envío.
@@ -125,6 +137,9 @@ if ($fotos) { $fotos->execute([$id]); $fotos = $fotos->fetchAll(); } else { $fot
 
 $archivosYaEnGaleria = array_column($fotos, 'archivo');
 $mediaBiblioteca = array_filter(listarMediaSubida(), fn($m) => !in_array($m['archivo'], $archivosYaEnGaleria, true));
+
+$documentos = $id ? $pdo->prepare('SELECT * FROM competicion_documentos WHERE competicion_id = ? ORDER BY orden ASC') : null;
+if ($documentos) { $documentos->execute([$id]); $documentos = $documentos->fetchAll(); } else { $documentos = []; }
 
 // Releer la portada actual por si se acaba de actualizar en este envío
 if ($id) {
@@ -270,6 +285,34 @@ require __DIR__ . '/includes/layout_header.php';
     </div>
   </details>
   <?php endif; ?>
+
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+
+  <h3 style="margin-top:0;">Documentos de la competición</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:60ch;margin-top:-8px;">
+    Convocatoria, resultados oficiales... en PDF o Word (DOCX), hasta 20 MB cada uno.
+  </p>
+
+  <?php if ($documentos): ?>
+  <ul style="list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:8px;">
+    <?php foreach ($documentos as $doc): ?>
+      <li style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--borde);border-radius:8px;">
+        <span style="font-size:20px;">📄</span>
+        <a href="../img/<?= e($doc['archivo']) ?>" target="_blank" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($doc['nombre_original']) ?></a>
+        <form method="post" action="competicion_documento_borrar.php" onsubmit="return confirm('¿Borrar este documento?');">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$doc['id'] ?>">
+          <button type="submit" class="borrar" style="font-size:13px;">Borrar</button>
+        </form>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+  <?php endif; ?>
+
+  <div class="campo">
+    <label for="documentos">Añadir documento(s) nuevos (PDF o DOCX, hasta 20 MB cada uno)</label>
+    <input type="file" id="documentos" name="documentos[]" accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple>
+  </div>
 
   <button type="submit" class="btn">Guardar competición</button>
   <a href="competiciones.php" class="btn secundario">Cancelar</a>

@@ -68,6 +68,10 @@ $fotos = $stmtFotos->fetchAll();
 $fotoPrincipal = $competicion['imagen_portada'] ?: ($fotos[0]['archivo'] ?? 'competicion.svg');
 $otrasFotos = array_filter($fotos, function ($f) use ($fotoPrincipal) { return $f['archivo'] !== $fotoPrincipal; });
 
+$stmtDocs = $pdo->prepare('SELECT * FROM competicion_documentos WHERE competicion_id = ? ORDER BY orden ASC');
+$stmtDocs->execute([$id]);
+$documentosCompeticion = $stmtDocs->fetchAll();
+
 $tituloPagina = $competicion['nombre'];
 $descripcionOG = $competicion['descripcion'] ? recortarTexto(trim(explode("\n\n", $competicion['descripcion'])[0]), 160) : ($competicion['lugar'] . ' · ' . formatearFecha($competicion['fecha']));
 $esquemaImg = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
@@ -102,6 +106,25 @@ require __DIR__ . '/includes/header.php';
         <?php endif; ?>
       <?php endforeach; ?>
     </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if ($documentosCompeticion): ?>
+<section class="seccion" style="padding-top:0;">
+  <div class="contenedor">
+    <h3>Documentos</h3>
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:60ch;">
+      <?php foreach ($documentosCompeticion as $doc): ?>
+        <li>
+          <a href="img/<?= e($doc['archivo']) ?>" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--borde-suave);border-radius:var(--radio-chico);color:inherit;text-decoration:none;background:var(--superficie);">
+            <span style="font-size:22px;">📄</span>
+            <span style="flex:1;"><?= e($doc['nombre_original']) ?></span>
+            <span style="font-size:13px;color:var(--gris-texto);">Descargar ↓</span>
+          </a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
   </div>
 </section>
 <?php endif; ?>

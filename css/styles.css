@@ -1333,21 +1333,26 @@ img.cargando-esqueleto {
   font-weight: 600;
 }
 .calendario-dia {
-  aspect-ratio: 1;
+  min-height: 64px;
   border-radius: 8px;
   padding: 6px;
   font-size: 13px;
   color: var(--tinta);
   position: relative;
   background: var(--papel);
+  border: 1px solid var(--borde-suave);
+  overflow: hidden;
 }
-.calendario-dia.vacio { background: transparent; }
+.calendario-dia.vacio { background: transparent; border-color: transparent; }
 .calendario-dia.hoy { box-shadow: inset 0 0 0 2px var(--acento); }
 .calendario-dia a {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   color: inherit;
   text-decoration: none;
 }
+.calendario-dia-numero { font-weight: 700; }
 .calendario-dia-punto {
   position: absolute;
   bottom: 6px;
@@ -1358,7 +1363,24 @@ img.cargando-esqueleto {
   border-radius: 50%;
   background: var(--fucsia);
 }
-.calendario-dia.con-competicion { background: var(--acento-suave); cursor: pointer; font-weight: 700; }
+.calendario-dia.con-competicion {
+  background: var(--acento-suave);
+  cursor: pointer;
+  border-color: var(--acento);
+}
+.calendario-dia-nombre-torneo {
+  font-size: 10.5px;
+  line-height: 1.25;
+  margin-top: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .calendario-dia { min-height: 52px; padding: 4px; font-size: 11.5px; }
+  .calendario-dia-nombre-torneo { -webkit-line-clamp: 2; font-size: 9.5px; }
+}
 
 .cabecera-top-derecha { display: flex; align-items: center; gap: 14px; }
 .interruptor-tema {

@@ -85,7 +85,11 @@ ajustes generales del sitio.
 - **Autocompletado en el buscador**: sugerencias mientras se escribe,
   sin tener que pulsar "Buscar".
 - **Vista de calendario en Competiciones**, como alternativa a la
-  lista: un mes navegable con las competiciones marcadas en su día.
+  lista: un mes navegable con el nombre de cada competición en su
+  día, enlazando directamente a su página.
+- **Documentos en las competiciones**: convocatorias, resultados
+  oficiales... en PDF o Word (DOCX), descargables desde la propia
+  página de la competición.
 - **Se puede instalar como aplicación** ("Añadir a pantalla de
   inicio") en el móvil, con su propio icono y pantalla de carga.
 - **Modo oscuro**, activable con el interruptor de la cabecera; se
@@ -111,7 +115,8 @@ navegador no soporta alguna característica.
 - **Competiciones**: nombre, una o varias categorías, lugar, fecha,
   hora de inicio (opcional), resultado una vez disputada, texto libre
   para contar cómo fue, galería de fotos y vídeos con selector visual
-  de encuadre para la portada.
+  de encuadre para la portada, y documentos adjuntos (PDF o Word)
+  como convocatorias o resultados oficiales.
 - **Categorías**: crear, renombrar, reordenar (arrastrando), elegir
   su color de acento y borrar las categorías que luego se asignan a
   gimnastas y competiciones; cada una admite su propia galería de

@@ -509,6 +509,12 @@ document.addEventListener('DOMContentLoaded', function () {
     var nombresMes = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     var nombresDiaCorto = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
+    function escaparHtml(texto) {
+      var div = document.createElement('div');
+      div.textContent = texto;
+      return div.innerHTML;
+    }
+
     function pintarCalendario() {
       var porDia = {};
       competicionesCalendario.forEach(function (c) {
@@ -536,11 +542,15 @@ document.addEventListener('DOMContentLoaded', function () {
         var deEsteDia = porDia[dia];
         var clases = 'calendario-dia' + (esHoy ? ' hoy' : '') + (deEsteDia ? ' con-competicion' : '');
         if (deEsteDia) {
-          var titulo = deEsteDia.map(function (c) { return c.nombre; }).join(', ');
-          html += '<div class="' + clases + '" title="' + titulo.replace(/"/g, '') + '">' +
-            '<a href="competicion.php?id=' + deEsteDia[0].id + '">' + dia + '<span class="calendario-dia-punto"></span></a></div>';
+          var nombresTexto = deEsteDia.map(function (c) { return c.nombre; }).join(' · ');
+          var primeraLinea = deEsteDia.length > 1 ? deEsteDia.length + ' competiciones' : deEsteDia[0].nombre;
+          html += '<div class="' + clases + '" title="' + escaparHtml(nombresTexto) + '">' +
+            '<a href="competicion.php?id=' + deEsteDia[0].id + '">' +
+            '<span class="calendario-dia-numero">' + dia + '</span>' +
+            '<span class="calendario-dia-nombre-torneo">' + escaparHtml(primeraLinea) + '</span>' +
+            '</a></div>';
         } else {
-          html += '<div class="' + clases + '">' + dia + '</div>';
+          html += '<div class="' + clases + '"><span class="calendario-dia-numero">' + dia + '</span></div>';
         }
       }
       html += '</div>';
