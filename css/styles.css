@@ -649,8 +649,8 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   overflow: hidden;
 }
 .vista-previa-swipe.visible { display: block; }
-.vista-previa-swipe-anterior { transform: translateX(-100%); }
-.vista-previa-swipe-siguiente { transform: translateX(100%); }
+.vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
+.vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
 .vista-previa-swipe-imagen {
   position: absolute;
   inset: 0;

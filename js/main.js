@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
         capa.classList.remove('visible');
         capa.style.transform = '';
       });
+      document.body.style.filter = '';
     }
 
     document.addEventListener('touchstart', function (e) {
@@ -208,6 +209,11 @@ document.addEventListener('DOMContentLoaded', function () {
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
       document.body.style.transform = 'translateX(' + desplazamiento + 'px)';
+      // Oscurece un poco la página actual según avanza el arrastre,
+      // para que se note que "pierde protagonismo" frente a la que
+      // entra, en vez de verse como dos mitades sueltas sin relación.
+      var progreso = Math.min(Math.abs(desplazamiento) / anchoPantalla, 1);
+      document.body.style.filter = tieneDestino ? 'brightness(' + (1 - progreso * 0.35) + ')' : '';
 
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
       if (tieneDestino) {
@@ -230,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var destino = vaASiguiente ? urlSiguiente : urlAnterior;
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
 
-      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1)';
+      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1), filter .28s ease';
       document.body.style.transition = transicion;
       capaActiva.style.transition = transicion;
 
@@ -238,10 +244,12 @@ document.addEventListener('DOMContentLoaded', function () {
         navegando = true;
         var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
         document.body.style.transform = 'translateX(' + destinoX + 'px)';
+        document.body.style.filter = 'brightness(.65)';
         capaActiva.style.transform = 'translateX(0)';
         setTimeout(function () { window.location.href = destino; }, 260);
       } else {
         document.body.style.transform = 'translateX(0)';
+        document.body.style.filter = '';
         var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
         capaActiva.style.transform = 'translateX(' + base + 'px)';
         setTimeout(ocultarCapas, 290);

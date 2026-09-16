@@ -40,7 +40,8 @@ ajustes generales del sitio.
   compiten juntas Base y Alevín). En el móvil, se puede deslizar el
   dedo dentro de una competición para pasar a la anterior o
   siguiente, con una vista previa real de la otra competición
-  entrando en pantalla. El filtro por categoría admite marcar varias
+  entrando en pantalla con sombra y oscureciendo la actual, dando
+  sensación de una página deslizándose sobre otra. El filtro por categoría admite marcar varias
   a la vez.
 - **Categorías**: cada categoría del club (Base, Alevín, Infantil...)
   tiene su propia página pública, con galería de fotos propia y el
