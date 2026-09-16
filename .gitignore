@@ -13,3 +13,4 @@ data/contrasena-inicial-admin.txt
 # Fotos subidas desde el panel (contenido, no código)
 img/subidas/*
 !img/subidas/.htaccess
+!img/subidas/index.php
