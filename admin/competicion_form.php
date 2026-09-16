@@ -299,11 +299,7 @@ require __DIR__ . '/includes/layout_header.php';
       <li style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--borde);border-radius:8px;">
         <span style="font-size:20px;">📄</span>
         <a href="../img/<?= e($doc['archivo']) ?>" target="_blank" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($doc['nombre_original']) ?></a>
-        <form method="post" action="competicion_documento_borrar.php" onsubmit="return confirm('¿Borrar este documento?');">
-          <?= campoCsrf() ?>
-          <input type="hidden" name="id" value="<?= (int)$doc['id'] ?>">
-          <button type="submit" class="borrar" style="font-size:13px;">Borrar</button>
-        </form>
+        <button type="submit" formaction="competicion_documento_borrar.php" name="documento_id" value="<?= (int)$doc['id'] ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Borrar este documento?');">Borrar</button>
       </li>
     <?php endforeach; ?>
   </ul>

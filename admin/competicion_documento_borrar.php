@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 exigirCsrf();
 
 $pdo = getDb();
-$id = (int)($_POST['id'] ?? 0);
+$id = (int)($_POST['documento_id'] ?? 0);
 $competicionId = 0;
 
 if ($id) {
