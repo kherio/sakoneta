@@ -127,6 +127,7 @@ require __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <form method="post" action="comentar.php" class="formulario formulario-comentario">
+          <?= campoCsrf() ?>
           <input type="hidden" name="noticia_id" value="<?= (int)$noticia['id'] ?>">
           <input type="hidden" name="volver" value="<?= e($_SERVER['REQUEST_URI'] ?? '') ?>">
           <!-- Campo señuelo anti-spam: invisible para personas, tentador para bots -->

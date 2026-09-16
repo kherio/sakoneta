@@ -6,10 +6,11 @@ $pdo = getDb();
 $paginaActual = 'contacto';
 $tituloPagina = 'Contacto';
 
-$enviado = false;
+$enviado = (bool)leerFlash('contacto_enviado');
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigirCsrf();
     $nombre = trim($_POST['nombre'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $mensaje = trim($_POST['mensaje'] ?? '');
@@ -25,7 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $stmt = $pdo->prepare('INSERT INTO mensajes_contacto (nombre, email, mensaje, fecha) VALUES (?,?,?,?)');
         $stmt->execute([$nombre, $email, $mensaje, date('Y-m-d H:i:s')]);
-        $enviado = true;
+        // POST → redirección → GET: si la persona refresca la página
+        // de después de enviar, no se reenvía el mensaje otra vez.
+        establecerFlash('contacto_enviado', true);
+        header('Location: contacto.php', true, 303);
+        exit;
     }
 }
 
@@ -48,6 +53,7 @@ require __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <form method="post" class="formulario">
+          <?= campoCsrf() ?>
           <label for="nombre"><?= t('contacto_nombre') ?></label>
           <input type="text" id="nombre" name="nombre" value="<?= e($_POST['nombre'] ?? '') ?>" maxlength="100" required>
 

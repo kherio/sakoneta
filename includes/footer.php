@@ -70,6 +70,7 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
         <p style="font-size:13.5px;color:#C9D3CE;margin:0 0 10px;">Un correo cuando publiquemos algo nuevo, nada más.</p>
       <?php endif; ?>
       <form method="post" action="suscribir.php" class="formulario-suscripcion">
+        <?= campoCsrf() ?>
         <input type="hidden" name="volver" value="<?= e($_SERVER['REQUEST_URI'] ?? 'index.php') ?>">
         <input type="email" name="email" placeholder="tu@email.com" required>
         <button type="submit">Suscribirme</button>

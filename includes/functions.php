@@ -31,7 +31,7 @@ function versionArchivo(string $hrefRelativo, ?string $rutaFisica = null): strin
 }
 
 function redirigir(string $ruta): void {
-    header('Location: ' . $ruta);
+    header('Location: ' . $ruta, true, 303);
     exit;
 }
 
@@ -751,6 +751,55 @@ function procesarDocumentosMultiples(string $campo, array &$errores = []): array
 }
 
 /**
+ * Borra una foto de la galería de UNA entidad concreta (noticia,
+ * gimnasta, categoría o competición), sin afectar a ninguna otra
+ * entidad que pudiera compartir ese mismo archivo (elegido de la
+ * biblioteca de medios ya subidos). A diferencia de
+ * limpiarReferenciasArchivo() —pensada para el borrado deliberado y
+ * global de un archivo desde la biblioteca de medios—, esta función
+ * solo toca la relación de galería que se le pide, y el archivo
+ * físico solo se elimina si, tras quitar esa relación, ya no lo usa
+ * ninguna otra fila en ningún sitio.
+ *
+ * Devuelve el id de la entidad (para poder redirigir de vuelta a su
+ * formulario), o 0 si no se encontró la foto.
+ */
+function borrarFotoDeEntidad(PDO $pdo, string $tabla, string $columnaId, string $columnaPortada, string $tablaFotos, int $fotoId): int {
+    $stmt = $pdo->prepare("SELECT * FROM $tablaFotos WHERE id = ?");
+    $stmt->execute([$fotoId]);
+    $foto = $stmt->fetch();
+    if (!$foto) return 0;
+
+    $entidadId = (int)$foto[$columnaId];
+    $archivo = $foto['archivo'];
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare("DELETE FROM $tablaFotos WHERE id = ?")->execute([$fotoId]);
+
+        $stmtPortada = $pdo->prepare("SELECT $columnaPortada FROM $tabla WHERE id = ?");
+        $stmtPortada->execute([$entidadId]);
+        if ($stmtPortada->fetchColumn() === $archivo) {
+            $siguiente = $pdo->prepare("SELECT archivo FROM $tablaFotos WHERE $columnaId = ? AND tipo = 'imagen' ORDER BY orden ASC LIMIT 1");
+            $siguiente->execute([$entidadId]);
+            $nuevaPortada = $siguiente->fetchColumn() ?: null;
+            $pdo->prepare("UPDATE $tabla SET $columnaPortada = ? WHERE id = ?")->execute([$nuevaPortada, $entidadId]);
+        }
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    // Solo ahora, con la relación de ESTA entidad ya quitada, se
+    // comprueba si el archivo sigue haciendo falta en algún otro
+    // sitio antes de borrarlo físicamente.
+    eliminarArchivoSiNoSeUsa($pdo, $archivo);
+
+    return $entidadId;
+}
+
+/**
  * Cuenta en cuántos sitios de la base de datos se usa un archivo de img/subidas/.
  */
 function contarUsosArchivo(PDO $pdo, string $ruta): int {
@@ -1275,6 +1324,56 @@ function colorCategoria(PDO $pdo, ?string $nombre): string {
     if (!$nombre) return '#1450C4';
     $colores = coloresCategorias($pdo);
     return $colores[$nombre] ?? '#1450C4';
+}
+
+/**
+ * Token CSRF de la sesión actual (se genera una vez y se reutiliza).
+ * Sirve tanto para el panel como para los formularios públicos
+ * (contacto, comentarios): no hace falta haber iniciado sesión como
+ * administrador para tener uno, cualquier visitante ya tiene su
+ * propia sesión de PHP desde que entra a la web.
+ */
+function tokenCsrf(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Campo oculto listo para insertar dentro de un <form method="post">.
+ */
+function campoCsrf(): string {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(tokenCsrf(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/**
+ * Corta la ejecución con un 403 si el token CSRF (recibido por POST o GET)
+ * no coincide con el de la sesión.
+ */
+function exigirCsrf(): void {
+    $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        http_response_code(403);
+        exit('Token de seguridad no válido o caducado. Vuelve a la página anterior e inténtalo de nuevo.');
+    }
+}
+
+/**
+ * Mensaje "flash": se guarda antes de una redirección y se lee (y
+ * borra) una sola vez en la petición GET que llega después. Así el
+ * patrón POST → redirección 303 → GET puede seguir mostrando un
+ * mensaje de éxito sin tener que reenviar el formulario si se
+ * refresca la página.
+ */
+function establecerFlash(string $clave, $valor): void {
+    $_SESSION['flash'][$clave] = $valor;
+}
+
+function leerFlash(string $clave) {
+    $valor = $_SESSION['flash'][$clave] ?? null;
+    unset($_SESSION['flash'][$clave]);
+    return $valor;
 }
 
 function obtenerAjustes(PDO $pdo): array {

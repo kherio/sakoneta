@@ -21,7 +21,7 @@ if ($id) {
     $foto = $stmt->fetch();
     if ($foto) {
         $categoriaId = (int)$foto['categoria_id'];
-        limpiarReferenciasArchivo($pdo, $foto['archivo']);
+        borrarFotoDeEntidad($pdo, 'categorias', 'categoria_id', 'imagen_portada', 'categoria_fotos', $id);
     }
 }
 

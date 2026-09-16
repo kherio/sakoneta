@@ -21,7 +21,7 @@ if ($id) {
     $foto = $stmt->fetch();
     if ($foto) {
         $gimnastaId = (int)$foto['gimnasta_id'];
-        limpiarReferenciasArchivo($pdo, $foto['archivo']);
+        borrarFotoDeEntidad($pdo, 'gimnastas', 'gimnasta_id', 'foto', 'gimnasta_fotos', $id);
     }
 }
 

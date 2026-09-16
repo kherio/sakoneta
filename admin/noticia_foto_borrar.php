@@ -22,7 +22,7 @@ if ($id) {
     if ($foto) {
         $noticiaId = (int)$foto['noticia_id'];
         if (puedeEditarNoticia($foto)) {
-            limpiarReferenciasArchivo($pdo, $foto['archivo']);
+            borrarFotoDeEntidad($pdo, 'noticias', 'noticia_id', 'imagen', 'noticia_fotos', $id);
         } else {
             http_response_code(403);
             exit('No tienes permiso para borrar fotos de esta noticia.');

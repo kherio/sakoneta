@@ -29,8 +29,18 @@
 <meta property="og:site_name" content="<?= e(nombreSitio()) ?>">
 <meta property="og:title" content="<?= isset($tituloPagina) ? e($tituloPagina) : e(nombreSitio()) ?>">
 <meta property="og:description" content="<?= e($descripcionOG ?? claimSitio()) ?>">
-<meta property="og:image" content="<?= e($imagenOG ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . '/img/logo-sakoneta.png') ?>">
-<meta property="og:url" content="<?= e(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
+<meta property="og:image" content="<?= e($imagenOG ?? SITE_URL . '/img/logo-sakoneta.png') ?>">
+<?php
+// Para la URL de esta página en concreto no se puede usar SITE_URL a
+// secas seguida de REQUEST_URI: SITE_URL ya incluye la subcarpeta del
+// proyecto (p. ej. /sakoneta-web) y REQUEST_URI también la trae de
+// serie (viene de la URL real por la que se ha llegado hasta aquí),
+// así que se duplicaría. En su lugar, se coge de SITE_URL solo el
+// esquema y el dominio (la parte que NO se puede fiar de la petición)
+// y se le añade la ruta real de la petición tal cual.
+$origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+?>
+<meta property="og:url" content="<?= e($origenSeguro . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="stylesheet" href="<?= versionArchivo('css/styles.css') ?>">

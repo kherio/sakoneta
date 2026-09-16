@@ -7,6 +7,17 @@ define('SITE_NAME', 'Sakoneta Gimnasia Erritmiko Taldea');
 define('SITE_SHORT', 'Sakoneta');
 define('SITE_CLAIM', 'Erritmoa, grazia eta talde-lana');
 
+// URL base real y de confianza del sitio, usada para construir
+// direcciones absolutas (Open Graph, url canónica...). A propósito
+// NO se construye a partir de la cabecera HTTP "Host" de cada
+// petición: esa cabecera la controla quien hace la petición, y un
+// servidor Apache con un único VirtualHost por defecto (que acepta
+// cualquier Host) la aceptaría tal cual, permitiendo inyectar un
+// dominio ajeno en las URLs que la web ofrece a Facebook, Twitter,
+// etc. Se puede sobrescribir con la variable de entorno
+// SAKONETA_SITE_URL si el dominio real cambia.
+define('SITE_URL', rtrim(getenv('SAKONETA_SITE_URL') ?: 'https://jvrsanjose.com/sakoneta-web', '/'));
+
 // Ubicación de los datos privados (base de datos, contraseña inicial
 // generada en el primer arranque).
 //
@@ -184,3 +195,28 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 session_start();
+
+// Cabeceras de seguridad HTTP, pensadas para no romper nada de lo que
+// ya hace la web actual (necesita scripts y estilos en línea, y carga
+// las tipografías desde Google Fonts).
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()');
+if ($httpsActivo) {
+    // Solo se envía si esta petición concreta ya es HTTPS: mandarla
+    // por HTTP no serviría de nada (los navegadores la ignoran si no
+    // llega por una conexión segura) y podría inducir a error sobre
+    // si el sitio la exige de verdad.
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+header("Content-Security-Policy: default-src 'self'; " .
+    "script-src 'self' 'unsafe-inline'; " .
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
+    "font-src 'self' https://fonts.gstatic.com; " .
+    "img-src 'self' data:; " .
+    "media-src 'self'; " .
+    "connect-src 'self'; " .
+    "frame-ancestors 'self'; " .
+    "base-uri 'self'; " .
+    "form-action 'self'; " .
+    "object-src 'none'");
