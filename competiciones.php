@@ -46,6 +46,7 @@ require __DIR__ . '/includes/header.php';
       <p>No hay ninguna competición pendiente por ahora. <a href="resultados.php">Consulta los resultados de las ya disputadas</a>.</p>
     <?php else: ?>
     <div class="vista-cambio" role="tablist" aria-label="Vista de las competiciones">
+      <span class="vista-cambio-pastilla" id="vista-cambio-pastilla" aria-hidden="true"></span>
       <button type="button" class="activo" data-vista="lista">☰ Lista</button>
       <button type="button" data-vista="calendario">▦ Calendario</button>
     </div>

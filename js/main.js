@@ -566,10 +566,31 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    var pastilla = document.getElementById('vista-cambio-pastilla');
+    function moverPastilla(boton, conAnimacion) {
+      if (!pastilla) return;
+      if (!conAnimacion) pastilla.style.transition = 'none';
+      pastilla.style.width = boton.offsetWidth + 'px';
+      pastilla.style.transform = 'translateX(' + boton.offsetLeft + 'px)';
+      if (!conAnimacion) {
+        // Fuerza a aplicar la posición ya, sin animación, y solo
+        // entonces se reactiva la transición para los próximos clics.
+        pastilla.offsetHeight;
+        pastilla.style.transition = '';
+      }
+    }
+    var botonActivoInicial = document.querySelector('.vista-cambio button.activo');
+    if (botonActivoInicial) moverPastilla(botonActivoInicial, false);
+    window.addEventListener('resize', function () {
+      var actual = document.querySelector('.vista-cambio button.activo');
+      if (actual) moverPastilla(actual, false);
+    });
+
     document.querySelectorAll('.vista-cambio button').forEach(function (boton) {
       boton.addEventListener('click', function () {
         document.querySelectorAll('.vista-cambio button').forEach(function (b) { b.classList.remove('activo'); });
         boton.classList.add('activo');
+        moverPastilla(boton, true);
         var esCalendario = boton.getAttribute('data-vista') === 'calendario';
         vistaLista.style.display = esCalendario ? 'none' : '';
         contenedorCalendario.style.display = esCalendario ? '' : 'none';

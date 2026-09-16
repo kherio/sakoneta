@@ -1281,6 +1281,7 @@ img.cargando-esqueleto {
 /* ---------- Interruptor lista/calendario y calendario de competiciones ---------- */
 .vista-cambio {
   display: inline-flex;
+  position: relative;
   gap: 4px;
   background: var(--papel);
   border: 1px solid var(--borde-suave);
@@ -1288,7 +1289,20 @@ img.cargando-esqueleto {
   padding: 4px;
   margin-bottom: 26px;
 }
+.vista-cambio-pastilla {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: 0;
+  border-radius: 999px;
+  background: var(--morado);
+  box-shadow: var(--sombra-chica);
+  transition: transform .32s cubic-bezier(.34,1.4,.4,1), width .32s cubic-bezier(.34,1.4,.4,1);
+}
 .vista-cambio button {
+  position: relative;
+  z-index: 1;
   border: none;
   background: transparent;
   padding: 8px 16px;
@@ -1297,9 +1311,12 @@ img.cargando-esqueleto {
   font-weight: 600;
   color: var(--gris-texto);
   cursor: pointer;
-  transition: background var(--paso), color var(--paso);
+  transition: color .32s ease;
 }
-.vista-cambio button.activo { background: var(--morado); color: #fff; }
+.vista-cambio button.activo { color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .vista-cambio-pastilla { transition: none; }
+}
 
 .calendario-cabecera {
   display: flex;
