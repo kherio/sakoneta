@@ -164,11 +164,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var anchoPantalla = window.innerWidth;
 
     function posicionarCapasBajoCabecera() {
-      var altoCabecera = cabeceraSitio ? cabeceraSitio.getBoundingClientRect().height : 0;
+      // .bottom da directamente dónde termina la cabecera en la
+      // pantalla ahora mismo; es más fiable que reconstruirlo a
+      // partir de su altura, porque no depende de que su "top" sea
+      // exactamente 0 (barra de estado, notch, etc.).
+      var finCabecera = cabeceraSitio ? cabeceraSitio.getBoundingClientRect().bottom : 0;
       [capaAnterior, capaSiguiente].forEach(function (capa) {
         if (!capa) return;
-        capa.style.top = altoCabecera + 'px';
-        capa.style.height = 'calc(100% - ' + altoCabecera + 'px)';
+        capa.style.top = finCabecera + 'px';
+        capa.style.height = 'calc(100% - ' + finCabecera + 'px)';
       });
     }
 
@@ -177,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function () {
         capa.classList.remove('visible');
         capa.style.transform = '';
       });
-      contenido.style.filter = '';
     }
 
     document.addEventListener('touchstart', function (e) {
@@ -207,18 +210,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (esHorizontal) vaASiguiente = deltaX < 0;
       }
       if (!esHorizontal) return;
+      posicionarCapasBajoCabecera();
 
       var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
       var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
 
       contenido.style.transform = 'translateX(' + desplazamiento + 'px)';
-      // Oscurece un poco el contenido actual según avanza el
-      // arrastre, para que se note que "pierde protagonismo" frente
-      // al que entra, en vez de verse como dos mitades sueltas sin
-      // relación. La cabecera del sitio no se oscurece: se queda fija
-      // e intacta arriba durante todo el gesto.
-      var progreso = Math.min(Math.abs(desplazamiento) / anchoPantalla, 1);
-      contenido.style.filter = tieneDestino ? 'brightness(' + (1 - progreso * 0.35) + ')' : '';
 
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
       if (tieneDestino) {
@@ -241,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var destino = vaASiguiente ? urlSiguiente : urlAnterior;
       var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
 
-      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1), filter .28s ease';
+      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1)';
       contenido.style.transition = transicion;
       capaActiva.style.transition = transicion;
 
@@ -249,12 +246,10 @@ document.addEventListener('DOMContentLoaded', function () {
         navegando = true;
         var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
         contenido.style.transform = 'translateX(' + destinoX + 'px)';
-        contenido.style.filter = 'brightness(.65)';
         capaActiva.style.transform = 'translateX(0)';
         setTimeout(function () { window.location.href = destino; }, 260);
       } else {
         contenido.style.transform = 'translateX(0)';
-        contenido.style.filter = '';
         var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
         capaActiva.style.transform = 'translateX(' + base + 'px)';
         setTimeout(ocultarCapas, 290);
