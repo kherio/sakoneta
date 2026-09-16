@@ -2,11 +2,20 @@
 // con la clase "animar-scroll". Usa IntersectionObserver y escalona la
 // entrada de los elementos que comparten un mismo contenedor.
 document.addEventListener('DOMContentLoaded', function () {
+  // Política global de movimiento reducido: la preferencia explícita
+  // de la persona (prefers-reduced-motion) O una señal de que el
+  // propio dispositivo va justo de recursos (calculado ya en el
+  // <head>, ver includes/header.php). Un único punto de verdad para
+  // todo lo decorativo: parallax, contador, confeti, swipe...
+  function movimientoReducidoGlobal() {
+    return document.documentElement.getAttribute('data-movimiento') === 'reducido';
+  }
+
   // --- Pantalla de bienvenida (splash) ---
   var splash = document.getElementById('splash');
   if (splash) {
     var yaVisto = sessionStorage.getItem('sakoneta_splash_visto');
-    var movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var movimientoReducido = movimientoReducidoGlobal();
     if (yaVisto || movimientoReducido) {
       // Con movimiento reducido, nadie debería tener que esperar ni
       // ver una animación de entrada/salida: se retira directamente.
@@ -78,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
         animado.add(entrada.target);
         var elemento = entrada.target;
         var meta = parseInt(elemento.getAttribute('data-hasta'), 10) || 0;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (movimientoReducidoGlobal()) {
           elemento.textContent = meta;
           obs.unobserve(elemento);
           return;
@@ -374,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --- Parallax suave en fotos de fondo ---
   var capasParallax = document.querySelectorAll('[data-parallax]');
-  if (capasParallax.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (capasParallax.length && !movimientoReducidoGlobal()) {
     var actualizarParallax = function () {
       capasParallax.forEach(function (capa) {
         var contenedor = capa.closest('.marco-parallax') || capa.parentElement;
@@ -501,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function lanzarConfeti() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (movimientoReducidoGlobal()) return;
     var colores = ['#D6187A', '#5B2A86', '#F5A9CE', '#FBF5F9'];
     for (var i = 0; i < 26; i++) {
       var pieza = document.createElement('div');

@@ -20,6 +20,26 @@
       document.documentElement.setAttribute('data-tema', 'oscuro');
     }
   } catch (e) {}
+
+  // Política global de "movimiento reducido": no solo cuando la
+  // persona lo pide explícitamente (prefers-reduced-motion), sino
+  // también cuando el propio dispositivo da señales de tener pocos
+  // recursos (poca RAM, pocos núcleos) o una conexión limitada (modo
+  // ahorro de datos, red lenta) — en esos casos, de nada sirve
+  // preguntarle a la persona: cuantos menos efectos decorativos,
+  // mejor irá la web independientemente de si los pidió o no. Se deja
+  // como atributo en <html> para que tanto el CSS como el JS puedan
+  // usarlo sin repetir esta misma comprobación en cada sitio.
+  try {
+    var prefiereMenos = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var pocaMemoria = 'deviceMemory' in navigator && navigator.deviceMemory <= 2;
+    var pocosNucleos = 'hardwareConcurrency' in navigator && navigator.hardwareConcurrency <= 2;
+    var conexionLimitada = 'connection' in navigator && navigator.connection &&
+      (navigator.connection.saveData || /^(slow-2g|2g)$/.test(navigator.connection.effectiveType || ''));
+    if (prefiereMenos || pocaMemoria || pocosNucleos || conexionLimitada) {
+      document.documentElement.setAttribute('data-movimiento', 'reducido');
+    }
+  } catch (e) {}
 </script>
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . nombreSitio() : nombreSitio() ?></title>
 <meta name="description" content="<?= e($descripcionOG ?? claimSitio()) ?>">

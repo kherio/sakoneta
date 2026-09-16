@@ -39,6 +39,29 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
+/* Misma reducción universal cuando el dispositivo da señales de ir
+   justo de recursos (ver el cálculo en includes/header.php), aunque
+   la persona no haya pedido explícitamente menos movimiento. */
+:root[data-movimiento="reducido"] * {
+  animation-duration: .001ms !important;
+  transition-duration: .001ms !important;
+}
+/* Los efectos de "lift" y zoom de imagen en las tarjetas usan
+   transform en :hover, que la regla de arriba ya vuelve instantáneo,
+   pero además se anula el propio desplazamiento/zoom: en un
+   dispositivo modesto, mover y recalcular capas al pasar el cursor
+   sigue costando aunque sea "instantáneo", así que mejor que no se
+   mueva nada en absoluto. */
+:root[data-movimiento="reducido"] .tarjeta-noticia:hover,
+:root[data-movimiento="reducido"] .tarjeta-jugador:hover,
+:root[data-movimiento="reducido"] .tarjeta-competicion:hover {
+  transform: none;
+}
+:root[data-movimiento="reducido"] .tarjeta-noticia:hover img,
+:root[data-movimiento="reducido"] .tarjeta-jugador:hover img,
+:root[data-movimiento="reducido"] .marco-img img {
+  transform: none !important;
+}
 
 /* ---------- Transición al navegar entre páginas ---------- */
 /* Progresivo: los navegadores que no la soportan (Firefox, Safari) navegan
