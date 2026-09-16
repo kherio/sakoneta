@@ -96,7 +96,7 @@ function resetearIntentosLogin(PDO $pdo): void {
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 3;
+const VERSION_ESQUEMA_SAKONETA = 4;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -151,6 +151,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_portada', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
+    agregarColumnaSiFalta($pdo, 'competiciones', 'hora', 'TEXT');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_categorias (
         competicion_id INTEGER NOT NULL,
@@ -724,6 +725,129 @@ function superaLimiteEnvios(PDO $pdo, string $tipo, int $maxIntentos, int $minut
 
     $pdo->prepare('UPDATE limite_envios SET intentos = intentos + 1 WHERE ip = ? AND tipo = ?')->execute([$ip, $tipo]);
     return false;
+}
+
+/**
+ * Borra una noticia por completo: sus fotos de galería, sus
+ * comentarios y la propia noticia, todo en una transacción (o no se
+ * borra nada, si algo falla a medias). Los archivos físicos solo se
+ * eliminan después, y solo si ya no los usa ninguna otra entidad.
+ */
+function borrarNoticiaCompleta(PDO $pdo, int $id): void {
+    $archivos = [];
+    $stmt = $pdo->prepare('SELECT imagen FROM noticias WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($portada = $stmt->fetchColumn()) $archivos[] = $portada;
+
+    $stmt = $pdo->prepare('SELECT archivo FROM noticia_fotos WHERE noticia_id = ?');
+    $stmt->execute([$id]);
+    $archivos = array_merge($archivos, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM noticia_fotos WHERE noticia_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM comentarios WHERE noticia_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM noticias WHERE id = ?')->execute([$id]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    foreach (array_unique(array_filter($archivos)) as $archivo) {
+        eliminarArchivoSiNoSeUsa($pdo, $archivo);
+    }
+}
+
+/**
+ * Borra una gimnasta por completo: sus fotos de galería y la propia
+ * ficha, en una transacción. Ver borrarNoticiaCompleta().
+ */
+function borrarGimnastaCompleta(PDO $pdo, int $id): void {
+    $archivos = [];
+    $stmt = $pdo->prepare('SELECT foto FROM gimnastas WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($foto = $stmt->fetchColumn()) $archivos[] = $foto;
+
+    $stmt = $pdo->prepare('SELECT archivo FROM gimnasta_fotos WHERE gimnasta_id = ?');
+    $stmt->execute([$id]);
+    $archivos = array_merge($archivos, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM gimnasta_fotos WHERE gimnasta_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM gimnastas WHERE id = ?')->execute([$id]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    foreach (array_unique(array_filter($archivos)) as $archivo) {
+        eliminarArchivoSiNoSeUsa($pdo, $archivo);
+    }
+}
+
+/**
+ * Borra una categoría por completo: sus fotos de galería y la propia
+ * categoría, en una transacción. Ver borrarNoticiaCompleta(). No
+ * toca a las gimnastas/competiciones que ya tuvieran asignado su
+ * nombre (eso no cambia respecto a como funcionaba antes).
+ */
+function borrarCategoriaCompleta(PDO $pdo, int $id): void {
+    $archivos = [];
+    $stmt = $pdo->prepare('SELECT imagen_portada FROM categorias WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($portada = $stmt->fetchColumn()) $archivos[] = $portada;
+
+    $stmt = $pdo->prepare('SELECT archivo FROM categoria_fotos WHERE categoria_id = ?');
+    $stmt->execute([$id]);
+    $archivos = array_merge($archivos, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM categoria_fotos WHERE categoria_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM categorias WHERE id = ?')->execute([$id]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    foreach (array_unique(array_filter($archivos)) as $archivo) {
+        eliminarArchivoSiNoSeUsa($pdo, $archivo);
+    }
+}
+
+/**
+ * Borra una competición por completo: sus categorías asignadas, sus
+ * fotos de galería y la propia competición, en una transacción. Ver
+ * borrarNoticiaCompleta().
+ */
+function borrarCompeticionCompleta(PDO $pdo, int $id): void {
+    $archivos = [];
+    $stmt = $pdo->prepare('SELECT imagen_portada FROM competiciones WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($portada = $stmt->fetchColumn()) $archivos[] = $portada;
+
+    $stmt = $pdo->prepare('SELECT archivo FROM competicion_fotos WHERE competicion_id = ?');
+    $stmt->execute([$id]);
+    $archivos = array_merge($archivos, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM competicion_fotos WHERE competicion_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM competicion_categorias WHERE competicion_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM competiciones WHERE id = ?')->execute([$id]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    foreach (array_unique(array_filter($archivos)) as $archivo) {
+        eliminarArchivoSiNoSeUsa($pdo, $archivo);
+    }
 }
 
 function obtenerAjustes(PDO $pdo): array {

@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $competicion['categoria'] = $categoriasElegidas[0];
     $competicion['lugar'] = trim($_POST['lugar'] ?? '');
     $competicion['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
+    $competicion['hora'] = preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', trim($_POST['hora'] ?? '')) ? trim($_POST['hora']) : null;
     $competicion['disputada'] = isset($_POST['disputada']) ? 1 : 0;
     $competicion['resultado'] = $competicion['disputada'] ? trim($_POST['resultado'] ?? '') : null;
     $competicion['descripcion'] = trim($_POST['descripcion'] ?? '');
@@ -52,11 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     } else {
         // Guardar los datos básicos primero (crea el id si es una competición nueva)
         if ($id) {
-            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, resultado=?, disputada=?, descripcion=?, imagen_posicion=? WHERE id=?');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $id]);
+            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, hora=?, resultado=?, disputada=?, descripcion=?, imagen_posicion=? WHERE id=?');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, resultado, disputada, descripcion, imagen_posicion) VALUES (?,?,?,?,?,?,?,?)');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion']]);
+            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, hora, resultado, disputada, descripcion, imagen_posicion) VALUES (?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion']]);
             $id = (int)$pdo->lastInsertId();
         }
 
@@ -173,6 +174,10 @@ require __DIR__ . '/includes/layout_header.php';
     <div class="campo">
       <label for="fecha">Fecha</label>
       <input type="date" id="fecha" name="fecha" value="<?= e($competicion['fecha']) ?>" required>
+    </div>
+    <div class="campo">
+      <label for="hora">Hora de inicio (opcional)</label>
+      <input type="time" id="hora" name="hora" value="<?= e($competicion['hora'] ?? '') ?>">
     </div>
   </div>
 

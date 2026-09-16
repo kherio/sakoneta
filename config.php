@@ -7,33 +7,79 @@ define('SITE_NAME', 'Sakoneta Gimnasia Erritmiko Taldea');
 define('SITE_SHORT', 'Sakoneta');
 define('SITE_CLAIM', 'Erritmoa, grazia eta talde-lana');
 
-// La base de datos y otros archivos sensibles se guardan FUERA de la
-// carpeta pública del sitio (un nivel por encima), no dentro de
-// "data/". Así, aunque el servidor no esté configurado para bloquear
-// el acceso a "data/" (por ejemplo, en Nginx sin la regla adecuada —
-// el .htaccess de Apache no sirve de nada ahí), esos archivos
-// sencillamente no están dentro de lo que el servidor web puede
-// llegar a servir, pase lo que pase con la configuración.
+// Ubicación de los datos privados (base de datos, contraseña inicial
+// generada en el primer arranque).
 //
-// Si por lo que sea no se puede crear/escribir esa carpeta externa
-// (permisos del sistema de archivos), se usa "data/" dentro del
-// proyecto como alternativa, y queda anotado en el registro de
-// errores para que lo repases — en ese caso es imprescindible que
-// el .htaccess de "data/" esté funcionando de verdad.
-$carpetaPrivadaExterna = dirname(__DIR__) . '/sakoneta-datos-privados';
-$carpetaPrivadaProyecto = __DIR__ . '/data';
-
-if (!is_dir($carpetaPrivadaExterna)) {
-    @mkdir($carpetaPrivadaExterna, 0770, true);
+// 1) Si se define la variable de entorno SAKONETA_PRIVATE_DIR, se usa
+//    esa ruta tal cual: es la forma recomendada, porque es la única
+//    que el administrador del servidor puede garantizar de verdad que
+//    queda fuera de la carpeta pública. Se configura, por ejemplo:
+//      Apache (dentro del <VirtualHost>): SetEnv SAKONETA_PRIVATE_DIR /var/lib/sakoneta
+//      PHP-FPM (en el pool):              env[SAKONETA_PRIVATE_DIR] = /var/lib/sakoneta
+// 2) Si no se ha definido, se prueba con una carpeta hermana del
+//    proyecto (un nivel por encima) — pero, a diferencia de antes, NO
+//    se da por hecho que eso queda fuera de lo público: se comprueba
+//    de verdad contra el DOCUMENT_ROOT real que informa el propio
+//    servidor en esta petición. Si el DocumentRoot configurado en el
+//    servidor resulta ser una carpeta por encima del proyecto, esa
+//    carpeta hermana SÍ quedaría dentro de lo público, y no se usa.
+// 3) Si no hay ninguna ubicación que se pueda confirmar seguro, el
+//    sitio se detiene con un error explicando qué hacer, en vez de
+//    arriesgarse a guardar contraseñas y datos de gimnastas en una
+//    carpeta que el navegador pueda llegar a servir.
+function sakonetaCarpetaEsSegura(string $ruta): bool {
+    // Por SSH (instalación/mantenimiento desde la terminal) no existe
+    // el concepto de DocumentRoot; la comprobación real se hace de
+    // todas formas en la primera petición web que llegue después.
+    if (PHP_SAPI === 'cli' || empty($_SERVER['DOCUMENT_ROOT'])) {
+        return true;
+    }
+    $rutaReal = realpath($ruta);
+    $docRootReal = realpath($_SERVER['DOCUMENT_ROOT']);
+    if (!$rutaReal || !$docRootReal) {
+        return false;
+    }
+    return strpos($rutaReal . DIRECTORY_SEPARATOR, $docRootReal . DIRECTORY_SEPARATOR) !== 0;
 }
 
-if (is_dir($carpetaPrivadaExterna) && is_writable($carpetaPrivadaExterna)) {
-    define('CARPETA_PRIVADA', $carpetaPrivadaExterna);
+$carpetaPrivada = null;
+$carpetaEnv = getenv('SAKONETA_PRIVATE_DIR');
+
+if ($carpetaEnv) {
+    if (!is_dir($carpetaEnv)) {
+        @mkdir($carpetaEnv, 0770, true);
+    }
+    if (is_dir($carpetaEnv) && is_writable($carpetaEnv)) {
+        $carpetaPrivada = rtrim($carpetaEnv, '/');
+    }
 } else {
-    define('CARPETA_PRIVADA', $carpetaPrivadaProyecto);
-    error_log('Sakoneta: no se ha podido usar una carpeta fuera de la web pública para los datos privados (revisa permisos de escritura en ' . dirname($carpetaPrivadaExterna) . '). Usando "' . $carpetaPrivadaProyecto . '" como alternativa: asegúrate de que su .htaccess bloquea el acceso web, sobre todo si el servidor es Nginx.');
+    $carpetaCandidata = dirname(__DIR__) . '/sakoneta-datos-privados';
+    if (!is_dir($carpetaCandidata)) {
+        @mkdir($carpetaCandidata, 0770, true);
+    }
+    if (is_dir($carpetaCandidata) && is_writable($carpetaCandidata) && sakonetaCarpetaEsSegura($carpetaCandidata)) {
+        $carpetaPrivada = $carpetaCandidata;
+    }
 }
 
+if ($carpetaPrivada === null) {
+    http_response_code(500);
+    error_log('Sakoneta: no se ha podido confirmar ninguna ubicación segura (fuera de la carpeta pública) para guardar los datos privados. Define la variable de entorno SAKONETA_PRIVATE_DIR.');
+    die(
+        "No se ha podido confirmar una ubicación segura y escribible, fuera de la carpeta " .
+        "pública del servidor, para guardar la base de datos y otros datos sensibles.\n\n" .
+        "Soluciónalo definiendo la variable de entorno SAKONETA_PRIVATE_DIR con una ruta " .
+        "fuera del DocumentRoot del servidor, por ejemplo:\n\n" .
+        "  Apache (dentro del <VirtualHost>):\n" .
+        "    SetEnv SAKONETA_PRIVATE_DIR /var/lib/sakoneta\n\n" .
+        "  PHP-FPM (en el pool, por ejemplo /etc/php/8.3/fpm/pool.d/www.conf):\n" .
+        "    env[SAKONETA_PRIVATE_DIR] = /var/lib/sakoneta\n\n" .
+        "Esa carpeta debe existir (o poder crearse) y ser escribible por el usuario con el " .
+        "que corre PHP (normalmente www-data). Después, recarga Apache/PHP-FPM."
+    );
+}
+
+define('CARPETA_PRIVADA', $carpetaPrivada);
 define('DB_PATH', CARPETA_PRIVADA . '/club.sqlite');
 
 // Migración automática, una sola vez: si ya había una base de datos

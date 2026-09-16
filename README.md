@@ -1,434 +1,249 @@
-# Sakoneta — web del club (PHP + SQLite)
+# Sakoneta — web del club de gimnasia rítmica
 
-Sitio web de ejemplo para un club de gimnasia rítmica, con panel de
-administración para gestionar noticias, gimnastas y competiciones.
+Sitio web del club **Sakoneta Gimnasia Erritmiko Taldea**, escrito en
+PHP con una base de datos SQLite (un único archivo, sin necesidad de
+instalar ningún servidor de base de datos aparte). Incluye la web
+pública del club y un panel de administración privado desde el que
+gestionar todo el contenido: noticias, gimnastas, competiciones,
+categorías, patrocinadores, comentarios, mensajes de contacto y los
+ajustes generales del sitio.
 
 > **Sobre el logo y los colores**: el logo (`img/logo-sakoneta.png`)
-> es el logo real del club, a partir de una foto que nos pasasteis;
-> lo hemos recortado, quitado el fondo y afilado un poco, pero la
-> imagen original era de baja resolución, así que no hay milagros: si
-> algún día tenéis el archivo original en alta calidad (o un diseñador
-> os lo vectoriza), sustituir `img/logo-sakoneta.png` por esa versión
-> mejorará bastante la nitidez en pantallas grandes. Los colores del
-> sitio son azul eléctrico; si preferís otra paleta, las variables
-> están todas centralizadas al principio de `css/styles.css` y
-> `admin/css/admin.css` (busca `--acento`, `--morado`, etc.).
+> es el logo real del club, recortado y con el fondo quitado a partir
+> de una foto de baja resolución; si en algún momento hay un archivo
+> original en más calidad (o una versión vectorizada), sustituir ese
+> mismo archivo mejorará la nitidez en pantallas grandes sin tocar
+> nada más. Los colores del sitio son azul eléctrico; para cambiar la
+> paleta, las variables están centralizadas al principio de
+> `css/styles.css` y `admin/css/admin.css` (variables `--acento`,
+> `--morado`, etc.).
 
-## Requisitos
+## Qué incluye la web pública
 
-- Los archivos CSS y JS (`css/styles.css`, `js/main.js`,
-  `admin/css/admin.css`, `admin/js/admin.js`) se cargan con
-  `?v=fecha_de_modificación` añadido automáticamente. Así, después de
-  cada `git pull`, el navegador descarga la versión nueva en vez de
-  quedarse con una copia antigua guardada en caché — no hace falta
-  pedir a nadie que haga un refresco forzado (Ctrl+F5) tras cada
-  actualización.
-
-- PHP 8.x con las extensiones `pdo_sqlite` y `sqlite3` (vienen activadas
-  por defecto en la mayoría de instalaciones de PHP).
-- Extensión `gd` recomendada (para redimensionar automáticamente las
-  fotos subidas). Si no está instalada, la web funciona igual, solo
-  que las fotos se guardan a su tamaño original. En Debian/Ubuntu:
-  `sudo apt install php-gd` y reinicia Apache o PHP-FPM.
-- No necesitas instalar ningún servidor de base de datos: se usa un
-  único archivo SQLite que se crea automáticamente.
-
-## Puesta en marcha en local
-
-1. Descomprime el proyecto y abre una terminal en esa carpeta.
-2. Crea la base de datos y los datos de ejemplo (solo la primera vez):
-   ```
-   php init_db.php
-   ```
-   Debería mostrar: *Base de datos creada e inicializada correctamente...*
-3. Arranca el servidor de desarrollo de PHP:
-   ```
-   php -S localhost:8000
-   ```
-4. Abre en el navegador:
-   - Web pública: http://localhost:8000/
-   - Panel de administración: http://localhost:8000/admin/
-
-## Acceso al panel de administración
-
-- Usuario: `admin`
-- Contraseña: `sakoneta2026`
-
-**Cambia la contraseña antes de publicar el sitio.** Genera un nuevo
-hash con:
-```
-php -r "echo password_hash('tu_nueva_password', PASSWORD_DEFAULT);"
-```
-y sustituye el valor de `ADMIN_PASS_HASH` en `config.php`.
-
-## Qué se puede gestionar desde el panel
-
-- **Noticias**: crear, editar, publicar/despublicar y borrar. Se
-  pueden subir varias fotos a la vez y elegir cuál se usa como
-  principal; el resto forma una galería en la noticia.
-- **Gimnastas**: nombre, categoría, modalidad (individual o conjunto)
-  y aparato principal. Igual que en noticias, admite varias fotos con
-  una marcada como principal; cada gimnasta tiene su propia página
-  pública con galería.
-- **Competiciones**: nombre, categoría, lugar, fecha, resultado una
-  vez disputada, y un texto libre para contar cómo fue.
-- **Mensajes de contacto**: los mensajes enviados desde el
-  formulario público quedan guardados y visibles aquí.
-- **Ajustes del sitio**: nombre del club y lema, editables (si se dejan
-  en blanco, se usan los definidos en `config.php`); subir una foto
-  para la pantalla de bienvenida (splash) a pantalla completa que se
-  muestra al entrar a la web, y otra foto para la portada, con pie de
-  foto opcional. Las imágenes subidas se guardan en `img/subidas/`.
-  También se edita aquí el texto de la portada (entradilla, titular
-  grande y párrafo de presentación) y **las 4 estadísticas** que
-  aparecen bajo el titular (número y texto de cada una); si se dejan
-  en blanco, se calculan solas (gimnastas, competiciones disputadas,
-  categorías) o usan el valor por defecto.
-- **Categorías**: crear, renombrar, reordenar y borrar las categorías
-  (Base, Alevín, Infantil...) que luego se eligen al dar de alta
-  gimnastas y competiciones. También admiten varias fotos propias y
-  tienen su propia página pública, que además lista sus gimnastas y
-  competiciones.
-- **Fotos por competición**: al crear o editar una competición se
-  pueden subir varias fotos a la vez y elegir cuál de ellas se usa
-  como foto de portada/fondo en la tarjeta de esa competición en la
-  web pública.
-- **Información sobre el campeonato**: cada competición tiene un
-  campo de texto libre (párrafos separados por una línea en blanco)
-  que aparece en su página de detalle pública, junto con la galería
-  de fotos.
-- **Patrocinadores**: gestión desde el panel (nombre, logo y enlace
-  opcional). Aparecen en el pie de página de toda la web como un
-  **carrusel** de desplazamiento continuo (se pausa al pasar el
-  ratón por encima, y no se anima si el sistema tiene activado
-  "reducir movimiento").
+- **Portada** con foto de fondo a pantalla completa (parallax al
+  hacer scroll), titular grande de tamaño configurable, cuatro
+  estadísticas del club (gimnastas, competiciones disputadas,
+  categorías...) y cuenta atrás hasta la próxima competición.
+- **Noticias**, con galería de fotos y vídeos, "me gusta" (se puede
+  quitar volviendo a pulsar), comentarios con moderación, barra de
+  progreso de lectura, botones para compartir en WhatsApp/Facebook/X
+  y foto de cabecera a modo de banner con efecto de zoom lento y
+  parallax al hacer scroll.
+- **Gimnastas**, con ficha individual (categoría, modalidad, aparato
+  principal) y galería de fotos y vídeos propia. Filtro por categoría
+  (una sola categoría a la vez) y buscador.
+- **Competiciones**: la página "Competiciones" solo muestra las
+  próximas (pendientes), y una página aparte, "Resultados", las ya
+  disputadas con su resultado. Cada competición tiene su propia
+  página con banner, galería y descripción libre; se puede asignar
+  más de una categoría a una misma competición (por ejemplo, si
+  compiten juntas Base y Alevín). En el móvil, se puede deslizar el
+  dedo dentro de una competición para pasar a la anterior o
+  siguiente, con una vista previa real de la otra competición
+  entrando en pantalla. El filtro por categoría admite marcar varias
+  a la vez.
+- **Categorías**: cada categoría del club (Base, Alevín, Infantil...)
+  tiene su propia página pública, con galería de fotos propia y el
+  listado de gimnastas y competiciones que pertenecen a ella.
+- **Sobre el club**: página con la historia y el palmarés, editables
+  desde el panel.
+- **Contacto**: formulario que guarda los mensajes en el panel.
 - **Suscripción por email**: formulario en el pie de todas las
-  páginas para recibir avisos de noticias nuevas. Los correos
-  quedan guardados en el panel (sección "Suscriptores"), con opción
-  de descargarlos en CSV — la web no los envía por sí sola, es una
-  lista para usar con tu propio correo o herramienta de newsletter.
-- **Splash con transición de zoom**: al cerrarse, la pantalla de
-  bienvenida se desvanece con un efecto de zoom hacia dentro, más
-  lento y vistoso que un simple fundido.
-- **"Me gusta" en las noticias**: cada visitante puede darle a me
-  gusta, y quitarlo si vuelve a pulsar (se recuerda con una cookie,
-  sin necesidad de cuenta). El contador se actualiza al momento, sin
-  recargar la página.
-- **Comentarios con moderación**: cualquiera puede dejar un comentario
-  en una noticia; queda pendiente hasta que alguien con permiso lo
-  aprueba desde "Comentarios" en el panel (aprobar, rechazar o
-  borrar). Solo se muestran en la web los aprobados. Incluye un campo
-  señuelo invisible para filtrar bots.
-- **Usuarios con roles**: en vez de una única contraseña compartida,
-  ahora se pueden crear varias personas con acceso, cada una con su
-  usuario y contraseña, y un rol que delimita lo que puede hacer:
-
-  | Rol | Puede hacer |
-  |---|---|
-  | **Administrador** | Todo: contenido, ajustes del sitio, moderación y gestión de usuarios. |
-  | **Editor** | Gestionar todo el contenido público (noticias, gimnastas, competiciones, categorías, patrocinadores, fotos) y publicarlo. No entra en Ajustes ni en Usuarios. |
-  | **Moderador** | Solo revisa comentarios y mensajes de contacto. No toca contenido ni ajustes. |
-  | **Colaborador** | Escribe y edita noticias, pero no puede publicarlas (quedan como borrador para que un editor o administrador las revise) ni borrarlas. No accede a ninguna otra sección. |
-
-  Se gestionan desde "Usuarios" en el panel (solo visible para
-  administradores). La cuenta `admin` de siempre se ha convertido
-  automáticamente en el primer usuario, con rol administrador y la
-  misma contraseña que ya tenía.
-- **Una competición puede tener varias categorías a la vez** (por
-  ejemplo, "Base" y "Alevín" juntas si compiten en el mismo
-  campeonato). Se marcan con casillas al crear o editar la
-  competición, y se muestran siempre en el orden de categorías del
-  club, sea cual sea el orden en que se marquen.
-- **Swipe visual entre competiciones en el móvil**: al deslizar el
-  dedo, la página se mueve de verdad siguiéndolo (con un poco de
-  resistencia si no hay competición en esa dirección), y a la vez se
-  ve entrar por el otro lado una vista previa real de la siguiente o
-  anterior competición (su foto, categoría y título), como en un
-  carrusel. Si se supera cerca de una cuarta parte de la pantalla, se
-  completa el cambio; si no, todo vuelve a su sitio con una animación
-  suave.
-- **Filtro de categorías con selección múltiple**: en noticias,
-  gimnastas y competiciones se pueden marcar varias categorías a la
-  vez (antes solo una).
-- **Deslizar entre competiciones en el móvil**: al abrir una
-  competición desde un teléfono o tablet, se puede pasar a la
-  anterior o siguiente (por fecha) deslizando el dedo, como en una
-  galería. La primera vez aparece un aviso animado abajo indicándolo.
-- **Tamaño del titular de la portada configurable**: en Ajustes, se
-  puede elegir entre varios tamaños para el titular grande de la
-  portada. Sigue ajustándose solo para caber en una línea.
-- **Encuadre visual de la foto principal**: en noticias y
-  competiciones, se puede hacer clic o arrastrar directamente sobre
-  la foto (en el propio panel) para marcar el punto exacto que se
-  quiere ver en la cabecera — útil para no cortar caras cuando la
-  cabecera es alta o la foto no tiene la proporción ideal.
-- **Próximas competiciones y resultados por separado**: la página
-  "Competiciones" solo muestra las pendientes, ordenadas de la más
-  próxima a la más lejana. Hay una página nueva, "Resultados"
-  (`resultados.php`), con las ya disputadas y su resultado, ordenadas
-  de la más reciente a la más antigua. Cada una enlaza a la otra.
-- **Elegir fotos ya subidas**: al crear o editar una noticia o una
-  competición, además de subir fotos/vídeos nuevos se puede abrir "O
-  elige entre las fotos y vídeos ya subidos antes" y marcar cualquier
-  archivo que ya esté en la biblioteca de medios, sin tener que
-  volver a subirlo.
-- **Fotos subidas**: biblioteca con todas las imágenes subidas desde
-  cualquier parte del panel, indicando dónde se usa cada una. Se
-  pueden seleccionar varias a la vez (o "Seleccionar todos") y
-  borrarlas todas de golpe, además de poder borrar una suelta.
-- **Cambiar contraseña**: desde el menú del panel, sin tocar ningún
-  archivo ni ejecutar comandos. El usuario sigue siendo `admin`.
-- **Pie de página**: título y texto de la primera columna del pie
-  (visible en todas las páginas), editables desde Ajustes.
-- **Vídeos**: además de fotos, el mismo selector de noticias,
-  gimnastas, categorías y competiciones admite vídeo (MP4, WEBM o
-  MOV, hasta 80 MB). Los vídeos se muestran con su propio reproductor
-  en la galería pública, pero no se pueden usar como foto principal
-  o portada (esa siempre tiene que ser una imagen).
-- **Buscador y filtros**: en Noticias, Gimnastas y Competiciones se
-  puede buscar por texto, y en Gimnastas/Competiciones también filtrar
-  por categoría.
-- **Reordenar arrastrando**: en Gimnastas y Categorías se puede
-  arrastrar cada fila (icono ⠿) para cambiar el orden en que aparecen
-  en la web; el nuevo orden se guarda solo, sin botón adicional.
-- **Sobre el club**: nueva página pública con historia y palmarés,
-  editables desde Ajustes del sitio.
-- **Idiomas**: selector ES/EU en la cabecera para los textos fijos
-  (menús, botones, títulos de sección). El contenido que escribe el
-  club (noticias, nombres de gimnastas, lugares...) se muestra tal
-  cual se redactó, en un único idioma — traducirlo no está automatizado.
-
-## Experiencia de navegación
-
-- **Foto de portada fundida con el texto**: la foto de portada de
-  inicio ahora ocupa todo el ancho con un degradado que la funde con
-  el título, en vez de mostrarse como una tarjeta aparte.
-- **Página de cada competición** con su propia URL (antes las fotos
-  extra subidas a una competición no se veían en ningún sitio, solo
-  servían para elegir la portada): banner grande con parallax usando
-  la foto de portada, y debajo una galería con el resto de fotos, cada
-  una con su propio parallax al hacer scroll. Se accede haciendo clic
-  en cualquier tarjeta de Competiciones.
-- Las miniaturas de Competiciones combinan el parallax con el zoom al
-  pasar el ratón que ya tenían.
-- **Foto de la noticia como fondo espectacular**: en vez de una
-  imagen pequeña bajo el título, ahora es un banner a todo lo ancho
-  con la foto de fondo, un zoom lento al entrar (efecto "Ken Burns")
-  y el mismo parallax al hacer scroll, con el título y la fecha
-  superpuestos y un degradado que la funde con el resto de la página.
-- **Countdown** a la próxima competición en la portada.
-- **Parallax suave** en la foto de portada al hacer scroll.
-- **Pestañas por categoría** en Gimnastas y Competiciones (filtran sin
-  recargar la página).
-- **Compartir** cada noticia en WhatsApp, Facebook o X, o copiar el
-  enlace.
-- **Barra de progreso de lectura** en las noticias.
-- Un pequeño guiño: haz **5 clics seguidos sobre el escudo** del
-  encabezado (o el de la pantalla de bienvenida) para un efecto
-  sorpresa.
-- **Menú en móvil**: botón de hamburguesa con el mismo menú desplegado.
-- **Cabecera que se compacta** al hacer scroll (menos alto, sin el lema).
-- **Foto de fondo del hero** de la portada, con parallax, configurable
-  desde Ajustes (antes era una sección aparte debajo del hero; ahora
-  es el propio fondo del titular). El titular ajusta su propio tamaño
-  de letra en el navegador para caber siempre en una sola línea, sea
-  cual sea el texto que pongas.
-- **Vista previa al compartir enlaces** (Open Graph): si pegas el
+  páginas; los correos quedan guardados en el panel para usarlos con
+  una herramienta de newsletter externa (la web no envía correos).
+- **Patrocinadores**: carrusel de desplazamiento continuo en el pie
+  de página (se pausa al pasar el ratón, y no se anima si el sistema
+  tiene activado "reducir movimiento").
+- **Buscador público** (`buscar.php`), que busca a la vez en
+  noticias, gimnastas y competiciones.
+- **Vista previa al compartir enlaces** (Open Graph): al pegar el
   enlace de una noticia, competición, gimnasta o categoría en
-  WhatsApp/Facebook/etc., sale con foto y descripción.
-- **Fotos más ligeras**: cualquier foto subida que supere 1600px se
-  redimensiona sola (requiere la extensión PHP `gd`; si el servidor no
-  la tiene, simplemente no redimensiona, sin dar error).
-- **Migas de pan** en noticia, competición, gimnasta y categoría.
-- **Buscador público** (`buscar.php`), busca en noticias, gimnastas y
-  competiciones a la vez.
+  WhatsApp, Facebook, etc., aparece con foto y descripción.
+- **Pantalla de bienvenida (splash)** a pantalla completa, opcional,
+  con foto propia y transición de zoom suave al cerrarse.
+- **Selector de idioma ES/EU** en la cabecera, para los textos fijos
+  del sitio (menús, botones, títulos de sección). El contenido que
+  redacta el club (noticias, nombres, lugares...) se muestra tal cual
+  se escribió, en un único idioma.
+- Menú adaptado a móvil, cabecera que se compacta al hacer scroll,
+  migas de pan en las páginas de detalle, y un pequeño guiño: 5 clics
+  seguidos sobre el escudo del encabezado activan un efecto sorpresa.
 
-Todos estos efectos respetan la preferencia de "reducir movimiento"
-del sistema operativo, y se degradan sin errores en navegadores que
-no soporten alguna característica (por ejemplo, las transiciones de
-página con View Transitions).
+Todos los efectos visuales respetan la preferencia de "reducir
+movimiento" del sistema operativo, y se degradan sin errores si el
+navegador no soporta alguna característica.
 
-## Seguridad
+## Qué se gestiona desde el panel
 
-El panel se ha reforzado con:
+- **Noticias**: título, resumen, contenido, fecha, varias fotos o
+  vídeos con una imagen marcada como principal (con selector visual
+  de encuadre: se hace clic o se arrastra sobre la propia foto para
+  elegir qué parte se ve en la cabecera), publicar/despublicar y
+  borrar.
+- **Gimnastas**: nombre, categoría, modalidad (individual o
+  conjunto), aparato principal, galería de fotos y vídeos con una
+  marcada como principal.
+- **Competiciones**: nombre, una o varias categorías, lugar, fecha,
+  hora de inicio (opcional), resultado una vez disputada, texto libre
+  para contar cómo fue, galería de fotos y vídeos con selector visual
+  de encuadre para la portada.
+- **Categorías**: crear, renombrar, reordenar (arrastrando) y borrar
+  las categorías que luego se asignan a gimnastas y competiciones;
+  cada una admite su propia galería de fotos.
+- **Elegir fotos ya subidas**: al crear o editar una noticia o una
+  competición, se puede reutilizar cualquier foto o vídeo ya subido
+  antes desde cualquier otra parte del panel, sin tener que volver a
+  subirlo.
+- **Fotos subidas**: biblioteca con todas las imágenes y vídeos
+  subidos, indicando dónde se usa cada uno; se pueden seleccionar
+  varios (o "Seleccionar todos") y borrarlos de golpe.
+- **Patrocinadores**: nombre, logo y enlace opcional.
+- **Comentarios**: moderación de los comentarios dejados en noticias
+  (aprobar, rechazar o borrar); solo se muestran en la web los
+  aprobados. Incluye un campo señuelo invisible para filtrar bots.
+- **Mensajes de contacto** y **Suscriptores**: consulta de lo
+  recibido desde los formularios públicos; los suscriptores se pueden
+  descargar en CSV.
+- **Usuarios**: alta, baja, cambio de rol y restablecimiento de
+  contraseña de las personas con acceso al panel (ver roles más
+  abajo).
+- **Ajustes del sitio**: nombre del club y lema; foto y activación de
+  la pantalla de bienvenida; foto de portada de inicio con pie de
+  foto opcional; textos de la portada (entradilla, titular grande y
+  párrafo de presentación) y su tamaño de letra; las 4 estadísticas
+  bajo el titular; historia y palmarés de "Sobre el club"; título y
+  texto del pie de página. Cualquier campo que se deje en blanco usa
+  el valor por defecto de `config.php` o se calcula solo (número de
+  gimnastas, competiciones disputadas, categorías...).
+- **Cambiar contraseña**: cada persona cambia la suya propia desde el
+  menú del panel.
 
-- **La base de datos vive fuera de la carpeta pública del sitio**: en
-  vez de `data/club.sqlite`, ahora se guarda un nivel por encima del
-  proyecto (en una carpeta hermana, `sakoneta-datos-privados/`, fuera
-  de lo que cualquier servidor web pueda llegar a servir). Esto
-  importa sobre todo si el sitio se sirviera algún día con Nginx: el
-  `.htaccess` de `data/` es una protección que **solo funciona en
-  Apache** — con Nginx, sin una regla específica en su configuración,
-  ese `.htaccess` se ignora y el archivo de la base de datos podría
-  llegar a descargarse directamente. Sacarla de la carpeta pública
-  elimina el problema de raíz, sea cual sea el servidor.
-  **La migración es automática**: si ya tenías `data/club.sqlite` de
-  antes, se traslada solo la primera vez que cargues cualquier página
-  tras esta actualización — no hace falta mover nada a mano por SSH.
-  Si por lo que sea el servidor no puede crear esa carpeta externa
-  (permisos), se sigue usando `data/` como antes y queda avisado en
-  el registro de errores de PHP.
-- **La contraseña inicial también se genera ahí fuera**, en
-  `sakoneta-datos-privados/contrasena-inicial-admin.txt`.
-- **Los colaboradores solo pueden editar sus propias noticias, y solo
-  mientras sigan sin publicar**: antes, un colaborador podía abrir y
-  modificar (o despublicar) una noticia de otra persona, o una ya
-  publicada, aunque el panel dijera que "no puede publicar ni
-  borrar". Ahora se comprueba de verdad quién es el autor antes de
-  dejar editar o borrar fotos de una noticia — un colaborador que lo
-  intente con una noticia ajena o ya publicada recibe un aviso claro
-  de que no tiene permiso, en vez de poder modificarla igualmente.
-- **Límite de envíos en los formularios públicos**: contacto,
-  comentarios y "me gusta" tienen ahora un límite de longitud
-  aplicado en el servidor (no solo el `maxlength` del HTML, que
-  cualquiera puede saltarse) y un límite de envíos por IP en una
-  ventana de tiempo (5 mensajes/comentarios cada 10 minutos, 30
-  likes cada 5 minutos). Evita que alguien pueda hinchar la base de
-  datos automatizando envíos.
-- **Las migraciones ya no se repiten en cada petición**: antes,
-  cada página comprobaba de nuevo todas las tablas y columnas del
-  esquema; ahora se guarda la versión del esquema dentro de la propia
-  base de datos (`PRAGMA user_version`), así que en el caso normal es
-  solo una consulta muy barata, y el trabajo de verdad (crear tablas,
-  añadir columnas) solo se hace una vez, justo después de cada
-  actualización de código. También se ha blindado ante el caso raro
-  de que dos peticiones lleguen a la vez justo en ese momento.
-- **El ID de sesión se regenera al cambiar de rol**: si un
-  administrador asciende a otra persona (por ejemplo, de colaborador
-  a editor) mientras esa persona tiene la sesión abierta, su
-  identificador de sesión se renueva en su siguiente petición, como
-  recomienda la buena práctica de seguridad al elevar privilegios.
-- **Sin ningún secreto permanente en el código fuente**: ya no hay
-  ningún hash de contraseña fijo en `config.php`. Si no hay ninguna
-  contraseña de administrador guardada todavía, se genera una al azar
-  en el primer arranque. Bórrala en cuanto la hayas anotado y
-  cambiado desde el panel.
-- **`.git/` bloqueado correctamente**: el `.htaccess` usa
-  `RewriteRule` (válido ahí) en vez de `<DirectoryMatch>` (que NO es
-  válido dentro de un `.htaccess` y podía provocar un error 500 en
-  toda la web). Aun así, lo correcto es que la carpeta `.git/` nunca
-  llegue al servidor de producción.
-- **Revalidación en cada petición**: el rol y el estado (activo o no)
-  de quien está conectado se comprueban contra la base de datos en
-  cada página del panel, no solo al iniciar sesión. Si otro
-  administrador cambia tu rol o te desactiva, se nota en la siguiente
-  página que cargues, no hace falta esperar a que cierres sesión.
-- **Cambiar la contraseña (la tuya o la de otro usuario) cierra las
-  demás sesiones abiertas con la contraseña antigua al instante**
-  (menos la tuya propia, si eres tú quien la cambia).
-- **No te puedes quedar sin administradores**: no se puede desactivar,
-  borrar ni quitarle el rol de administrador al único administrador
-  activo que quede.
-- **Token CSRF** en todos los formularios y acciones que crean, editan
-  o borran datos.
-- **Todas las acciones que crean, editan o borran algo van por POST**,
-  nunca por GET.
-- **Bloqueo real de fuerza bruta en el login**: tras 6 intentos
-  fallidos, esa IP queda bloqueada 15 minutos.
-- **La foto de portada de una galería solo puede ser una foto que
-  pertenezca de verdad a esa noticia/gimnasta/categoría/competición**.
-- **Borrado de archivos unificado**: da igual desde dónde se borre una
-  foto, siempre se limpia de la misma forma y se reasigna la portada
-  a otra foto disponible si la había.
-- **Verificación real de las imágenes subidas** (no solo la extensión
-  del nombre de archivo) con `getimagesize()`.
-- **Cookie de sesión reforzada** (`HttpOnly`, `SameSite=Lax`, `Secure`
-  automático si detecta HTTPS) y regeneración del ID de sesión al
-  iniciar sesión.
-- **`img/subidas/` no puede ejecutar scripts** aunque alguien
-  consiguiera subir un archivo con otra extensión.
-- **`MODO_DEBUG`** en `config.php` (por defecto `false`): mantenlo así
-  en un servidor real para que los errores de PHP no se muestren a
-  los visitantes.
-- `robots.txt` con `/admin/` y `/data/` bloqueados para buscadores.
-- **Sin listado de carpetas**: `Options -Indexes` en la raíz impide
-  que el navegador muestre el contenido de ninguna carpeta del
-  proyecto (`admin/css/`, `includes/`, `js/`, `img/`, `data/`...) al
-  visitarla directamente sin un archivo `index`.
+### Roles de usuario
 
-Aun así, antes de publicar el sitio en un dominio real:
-- Sirve el sitio por HTTPS.
-- Revisa que `AllowOverride All` esté activo en Apache para que los
-  `.htaccess` de `data/`, `img/subidas/` y la raíz funcionen (o
-  traslada esas reglas al `VirtualHost` si usas Nginx u otro servidor).
-- Idealmente, despliega el sitio sin la carpeta `.git/` (copiando solo
-  los archivos del proyecto, o con `git archive`), en vez de clonar el
-  repositorio directamente dentro de la carpeta pública del servidor.
+| Rol | Puede hacer |
+|---|---|
+| **Administrador** | Todo: contenido, ajustes del sitio, moderación y gestión de usuarios. |
+| **Editor** | Gestionar y publicar todo el contenido público (noticias, gimnastas, competiciones, categorías, patrocinadores, fotos). No entra en Ajustes ni en Usuarios. |
+| **Moderador** | Solo revisa comentarios y mensajes de contacto. No toca contenido ni ajustes. |
+| **Colaborador** | Escribe y edita sus propias noticias mientras sigan sin publicar (quedan como borrador para que un editor o administrador las revise); no puede publicarlas, borrarlas, ni tocar noticias ajenas o ya publicadas. No accede a ninguna otra sección. |
+
+Se gestionan desde "Usuarios" en el panel (solo visible para
+administradores). No se puede desactivar, borrar ni quitarle el rol
+de administrador al único administrador activo que quede, para no
+perder nunca el acceso al panel.
 
 ## Estructura del proyecto
 
 ```
-config.php              Datos del sitio y credenciales de admin
-init_db.php              Script de creación de la base de datos
-includes/                Conexión a BD, funciones, cabecera y pie públicos
-css/, js/, img/           Estilos, scripts e imágenes del sitio público
+config.php                Configuración general del sitio
+init_db.php                Script de creación de la base de datos y datos de ejemplo
+includes/                  Conexión a la base de datos, funciones comunes, cabecera y pie públicos
+css/, js/, img/             Estilos, scripts e imágenes de la web pública
 index.php, noticias.php, noticia.php,
-gimnastas.php, competiciones.php, contacto.php   Páginas públicas
-admin/                    Panel de administración (requiere login)
-data/club.sqlite          Base de datos (se genera con init_db.php)
+gimnastas.php, gimnasta.php,
+competiciones.php, resultados.php, competicion.php,
+categoria.php, sobre.php, contacto.php, buscar.php   Páginas públicas
+admin/                      Panel de administración
 ```
 
-## Límite de tamaño de fotos y vídeos subidos
+La base de datos y otros archivos sensibles **no** se guardan dentro
+de esta carpeta del proyecto: ver "Dónde se guardan los datos" más
+abajo.
 
-Por defecto, PHP suele traer `upload_max_filesize` en solo 2 MB, algo
-muy fácil de superar con una foto de móvil normal (las cámaras de
-gama alta pueden dar JPEG de 10-20 MB) y, sobre todo, con un vídeo.
-Para evitarlo, el proyecto incluye dos ficheros en la raíz que elevan
-ese límite a 90 MB por archivo (200 MB por envío, para cuando se
-suben varias fotos o vídeos a la vez):
+## Configuración del sitio
 
-- **`.htaccess`**: funciona si PHP corre como módulo de Apache (mod_php).
-  También sube `max_execution_time` y `max_input_time` a 300 segundos,
-  necesario para que dé tiempo a subir un vídeo con buena conexión.
-- **`.user.ini`**: funciona con PHP-FPM (no lee `.htaccess`). Puede
-  tardar unos minutos en aplicarse, o necesitar recargar el servicio:
-  `sudo systemctl reload php8.2-fpm` (ajusta la versión de PHP instalada;
-  averigua el nombre exacto del servicio con
-  `systemctl list-units --type=service --all | grep -i php`).
+Los valores generales viven en `config.php`:
 
-La propia aplicación limita las fotos a 20 MB y los vídeos a 80 MB
-cada uno; si el servidor no llega a aplicar los 90 MB de arriba (por
-ejemplo, por no tener `AllowOverride All`), esos límites de PHP
-mandan igualmente y el formulario mostrará un aviso explicando el
-motivo en vez de fallar en silencio.
+- `SITE_NAME`, `SITE_SHORT`, `SITE_CLAIM`: nombre completo, nombre
+  corto y lema del club, usados como valor por defecto si no se
+  rellenan desde Ajustes en el panel.
+- `MODO_DEBUG`: debe estar en `false` en un servidor real; muestra
+  los errores de PHP en pantalla solo cuando está en `true`, pensado
+  únicamente para desarrollo en local.
+- Zona horaria fijada a `Europe/Madrid`.
 
-Si usas Nginx con PHP-FPM en lugar de Apache, `.htaccess` no sirve de
-nada (Nginx no lo lee): en ese caso el `.user.ini` sigue funcionando,
-pero además puede que tengas que subir el límite de tamaño de subida
-en la propia configuración de Nginx (`client_max_body_size`) y, si el
-PHP-FPM está detrás de un proxy, el `proxy_read_timeout`.
+### Dónde se guardan los datos
 
-**Para comprobar qué límite está aplicando tu servidor de verdad**
-(no lo que digan los ficheros, sino el valor real que usa PHP en ese
-directorio), sube `comprobar-limite.php` a la raíz del sitio, ábrelo
-en el navegador y bórralo en cuanto lo hayas comprobado — no debe
-quedar publicado de forma permanente.
+La base de datos SQLite y la contraseña inicial de administrador se
+guardan **fuera de la carpeta pública del sitio**, nunca dentro de
+`data/` ni de ninguna carpeta que un servidor web pueda llegar a
+servir:
 
-## Base de datos y actualizaciones (importante)
+- Si existe la variable de entorno `SAKONETA_PRIVATE_DIR`, se usa esa
+  ruta tal cual. Es la forma recomendada, porque es la única que se
+  puede garantizar de verdad que queda fuera de lo público:
+  - Apache (dentro del `<VirtualHost>`): `SetEnv SAKONETA_PRIVATE_DIR /var/lib/sakoneta`
+  - PHP-FPM (en el pool): `env[SAKONETA_PRIVATE_DIR] = /var/lib/sakoneta`
+- Si no se ha definido, se prueba con una carpeta hermana del
+  proyecto (un nivel por encima), pero solo se usa si se puede
+  confirmar de verdad, contra el `DOCUMENT_ROOT` real que informa el
+  propio servidor, que queda fuera de lo público.
+- Si no hay ninguna ubicación que se pueda confirmar segura, el sitio
+  se detiene con un error explicando qué hacer, en vez de arriesgarse
+  a guardar contraseñas y datos del club en una carpeta pública.
 
-Las tablas y columnas de la base de datos se crean y se actualizan
-**solas**, en la primera petición tras cada `git pull` (desde
-`includes/db.php`). Ya no hace falta ejecutar `init_db.php` a mano
-después de cada actualización de código — solo la primera vez que
-instalas el sitio, para cargar los datos de ejemplo.
+### Límite de tamaño de fotos y vídeos
 
-Esto solucionó un error real: si el código de una página esperaba una
-columna que la base de datos todavía no tenía (por ejemplo, tras
-añadir el texto editable de la portada), se producía un
-**Error 500** al guardar. Ahora es imposible que eso vuelva a pasar
-por ese motivo, porque la migración se aplica sola en cuanto se
-recibe la primera visita con el código nuevo. Además, la página de
-Ajustes tiene ahora un `try/catch` general: cualquier fallo al
-guardar (sea cual sea la causa) se muestra como un aviso legible en
-vez de una pantalla en blanco de error 500, y el motivo exacto queda
-anotado en el registro de errores de PHP del servidor.
+La aplicación admite fotos de hasta 20 MB y vídeos de hasta 80 MB por
+archivo (se pueden subir varios a la vez). Para que el servidor no
+recorte antes ese límite, `.htaccess` y `.user.ini` (en la raíz y
+dentro de `admin/`) elevan `upload_max_filesize` y `post_max_size` a
+90 MB / 200 MB, y `max_execution_time`/`max_input_time` a 300
+segundos. Si el servidor no llega a aplicar esos valores (por
+ejemplo, por no tener `AllowOverride All` en Apache, o por usar
+Nginx, que no lee `.htaccess`), el límite real de PHP manda igual y
+el formulario muestra un aviso explicando el motivo en vez de fallar
+en silencio.
 
-## Antes de publicarlo en un servidor real
+## Base de datos y actualizaciones
 
-- Cambia la contraseña de administración (ver arriba).
-- Protege la carpeta `data/` para que no sea accesible desde el
-  navegador (con Apache, añade un `.htaccess` con `Deny from all`;
-  con Nginx, bloquea esa ruta en la configuración del servidor).
-- Sustituye el logo, los colores, las direcciones de contacto y los
-  textos de ejemplo por los datos reales del club.
-- Sirve el sitio por HTTPS.
+Las tablas y columnas de la base de datos se crean y actualizan
+**solas**: la versión del esquema se guarda dentro de la propia base
+de datos (`PRAGMA user_version`), así que en el caso normal
+comprobarlo es una única consulta muy barata, y el trabajo de verdad
+(crear tablas, añadir columnas, generar el primer usuario
+administrador si hace falta) solo se hace la primera vez que se
+recibe una petición con código nuevo. No hace falta ejecutar ningún
+comando a mano tras actualizar el código — solo la primera vez que se
+instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
+
+## Seguridad
+
+- **Contraseñas por usuario**, guardadas con hash, nunca en el código
+  fuente. Si no hay ninguna contraseña de administrador guardada
+  todavía, se genera una al azar en el primer arranque y se escribe
+  una única vez en la carpeta privada (ver arriba).
+- **Bloqueo de fuerza bruta** en el login (tras varios intentos
+  fallidos, la IP queda bloqueada un tiempo) y **límite de envíos por
+  IP** en los formularios públicos (contacto, comentarios, "me
+  gusta"), con límite de longitud aplicado siempre en el servidor.
+- **Revalidación en cada petición** del rol y el estado de la persona
+  conectada contra la base de datos, con regeneración del ID de
+  sesión al elevar privilegios, y cierre inmediato de las demás
+  sesiones abiertas al cambiar una contraseña o desactivar una
+  cuenta.
+- **Los colaboradores solo pueden editar sus propias noticias, y solo
+  mientras sigan sin publicar.**
+- **Token CSRF** en todos los formularios y acciones que crean,
+  editan o borran datos, y todas esas acciones van siempre por POST,
+  nunca por GET.
+- **Borrado con limpieza completa**: al borrar una noticia, gimnasta,
+  categoría o competición se borran también sus fotos, comentarios y
+  categorías asociadas en una única operación; los archivos físicos
+  solo se eliminan del disco cuando ya no los usa ninguna otra
+  entidad.
+- **Verificación real de las imágenes subidas** (no solo la extensión
+  del archivo), redimensionado automático de las que superan 1600px,
+  y `img/subidas/` no puede ejecutar scripts aunque alguien
+  consiguiera subir un archivo con otra extensión.
+- **Cookie de sesión reforzada** (`HttpOnly`, `SameSite=Lax`,
+  `Secure` automático si detecta HTTPS).
+- **Sin listado de carpetas** (`Options -Indexes`) y `.git/`
+  bloqueado en `.htaccess`; aun así, lo correcto es que esa carpeta
+  nunca llegue al servidor de producción.
+- `robots.txt` bloquea `/admin/` y `/data/` para los buscadores.
+
+Aun con todo esto, antes de servir el sitio en un dominio real
+conviene hacerlo por HTTPS y revisar que `AllowOverride All` esté
+activo en Apache (o trasladar las reglas equivalentes al
+`VirtualHost` o a la configuración de Nginx).

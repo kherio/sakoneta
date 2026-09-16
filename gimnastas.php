@@ -27,7 +27,7 @@ require __DIR__ . '/includes/header.php';
       <p><?= t('sin_gimnastas') ?></p>
     <?php else: ?>
     <?php if (count($categoriasPresentes) > 1): ?>
-    <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-gimnastas">
+    <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-gimnastas" data-modo="unico">
       <button type="button" class="activo" data-categoria="todas"><?= t('filtro_todas') ?></button>
       <?php foreach ($categoriasPresentes as $cat): ?>
         <button type="button" data-categoria="<?= e($cat) ?>"><?= e($cat) ?></button>

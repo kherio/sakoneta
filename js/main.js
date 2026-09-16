@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', function () {
         splash.classList.add('splash-oculto');
         document.body.style.overflow = '';
         sessionStorage.setItem('sakoneta_splash_visto', '1');
-        setTimeout(function () { splash.remove(); }, 700);
+        // Debe coincidir con la duración de la transición en CSS
+        // (.splash { transition: ... 1.4s ... }); si se retira antes,
+        // se corta la animación de golpe a medio camino.
+        setTimeout(function () { splash.remove(); }, 1150);
       };
       splash.addEventListener('click', cerrarSplash);
       setTimeout(cerrarSplash, 2800);
@@ -133,6 +136,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
     var capaAnterior = document.getElementById('vista-previa-anterior');
     var capaSiguiente = document.getElementById('vista-previa-siguiente');
+    // Importante: si se mueven o quedan como hijas de <body>, en cuanto
+    // body reciba un transform (como hacemos aquí abajo) pasaría a ser
+    // el contenedor de referencia de sus position:fixed, y dejarían de
+    // estar ancladas de verdad a la pantalla — se verían mal, movidas
+    // y solapadas de forma incorrecta. Se sacan a <html> para evitarlo.
+    if (capaAnterior) document.documentElement.appendChild(capaAnterior);
+    if (capaSiguiente) document.documentElement.appendChild(capaSiguiente);
     var previewAnterior = null, previewSiguiente = null;
 
     function rellenarCapa(capa, datos) {
@@ -316,11 +326,13 @@ document.addEventListener('DOMContentLoaded', function () {
     actualizarParallax();
   }
 
-  // --- Filtro de categorías (ahora con selección múltiple) ---
+  // --- Filtro de categorías: selección múltiple por defecto, o única
+  // si el grupo lleva data-modo="unico" (así en Gimnastas) ---
   document.querySelectorAll('.filtro-categorias').forEach(function (grupo) {
     var contenedor = document.getElementById(grupo.getAttribute('data-filtro-objetivo'));
     if (!contenedor) return;
     var tarjetas = contenedor.children;
+    var esUnico = grupo.getAttribute('data-modo') === 'unico';
     var botonTodas = grupo.querySelector('button[data-categoria="todas"]');
     var botonesCategoria = grupo.querySelectorAll('button:not([data-categoria="todas"])');
 
@@ -347,7 +359,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     botonesCategoria.forEach(function (boton) {
       boton.addEventListener('click', function () {
-        boton.classList.toggle('activo');
+        if (esUnico) {
+          var yaEstabaActivo = boton.classList.contains('activo');
+          botonesCategoria.forEach(function (b) { b.classList.remove('activo'); });
+          if (!yaEstabaActivo) boton.classList.add('activo');
+        } else {
+          boton.classList.toggle('activo');
+        }
         aplicarFiltro();
       });
     });

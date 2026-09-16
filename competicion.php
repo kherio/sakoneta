@@ -88,7 +88,7 @@ require __DIR__ . '/includes/header.php';
   <div class="contenedor franja-portada-texto">
     <div class="franja-competicion-subtitulo">
       <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e(implode(' · ', $categoriasCompeticion)) ?></span>
-      · <?= e(formatearFecha($competicion['fecha'])) ?> · <?= e($competicion['lugar']) ?>
+      · <?= e(formatearFecha($competicion['fecha'])) ?><?= !empty($competicion['hora']) ? ' a las ' . e($competicion['hora']) : '' ?> · <?= e($competicion['lugar']) ?>
       <?php if ($competicion['disputada']): ?>
         · <?= e($competicion['resultado'] ?: t('disputada')) ?>
       <?php else: ?>

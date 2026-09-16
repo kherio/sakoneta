@@ -1,10 +1,24 @@
-# Sube el límite de subida de archivos de PHP para esta carpeta.
+# Límite de subida de archivos de PHP para el panel de administración.
+# Debe ser coherente con lo que valida includes/functions.php
+# (procesarImagenesMultiples: 20 MB por foto, 80 MB por vídeo, y se
+# pueden subir varios archivos a la vez). Un límite más bajo aquí
+# haría que una subida válida fallara sin motivo aparente.
 # Solo tiene efecto si Apache usa mod_php (no PHP-FPM, ver .user.ini).
 <IfModule mod_php.c>
-    php_value upload_max_filesize 8M
-    php_value post_max_size 10M
+    php_value upload_max_filesize 90M
+    php_value post_max_size 200M
+    php_value max_execution_time 300
+    php_value max_input_time 300
 </IfModule>
 <IfModule mod_php7.c>
-    php_value upload_max_filesize 8M
-    php_value post_max_size 10M
+    php_value upload_max_filesize 90M
+    php_value post_max_size 200M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 90M
+    php_value post_max_size 200M
+    php_value max_execution_time 300
+    php_value max_input_time 300
 </IfModule>

@@ -13,7 +13,11 @@ if ($volver === '' || strpos($volver, '://') !== false || strpos($volver, '//') 
 }
 $separador = (strpos($volver, '?') !== false) ? '&' : '?';
 
-if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if ($email === '' || strlen($email) > 190 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    redirigir($volver . $separador . 'suscrito=error');
+}
+
+if (superaLimiteEnvios($pdo, 'suscripcion', 5, 10)) {
     redirigir($volver . $separador . 'suscrito=error');
 }
 
