@@ -52,24 +52,50 @@ $resultadosNoticias = [];
 $resultadosGimnastas = [];
 $resultadosCompeticiones = [];
 $maxResultadosPorTabla = 20;
+$verTodosDe = in_array($_GET['ver'] ?? '', ['noticias', 'gimnastas', 'competiciones'], true) ? $_GET['ver'] : null;
+$limiteAmpliado = 200;
+
+$totalNoticias = 0;
+$totalGimnastas = 0;
+$totalCompeticiones = 0;
 
 if ($consulta !== '' && !$consultaDemasiadoCorta && !$demasiadasBusquedas) {
     $comodin = '%' . $consulta . '%';
 
-    $stmt = $pdo->prepare('SELECT * FROM noticias WHERE publicado = 1 AND (titulo LIKE ? OR resumen LIKE ? OR contenido LIKE ?) ORDER BY fecha DESC LIMIT ' . $maxResultadosPorTabla);
-    $stmt->execute([$comodin, $comodin, $comodin]);
-    $resultadosNoticias = $stmt->fetchAll();
+    if (!$verTodosDe || $verTodosDe === 'noticias') {
+        $limite = $verTodosDe === 'noticias' ? $limiteAmpliado : $maxResultadosPorTabla;
+        $stmt = $pdo->prepare('SELECT * FROM noticias WHERE publicado = 1 AND (titulo LIKE ? OR resumen LIKE ? OR contenido LIKE ?) ORDER BY fecha DESC LIMIT ' . $limite);
+        $stmt->execute([$comodin, $comodin, $comodin]);
+        $resultadosNoticias = $stmt->fetchAll();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM noticias WHERE publicado = 1 AND (titulo LIKE ? OR resumen LIKE ? OR contenido LIKE ?)');
+        $stmt->execute([$comodin, $comodin, $comodin]);
+        $totalNoticias = (int)$stmt->fetchColumn();
+    }
 
-    $stmt = $pdo->prepare('SELECT * FROM gimnastas WHERE nombre LIKE ? OR aparato LIKE ? ORDER BY orden ASC LIMIT ' . $maxResultadosPorTabla);
-    $stmt->execute([$comodin, $comodin]);
-    $resultadosGimnastas = $stmt->fetchAll();
+    if (!$verTodosDe || $verTodosDe === 'gimnastas') {
+        $limite = $verTodosDe === 'gimnastas' ? $limiteAmpliado : $maxResultadosPorTabla;
+        $stmt = $pdo->prepare('SELECT * FROM gimnastas WHERE nombre LIKE ? OR aparato LIKE ? ORDER BY orden ASC LIMIT ' . $limite);
+        $stmt->execute([$comodin, $comodin]);
+        $resultadosGimnastas = $stmt->fetchAll();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM gimnastas WHERE nombre LIKE ? OR aparato LIKE ?');
+        $stmt->execute([$comodin, $comodin]);
+        $totalGimnastas = (int)$stmt->fetchColumn();
+    }
 
-    $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE nombre LIKE ? OR lugar LIKE ? ORDER BY fecha DESC LIMIT ' . $maxResultadosPorTabla);
-    $stmt->execute([$comodin, $comodin]);
-    $resultadosCompeticiones = $stmt->fetchAll();
+    if (!$verTodosDe || $verTodosDe === 'competiciones') {
+        $limite = $verTodosDe === 'competiciones' ? $limiteAmpliado : $maxResultadosPorTabla;
+        $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE nombre LIKE ? OR lugar LIKE ? ORDER BY fecha DESC LIMIT ' . $limite);
+        $stmt->execute([$comodin, $comodin]);
+        $resultadosCompeticiones = $stmt->fetchAll();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM competiciones WHERE nombre LIKE ? OR lugar LIKE ?');
+        $stmt->execute([$comodin, $comodin]);
+        $totalCompeticiones = (int)$stmt->fetchColumn();
+    }
 }
 
-$totalResultados = count($resultadosNoticias) + count($resultadosGimnastas) + count($resultadosCompeticiones);
+$totalResultados = $verTodosDe
+    ? count($resultadosNoticias) + count($resultadosGimnastas) + count($resultadosCompeticiones)
+    : $totalNoticias + $totalGimnastas + $totalCompeticiones;
 $tituloPagina = $consulta !== '' ? 'Buscar: ' . $consulta : 'Buscar';
 $migas = [['texto' => t('nav_buscar')]];
 
@@ -83,12 +109,13 @@ require __DIR__ . '/includes/header.php';
     </div>
 
     <form method="get" class="formulario-buscar" style="position:relative;" autocomplete="off">
-      <input type="search" name="q" id="campo-busqueda" value="<?= e($consulta) ?>" placeholder="Busca noticias, gimnastas, competiciones..." autofocus>
+      <input type="search" name="q" id="campo-busqueda" value="<?= e($consulta) ?>" placeholder="Busca noticias, gimnastas, competiciones..." autofocus
+             role="combobox" aria-expanded="false" aria-controls="sugerencias-busqueda" aria-autocomplete="list" aria-haspopup="listbox">
       <?php if ($consulta !== ''): ?>
         <button type="button" id="boton-limpiar-busqueda" class="boton-limpiar-busqueda" aria-label="Borrar la búsqueda">✕</button>
       <?php endif; ?>
       <button type="submit" class="boton oro" style="padding:11px 24px;">Buscar</button>
-      <div id="sugerencias-busqueda" class="sugerencias-busqueda"></div>
+      <div id="sugerencias-busqueda" class="sugerencias-busqueda" role="listbox" aria-label="Sugerencias de búsqueda"></div>
     </form>
 
     <?php if ($consulta === ''): ?>
@@ -100,14 +127,19 @@ require __DIR__ . '/includes/header.php';
     <?php elseif ($totalResultados === 0): ?>
       <div class="busqueda-vacia">
         <p style="font-size:17px;margin-bottom:6px;">No hemos encontrado nada para "<strong><?= e($consulta) ?></strong>".</p>
-        <p style="color:var(--gris-texto);">Prueba con otra palabra, o revisa que esté bien escrita.</p>
+        <p style="color:var(--gris-texto);margin-bottom:16px;">Prueba con otra palabra, o revisa que esté bien escrita. También puedes explorar directamente:</p>
+        <p style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a href="noticias.php" class="boton-volver"><?= t('nav_noticias') ?></a>
+          <a href="gimnastas.php" class="boton-volver"><?= t('nav_gimnastas') ?></a>
+          <a href="competiciones.php" class="boton-volver"><?= t('nav_competiciones') ?></a>
+        </p>
       </div>
     <?php else: ?>
 
-      <p class="contador-resultados"><?= $totalResultados ?> resultado<?= $totalResultados === 1 ? '' : 's' ?> para "<strong><?= e($consulta) ?></strong>"</p>
+      <p class="contador-resultados"><?= $totalResultados ?> resultado<?= $totalResultados === 1 ? '' : 's' ?> para "<strong><?= e($consulta) ?></strong>"<?php if ($verTodosDe): ?> — <a href="buscar.php?q=<?= urlencode($consulta) ?>">← Ver todas las secciones</a><?php endif; ?></p>
 
       <?php if ($resultadosNoticias): ?>
-      <h3 class="resultados-titulo"><?= t('nav_noticias') ?> <span class="resultados-titulo-contador">(<?= count($resultadosNoticias) ?>)</span></h3>
+      <h3 class="resultados-titulo"><?= t('nav_noticias') ?> <span class="resultados-titulo-contador">(<?= $verTodosDe === 'noticias' ? count($resultadosNoticias) : $totalNoticias ?>)</span></h3>
       <div class="pagina-noticias">
         <?php foreach ($resultadosNoticias as $n): ?>
         <a href="noticia.php?id=<?= (int)$n['id'] ?>" class="tarjeta-noticia">
@@ -120,10 +152,13 @@ require __DIR__ . '/includes/header.php';
         </a>
         <?php endforeach; ?>
       </div>
+      <?php if (!$verTodosDe && $totalNoticias > $maxResultadosPorTabla): ?>
+        <p><a href="buscar.php?q=<?= urlencode($consulta) ?>&ver=noticias" class="boton-volver">Ver las <?= $totalNoticias ?> noticias →</a></p>
+      <?php endif; ?>
       <?php endif; ?>
 
       <?php if ($resultadosGimnastas): ?>
-      <h3 class="resultados-titulo"><?= t('nav_gimnastas') ?> <span class="resultados-titulo-contador">(<?= count($resultadosGimnastas) ?>)</span></h3>
+      <h3 class="resultados-titulo"><?= t('nav_gimnastas') ?> <span class="resultados-titulo-contador">(<?= $verTodosDe === 'gimnastas' ? count($resultadosGimnastas) : $totalGimnastas ?>)</span></h3>
       <div class="grid-plantilla">
         <?php foreach ($resultadosGimnastas as $g): ?>
         <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador" style="display:block;">
@@ -136,10 +171,13 @@ require __DIR__ . '/includes/header.php';
         </a>
         <?php endforeach; ?>
       </div>
+      <?php if (!$verTodosDe && $totalGimnastas > $maxResultadosPorTabla): ?>
+        <p><a href="buscar.php?q=<?= urlencode($consulta) ?>&ver=gimnastas" class="boton-volver">Ver los <?= $totalGimnastas ?> gimnastas →</a></p>
+      <?php endif; ?>
       <?php endif; ?>
 
       <?php if ($resultadosCompeticiones): ?>
-      <h3 class="resultados-titulo"><?= t('nav_competiciones') ?> <span class="resultados-titulo-contador">(<?= count($resultadosCompeticiones) ?>)</span></h3>
+      <h3 class="resultados-titulo"><?= t('nav_competiciones') ?> <span class="resultados-titulo-contador">(<?= $verTodosDe === 'competiciones' ? count($resultadosCompeticiones) : $totalCompeticiones ?>)</span></h3>
       <div class="grid-competiciones">
         <?php foreach ($resultadosCompeticiones as $c): ?>
         <article class="tarjeta-competicion">
@@ -154,6 +192,9 @@ require __DIR__ . '/includes/header.php';
         </article>
         <?php endforeach; ?>
       </div>
+      <?php if (!$verTodosDe && $totalCompeticiones > $maxResultadosPorTabla): ?>
+        <p><a href="buscar.php?q=<?= urlencode($consulta) ?>&ver=competiciones" class="boton-volver">Ver las <?= $totalCompeticiones ?> competiciones →</a></p>
+      <?php endif; ?>
       <?php endif; ?>
 
     <?php endif; ?>

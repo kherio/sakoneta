@@ -654,10 +654,79 @@ document.addEventListener('DOMContentLoaded', function () {
   if (campoBusqueda) {
     var cajaSugerencias = document.getElementById('sugerencias-busqueda');
     var temporizadorBusqueda = null;
+    var indiceActivo = -1;
+    var opcionesActuales = [];
 
     function ocultarSugerencias() {
       cajaSugerencias.classList.remove('visible');
       cajaSugerencias.innerHTML = '';
+      opcionesActuales = [];
+      indiceActivo = -1;
+      campoBusqueda.setAttribute('aria-expanded', 'false');
+      campoBusqueda.removeAttribute('aria-activedescendant');
+    }
+
+    function marcarActiva(indice) {
+      opcionesActuales.forEach(function (opcion, i) {
+        var activa = i === indice;
+        opcion.classList.toggle('activa', activa);
+        opcion.setAttribute('aria-selected', activa ? 'true' : 'false');
+      });
+      indiceActivo = indice;
+      if (indice >= 0) {
+        campoBusqueda.setAttribute('aria-activedescendant', opcionesActuales[indice].id);
+        opcionesActuales[indice].scrollIntoView({ block: 'nearest' });
+      } else {
+        campoBusqueda.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function elegirSugerencia(item) {
+      campoBusqueda.value = item.texto;
+      ocultarSugerencias();
+      campoBusqueda.closest('form').submit();
+    }
+
+    function pintarSugerencias(lista, texto) {
+      cajaSugerencias.innerHTML = '';
+      opcionesActuales = [];
+      indiceActivo = -1;
+
+      if (!lista.length) {
+        var vacio = document.createElement('div');
+        vacio.className = 'sugerencia-vacia';
+        vacio.textContent = 'Sin sugerencias para "' + texto + '". Pulsa Buscar para ver todos los resultados.';
+        cajaSugerencias.appendChild(vacio);
+        cajaSugerencias.classList.add('visible');
+        campoBusqueda.setAttribute('aria-expanded', 'true');
+        return;
+      }
+
+      lista.forEach(function (item, i) {
+        var fila = document.createElement('div');
+        fila.className = 'sugerencia-item';
+        fila.id = 'sugerencia-opcion-' + i;
+        fila.setAttribute('role', 'option');
+        fila.setAttribute('aria-selected', 'false');
+        var texto2 = document.createElement('span');
+        texto2.textContent = item.texto;
+        var tipo = document.createElement('span');
+        tipo.className = 'sugerencia-tipo';
+        tipo.textContent = item.tipo;
+        fila.appendChild(texto2);
+        fila.appendChild(tipo);
+        // El ratón también selecciona, para que el resaltado por
+        // teclado y por ratón sean siempre coherentes entre sí.
+        fila.addEventListener('mouseenter', function () { marcarActiva(i); });
+        fila.addEventListener('mousedown', function (e) {
+          e.preventDefault(); // que no le quite el foco al campo antes del click
+          elegirSugerencia(item);
+        });
+        cajaSugerencias.appendChild(fila);
+        opcionesActuales.push(fila);
+      });
+      cajaSugerencias.classList.add('visible');
+      campoBusqueda.setAttribute('aria-expanded', 'true');
     }
 
     campoBusqueda.addEventListener('input', function () {
@@ -669,36 +738,42 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('buscar.php?sugerencias=1&q=' + encodeURIComponent(texto))
           .then(function (r) { return r.json(); })
           .then(function (lista) {
-            if (!lista.length || campoBusqueda.value.trim() !== texto) { ocultarSugerencias(); return; }
-            cajaSugerencias.innerHTML = '';
-            lista.forEach(function (item) {
-              var fila = document.createElement('div');
-              fila.className = 'sugerencia-item';
-              var texto2 = document.createElement('span');
-              texto2.textContent = item.texto;
-              var tipo = document.createElement('span');
-              tipo.className = 'sugerencia-tipo';
-              tipo.textContent = item.tipo;
-              fila.appendChild(texto2);
-              fila.appendChild(tipo);
-              fila.addEventListener('click', function () {
-                campoBusqueda.value = item.texto;
-                ocultarSugerencias();
-                campoBusqueda.closest('form').submit();
-              });
-              cajaSugerencias.appendChild(fila);
-            });
-            cajaSugerencias.classList.add('visible');
+            if (campoBusqueda.value.trim() !== texto) return; // ya no aplica, ha seguido escribiendo
+            pintarSugerencias(lista, texto);
           })
           .catch(function () { ocultarSugerencias(); });
       }, 250);
     });
 
+    // Navegación por teclado: flechas para moverse entre sugerencias,
+    // Enter para elegir la resaltada (o enviar la búsqueda tal cual si
+    // ninguna está resaltada), Escape para cerrar sin elegir nada.
+    campoBusqueda.addEventListener('keydown', function (e) {
+      var hayOpciones = opcionesActuales.length > 0;
+      if (e.key === 'ArrowDown') {
+        if (!hayOpciones) return;
+        e.preventDefault();
+        marcarActiva(indiceActivo < opcionesActuales.length - 1 ? indiceActivo + 1 : 0);
+      } else if (e.key === 'ArrowUp') {
+        if (!hayOpciones) return;
+        e.preventDefault();
+        marcarActiva(indiceActivo > 0 ? indiceActivo - 1 : opcionesActuales.length - 1);
+      } else if (e.key === 'Enter') {
+        if (indiceActivo >= 0 && hayOpciones) {
+          e.preventDefault();
+          var lista = cajaSugerencias.querySelectorAll('.sugerencia-item');
+          var elegida = lista[indiceActivo];
+          elegirSugerencia({ texto: elegida.firstChild.textContent });
+        }
+        // si no hay ninguna resaltada, se deja que el formulario se
+        // envíe de forma normal con lo que haya escrito
+      } else if (e.key === 'Escape') {
+        ocultarSugerencias();
+      }
+    });
+
     document.addEventListener('click', function (e) {
       if (!campoBusqueda.closest('form').contains(e.target)) ocultarSugerencias();
-    });
-    campoBusqueda.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') ocultarSugerencias();
     });
 
     var botonLimpiarBusqueda = document.getElementById('boton-limpiar-busqueda');
