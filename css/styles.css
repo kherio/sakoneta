@@ -649,6 +649,20 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .vista-previa-swipe.visible { display: block; }
 .vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
 .vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
+/* El degradado de .franja-portada::after termina en var(--papel), el
+   blanco de fondo del resto de la página, porque en la página real
+   la cabecera se funde con el contenido que viene justo debajo. Aquí
+   dentro no hay nada debajo (la vista previa ocupa toda la pantalla),
+   así que ese mismo degradado dejaba el texto sobre un fondo casi
+   blanco en vez de oscuro. Este lo sustituye por uno que se queda
+   oscuro del todo, pensado para un recuadro suelto a pantalla completa. */
+.vista-previa-swipe .franja-portada::after {
+  background: linear-gradient(0deg,
+    rgba(6,16,40,.94) 0%,
+    rgba(6,16,40,.6) 38%,
+    rgba(6,16,40,.2) 68%,
+    rgba(6,16,40,0) 100%);
+}
 .aviso-swipe {
   display: none;
 }
