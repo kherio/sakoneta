@@ -153,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // (que carga aparte por CSS) pero el texto nunca llegaba a
     // rellenarse. "Hay vista previa" se sabe solo con mirar si el
     // servidor llegó a poner contenido dentro de la capa.
-    var hayPreviewAnterior = !!(capaAnterior && capaAnterior.querySelector('.vista-previa-swipe-imagen'));
-    var hayPreviewSiguiente = !!(capaSiguiente && capaSiguiente.querySelector('.vista-previa-swipe-imagen'));
+    var hayPreviewAnterior = !!(capaAnterior && capaAnterior.querySelector('.franja-portada-imagen'));
+    var hayPreviewSiguiente = !!(capaSiguiente && capaSiguiente.querySelector('.franja-portada-imagen'));
 
     var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false, vaASiguiente = null;
     var anchoPantalla = window.innerWidth;
