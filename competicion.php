@@ -178,6 +178,15 @@ require __DIR__ . '/includes/header.php';
 <?php foreach (['anterior' => $previaAnterior, 'siguiente' => $previaSiguiente] as $lado => $previa): ?>
 <div class="vista-previa-swipe vista-previa-swipe-<?= $lado ?>" id="vista-previa-<?= $lado ?>" aria-hidden="true">
   <?php if ($previa): ?>
+  <nav class="migas-pan vista-previa-swipe-migas">
+    <div class="contenedor">
+      <a href="index.php"><?= t('nav_inicio') ?></a>
+      <span class="migas-separador">›</span>
+      <a href="competiciones.php"><?= t('nav_competiciones') ?></a>
+      <span class="migas-separador">›</span>
+      <span class="migas-actual"><?= e($previa['nombre']) ?></span>
+    </div>
+  </nav>
   <div class="vista-previa-swipe-cabecera-foto">
     <div class="vista-previa-swipe-foto" style="background-image:url('<?= e($previa['imagen']) ?>');background-position:<?= e($previa['posicion']) ?>;"></div>
     <div class="vista-previa-swipe-texto">
