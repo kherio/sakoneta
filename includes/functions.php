@@ -192,7 +192,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 5;
+const VERSION_ESQUEMA_SAKONETA = 6;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -232,6 +232,7 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         imagen_portada TEXT
     )");
     agregarColumnaSiFalta($pdo, 'categorias', 'imagen_portada', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'categorias', 'color', 'TEXT');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS competiciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1128,6 +1129,29 @@ function esUrlPermitida(string $url): bool {
         && isset($partes['scheme'], $partes['host'])
         && in_array(strtolower($partes['scheme']), ['http', 'https'], true)
         && filter_var($url, FILTER_VALIDATE_URL) !== false;
+}
+
+/**
+ * Color de acento de cada categoría, indexado por nombre. Las que no
+ * tengan uno propio asignado usan el azul del sitio como color por
+ * defecto, para que las píldoras de categoría se distingan de un
+ * vistazo en los listados sin tener que leer el texto.
+ */
+function coloresCategorias(PDO $pdo): array {
+    static $cache = null;
+    if ($cache !== null) return $cache;
+    $cache = [];
+    $stmt = $pdo->query('SELECT nombre, color FROM categorias');
+    foreach ($stmt->fetchAll() as $fila) {
+        $cache[$fila['nombre']] = $fila['color'] ?: '#1450C4';
+    }
+    return $cache;
+}
+
+function colorCategoria(PDO $pdo, ?string $nombre): string {
+    if (!$nombre) return '#1450C4';
+    $colores = coloresCategorias($pdo);
+    return $colores[$nombre] ?? '#1450C4';
 }
 
 function obtenerAjustes(PDO $pdo): array {

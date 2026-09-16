@@ -466,4 +466,224 @@ document.addEventListener('DOMContentLoaded', function () {
       setTimeout(function () { aviso.remove(); }, 400);
     }, 2200);
   }
+
+  // --- Confeti al aterrizar en una competición con resultado de podio ---
+  var marcadorPodio = document.getElementById('swipe-competicion');
+  if (marcadorPodio && marcadorPodio.getAttribute('data-podio') === '1') {
+    setTimeout(lanzarConfeti, 500);
+  }
+
+  // --- Interruptor de modo oscuro ---
+  var interruptorTema = document.getElementById('interruptor-tema');
+  if (interruptorTema) {
+    function actualizarIconoTema() {
+      var esOscuro = document.documentElement.getAttribute('data-tema') === 'oscuro';
+      interruptorTema.textContent = esOscuro ? '☀️' : '🌙';
+      interruptorTema.setAttribute('aria-label', esOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      interruptorTema.title = interruptorTema.getAttribute('aria-label');
+    }
+    actualizarIconoTema();
+
+    interruptorTema.addEventListener('click', function () {
+      var esOscuroAhora = document.documentElement.getAttribute('data-tema') === 'oscuro';
+      if (esOscuroAhora) {
+        document.documentElement.removeAttribute('data-tema');
+      } else {
+        document.documentElement.setAttribute('data-tema', 'oscuro');
+      }
+      try { localStorage.setItem('sakoneta_tema', esOscuroAhora ? 'claro' : 'oscuro'); } catch (e) {}
+      actualizarIconoTema();
+    });
+  }
+
+  // --- Vista de calendario de competiciones (alternativa a la lista) ---
+  var datosCalendarioEl = document.getElementById('datos-calendario-competiciones');
+  if (datosCalendarioEl) {
+    var competicionesCalendario = JSON.parse(datosCalendarioEl.textContent || '[]');
+    var contenedorCalendario = document.getElementById('vista-calendario-competiciones');
+    var vistaLista = document.getElementById('vista-lista-competiciones');
+    var hoy = new Date();
+    var mesMostrado = hoy.getMonth();
+    var anioMostrado = hoy.getFullYear();
+
+    var nombresMes = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    var nombresDiaCorto = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+    function pintarCalendario() {
+      var porDia = {};
+      competicionesCalendario.forEach(function (c) {
+        var partes = c.fecha.split('-');
+        if (parseInt(partes[0], 10) === anioMostrado && parseInt(partes[1], 10) - 1 === mesMostrado) {
+          var dia = parseInt(partes[2], 10);
+          (porDia[dia] = porDia[dia] || []).push(c);
+        }
+      });
+
+      var primerDiaSemana = (new Date(anioMostrado, mesMostrado, 1).getDay() + 6) % 7; // que empiece en lunes
+      var diasEnMes = new Date(anioMostrado, mesMostrado + 1, 0).getDate();
+
+      var html = '<div class="calendario-cabecera">' +
+        '<button type="button" id="calendario-mes-anterior" aria-label="Mes anterior">‹</button>' +
+        '<h3>' + nombresMes[mesMostrado] + ' de ' + anioMostrado + '</h3>' +
+        '<button type="button" id="calendario-mes-siguiente" aria-label="Mes siguiente">›</button>' +
+        '</div><div class="calendario-grid">';
+
+      nombresDiaCorto.forEach(function (n) { html += '<div class="calendario-dia-nombre">' + n + '</div>'; });
+      for (var v = 0; v < primerDiaSemana; v++) html += '<div class="calendario-dia vacio"></div>';
+
+      for (var dia = 1; dia <= diasEnMes; dia++) {
+        var esHoy = hoy.getDate() === dia && hoy.getMonth() === mesMostrado && hoy.getFullYear() === anioMostrado;
+        var deEsteDia = porDia[dia];
+        var clases = 'calendario-dia' + (esHoy ? ' hoy' : '') + (deEsteDia ? ' con-competicion' : '');
+        if (deEsteDia) {
+          var titulo = deEsteDia.map(function (c) { return c.nombre; }).join(', ');
+          html += '<div class="' + clases + '" title="' + titulo.replace(/"/g, '') + '">' +
+            '<a href="competicion.php?id=' + deEsteDia[0].id + '">' + dia + '<span class="calendario-dia-punto"></span></a></div>';
+        } else {
+          html += '<div class="' + clases + '">' + dia + '</div>';
+        }
+      }
+      html += '</div>';
+      contenedorCalendario.innerHTML = html;
+
+      document.getElementById('calendario-mes-anterior').addEventListener('click', function () {
+        mesMostrado--; if (mesMostrado < 0) { mesMostrado = 11; anioMostrado--; }
+        pintarCalendario();
+      });
+      document.getElementById('calendario-mes-siguiente').addEventListener('click', function () {
+        mesMostrado++; if (mesMostrado > 11) { mesMostrado = 0; anioMostrado++; }
+        pintarCalendario();
+      });
+    }
+
+    document.querySelectorAll('.vista-cambio button').forEach(function (boton) {
+      boton.addEventListener('click', function () {
+        document.querySelectorAll('.vista-cambio button').forEach(function (b) { b.classList.remove('activo'); });
+        boton.classList.add('activo');
+        var esCalendario = boton.getAttribute('data-vista') === 'calendario';
+        vistaLista.style.display = esCalendario ? 'none' : '';
+        contenedorCalendario.style.display = esCalendario ? '' : 'none';
+        if (esCalendario && !contenedorCalendario.innerHTML) pintarCalendario();
+      });
+    });
+  }
+
+  // --- Autocompletado del buscador ---
+  var campoBusqueda = document.getElementById('campo-busqueda');
+  if (campoBusqueda) {
+    var cajaSugerencias = document.getElementById('sugerencias-busqueda');
+    var temporizadorBusqueda = null;
+
+    function ocultarSugerencias() {
+      cajaSugerencias.classList.remove('visible');
+      cajaSugerencias.innerHTML = '';
+    }
+
+    campoBusqueda.addEventListener('input', function () {
+      var texto = campoBusqueda.value.trim();
+      clearTimeout(temporizadorBusqueda);
+      if (texto.length < 2) { ocultarSugerencias(); return; }
+
+      temporizadorBusqueda = setTimeout(function () {
+        fetch('buscar.php?sugerencias=1&q=' + encodeURIComponent(texto))
+          .then(function (r) { return r.json(); })
+          .then(function (lista) {
+            if (!lista.length || campoBusqueda.value.trim() !== texto) { ocultarSugerencias(); return; }
+            cajaSugerencias.innerHTML = '';
+            lista.forEach(function (item) {
+              var fila = document.createElement('div');
+              fila.className = 'sugerencia-item';
+              var texto2 = document.createElement('span');
+              texto2.textContent = item.texto;
+              var tipo = document.createElement('span');
+              tipo.className = 'sugerencia-tipo';
+              tipo.textContent = item.tipo;
+              fila.appendChild(texto2);
+              fila.appendChild(tipo);
+              fila.addEventListener('click', function () {
+                campoBusqueda.value = item.texto;
+                ocultarSugerencias();
+                campoBusqueda.closest('form').submit();
+              });
+              cajaSugerencias.appendChild(fila);
+            });
+            cajaSugerencias.classList.add('visible');
+          })
+          .catch(function () { ocultarSugerencias(); });
+      }, 250);
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!campoBusqueda.closest('form').contains(e.target)) ocultarSugerencias();
+    });
+    campoBusqueda.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') ocultarSugerencias();
+    });
+  }
+
+  // --- Esqueleto de carga en imágenes de contenido (mientras descargan) ---
+  document.querySelectorAll('.galeria-parallax-item img, .tarjeta-noticia img, .tarjeta-jugador img, .tarjeta-competicion-foto img, .franja-tarjeta img').forEach(function (img) {
+    if (img.complete && img.naturalWidth > 0) return; // ya estaba en caché, no hace falta esqueleto
+    img.classList.add('cargando-esqueleto');
+    var quitar = function () { img.classList.remove('cargando-esqueleto'); };
+    img.addEventListener('load', quitar, { once: true });
+    img.addEventListener('error', quitar, { once: true });
+  });
+
+  // --- Lightbox de galería (noticias, gimnastas, competiciones, categorías) ---
+  var lightbox = document.getElementById('lightbox-galeria');
+  if (lightbox) {
+    var lightboxImg = document.getElementById('lightbox-img');
+    var lightboxContador = document.getElementById('lightbox-contador');
+    var lightboxAnterior = document.getElementById('lightbox-anterior');
+    var lightboxSiguiente = document.getElementById('lightbox-siguiente');
+    var fotosGaleria = [];
+    var indiceActual = 0;
+
+    function abrirLightbox(indice) {
+      if (!fotosGaleria.length) return;
+      indiceActual = (indice + fotosGaleria.length) % fotosGaleria.length;
+      var foto = fotosGaleria[indiceActual];
+      lightboxImg.src = foto.src;
+      lightboxImg.alt = foto.alt || '';
+      lightboxContador.textContent = (indiceActual + 1) + ' / ' + fotosGaleria.length;
+      var variasFotos = fotosGaleria.length > 1;
+      lightboxAnterior.style.display = variasFotos ? '' : 'none';
+      lightboxSiguiente.style.display = variasFotos ? '' : 'none';
+      lightboxContador.style.display = variasFotos ? '' : 'none';
+      lightbox.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarLightbox() {
+      lightbox.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.galeria-parallax').forEach(function (galeria) {
+      var imagenes = Array.from(galeria.querySelectorAll('.galeria-parallax-item img'));
+      if (!imagenes.length) return;
+      var listaDeEstaGaleria = imagenes.map(function (img) { return { src: img.src, alt: img.alt }; });
+
+      imagenes.forEach(function (img, i) {
+        img.addEventListener('click', function () {
+          fotosGaleria = listaDeEstaGaleria;
+          abrirLightbox(i);
+        });
+      });
+    });
+
+    document.getElementById('lightbox-cerrar').addEventListener('click', cerrarLightbox);
+    lightboxAnterior.addEventListener('click', function () { abrirLightbox(indiceActual - 1); });
+    lightboxSiguiente.addEventListener('click', function () { abrirLightbox(indiceActual + 1); });
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) cerrarLightbox();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!lightbox.classList.contains('visible')) return;
+      if (e.key === 'Escape') cerrarLightbox();
+      else if (e.key === 'ArrowLeft') abrirLightbox(indiceActual - 1);
+      else if (e.key === 'ArrowRight') abrirLightbox(indiceActual + 1);
+    });
+  }
 });

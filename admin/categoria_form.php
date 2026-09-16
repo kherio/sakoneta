@@ -26,13 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     exigirCsrf();
     $nombre = trim($_POST['nombre'] ?? '');
     $orden = (int)($_POST['orden'] ?? 0);
+    $color = trim($_POST['color'] ?? '');
+    $color = preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : null;
 
     if ($nombre === '') {
         $error = 'El nombre no puede estar vacío.';
     } else {
         try {
-            $stmt = $pdo->prepare('UPDATE categorias SET nombre = ?, orden = ? WHERE id = ?');
-            $stmt->execute([$nombre, $orden, $id]);
+            $stmt = $pdo->prepare('UPDATE categorias SET nombre = ?, orden = ?, color = ? WHERE id = ?');
+            $stmt->execute([$nombre, $orden, $color, $id]);
 
             $erroresFotos = [];
             $fotosNuevas = procesarImagenesMultiples('fotos', $erroresFotos);
@@ -71,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     }
     $categoria['nombre'] = $nombre;
     $categoria['orden'] = $orden;
+    $categoria['color'] = $color;
 }
 
 $fotos = $pdo->prepare('SELECT * FROM categoria_fotos WHERE categoria_id = ? ORDER BY orden ASC');
@@ -102,6 +105,11 @@ require __DIR__ . '/includes/layout_header.php';
   <div class="campo">
     <label for="orden">Orden</label>
     <input type="number" id="orden" name="orden" value="<?= e((string)$categoria['orden']) ?>">
+  </div>
+  <div class="campo">
+    <label for="color">Color de acento</label>
+    <input type="color" id="color" name="color" value="<?= e($categoria['color'] ?? '#1450C4') ?>" style="width:80px;height:38px;padding:4px;cursor:pointer;">
+    <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">Se usa en la píldora de esta categoría en los listados y filtros, para distinguirla de un vistazo.</p>
   </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">

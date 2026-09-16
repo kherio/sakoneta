@@ -48,7 +48,7 @@ require __DIR__ . '/includes/header.php';
     <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-resultados">
       <button type="button" class="activo" data-categoria="todas"><?= t('filtro_todas') ?></button>
       <?php foreach ($categoriasPresentes as $cat): ?>
-        <button type="button" data-categoria="<?= e($cat) ?>"><?= e($cat) ?></button>
+        <button type="button" data-categoria="<?= e($cat) ?>"><span class="punto-color-categoria" style="background:<?= e(colorCategoria($pdo, $cat)) ?>;"></span><?= e($cat) ?></button>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -58,7 +58,7 @@ require __DIR__ . '/includes/header.php';
       <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categorias_lista'] ?? '') ?>">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
           <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" data-parallax="0.05" data-parallax-limite="16">
-          <span class="tarjeta-competicion-categoria"><?= e(str_replace(',', ' · ', $c['categorias_lista'] ?? '')) ?></span>
+          <span class="tarjeta-competicion-categoria" style="background:<?= e(colorCategoria($pdo, explode(',', $c['categorias_lista'] ?? '')[0] ?? null)) ?>;"><?= e(str_replace(',', ' · ', $c['categorias_lista'] ?? '')) ?></span>
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>

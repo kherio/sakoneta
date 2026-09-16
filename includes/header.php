@@ -4,6 +4,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1450C4">
+<link rel="icon" href="img/icono-192.png">
+<link rel="apple-touch-icon" href="img/icono-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sakoneta">
+<script>
+  // Se aplica aquí, lo antes posible (antes de que el body llegue a
+  // pintarse), para que no haya un parpadeo del tema claro antes de
+  // cambiar al oscuro guardado.
+  try {
+    if (localStorage.getItem('sakoneta_tema') === 'oscuro') {
+      document.documentElement.setAttribute('data-tema', 'oscuro');
+    }
+  } catch (e) {}
+</script>
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . nombreSitio() : nombreSitio() ?></title>
 <meta name="description" content="<?= e($descripcionOG ?? claimSitio()) ?>">
 <link rel="icon" href="img/logo-sakoneta.png" type="image/png">
@@ -38,9 +55,12 @@
 <div class="cabecera-top">
   <div class="contenedor">
     <span>Temporada 2026 / 2027</span>
-    <span class="selector-idioma">
-      <a href="?lang=es" class="<?= idiomaActual() === 'es' ? 'activo' : '' ?>">ES</a> /
-      <a href="?lang=eu" class="<?= idiomaActual() === 'eu' ? 'activo' : '' ?>">EU</a>
+    <span class="cabecera-top-derecha">
+      <button type="button" id="interruptor-tema" class="interruptor-tema" aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">🌙</button>
+      <span class="selector-idioma">
+        <a href="?lang=es" class="<?= idiomaActual() === 'es' ? 'activo' : '' ?>">ES</a> /
+        <a href="?lang=eu" class="<?= idiomaActual() === 'eu' ? 'activo' : '' ?>">EU</a>
+      </span>
     </span>
   </div>
 </div>

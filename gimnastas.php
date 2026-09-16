@@ -30,7 +30,7 @@ require __DIR__ . '/includes/header.php';
     <div class="filtro-categorias" data-filtro-objetivo="grid-filtrable-gimnastas" data-modo="unico">
       <button type="button" class="activo" data-categoria="todas"><?= t('filtro_todas') ?></button>
       <?php foreach ($categoriasPresentes as $cat): ?>
-        <button type="button" data-categoria="<?= e($cat) ?>"><?= e($cat) ?></button>
+        <button type="button" data-categoria="<?= e($cat) ?>"><span class="punto-color-categoria" style="background:<?= e(colorCategoria($pdo, $cat)) ?>;"></span><?= e($cat) ?></button>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -40,7 +40,7 @@ require __DIR__ . '/includes/header.php';
       <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;" data-categoria="<?= e($g['categoria']) ?>">
         <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>"></div>
         <div class="info">
-          <div class="dorsal"><?= e($g['categoria']) ?></div>
+          <div class="dorsal" style="background:<?= e(colorCategoria($pdo, $g['categoria'])) ?>;"><?= e($g['categoria']) ?></div>
           <h4><?= e($g['nombre']) ?></h4>
           <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
         </div>

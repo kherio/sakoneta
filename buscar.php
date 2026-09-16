@@ -18,6 +18,36 @@ if (strlen($consulta) > 80) {
 $consultaDemasiadoCorta = $consulta !== '' && strlen($consulta) < 2;
 $demasiadasBusquedas = $consulta !== '' && superaLimiteEnvios($pdo, 'buscar', 30, 5);
 
+// Modo ligero para el autocompletado del propio cuadro de búsqueda:
+// solo unas pocas sugerencias, en JSON, sin renderizar toda la página.
+if (isset($_GET['sugerencias'])) {
+    header('Content-Type: application/json');
+    $sugerencias = [];
+    if ($consulta !== '' && !$consultaDemasiadoCorta && !$demasiadasBusquedas) {
+        $comodin = '%' . $consulta . '%';
+
+        $stmt = $pdo->prepare('SELECT titulo FROM noticias WHERE publicado = 1 AND titulo LIKE ? ORDER BY fecha DESC LIMIT 3');
+        $stmt->execute([$comodin]);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $t) {
+            $sugerencias[] = ['texto' => $t, 'tipo' => 'Noticia'];
+        }
+
+        $stmt = $pdo->prepare('SELECT nombre FROM gimnastas WHERE nombre LIKE ? ORDER BY orden ASC LIMIT 3');
+        $stmt->execute([$comodin]);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) {
+            $sugerencias[] = ['texto' => $n, 'tipo' => 'Gimnasta'];
+        }
+
+        $stmt = $pdo->prepare('SELECT nombre FROM competiciones WHERE nombre LIKE ? ORDER BY fecha DESC LIMIT 3');
+        $stmt->execute([$comodin]);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $n) {
+            $sugerencias[] = ['texto' => $n, 'tipo' => 'Competición'];
+        }
+    }
+    echo json_encode(array_slice($sugerencias, 0, 6));
+    exit;
+}
+
 $resultadosNoticias = [];
 $resultadosGimnastas = [];
 $resultadosCompeticiones = [];
@@ -52,9 +82,10 @@ require __DIR__ . '/includes/header.php';
       <h2><?= t('nav_buscar') ?></h2>
     </div>
 
-    <form method="get" class="formulario-buscar">
-      <input type="search" name="q" value="<?= e($consulta) ?>" placeholder="Busca noticias, gimnastas, competiciones..." autofocus>
+    <form method="get" class="formulario-buscar" style="position:relative;" autocomplete="off">
+      <input type="search" name="q" id="campo-busqueda" value="<?= e($consulta) ?>" placeholder="Busca noticias, gimnastas, competiciones..." autofocus>
       <button type="submit" class="boton oro" style="padding:11px 24px;">Buscar</button>
+      <div id="sugerencias-busqueda" class="sugerencias-busqueda"></div>
     </form>
 
     <?php if ($consulta === ''): ?>

@@ -7,6 +7,7 @@
   --acento: #0090FF;
   --acento-suave: #8FD3FF;
   --papel: #F2F7FD;
+  --superficie: #fff;
   --borde-suave: #DCEAFB;
   --tinta: #0A1930;
   --gris-texto: #4E5D74;
@@ -18,6 +19,22 @@
   --sombra-chica: 0 6px 16px -8px rgba(6, 27, 66, 0.3);
   --paso: 220ms cubic-bezier(.2,.7,.3,1);
 }
+
+/* Modo oscuro: se activa solo si la persona lo elige a mano con el
+   interruptor (se recuerda en este navegador). No sigue automáticamente
+   la preferencia del sistema, para no sorprender a quien no lo haya
+   pedido — el club puede tener su propio criterio sobre cuándo mostrarlo. */
+:root[data-tema="oscuro"] {
+  --papel: #0B1220;
+  --superficie: #131C2E;
+  --borde-suave: #223049;
+  --tinta: #EAF1FB;
+  --gris-texto: #9FB0C9;
+  --sombra: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  --sombra-chica: 0 6px 16px -8px rgba(0, 0, 0, 0.55);
+}
+:root[data-tema="oscuro"] h1, :root[data-tema="oscuro"] h2, :root[data-tema="oscuro"] h3, :root[data-tema="oscuro"] h4 { color: var(--acento-suave); }
+:root[data-tema="oscuro"] img:not(.stat-icono) { filter: brightness(.92); }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
@@ -133,7 +150,7 @@ nav.principal a:hover {
   transform: translateY(-1px);
 }
 nav.principal a.activo {
-  background: #fff;
+  background: var(--superficie);
   color: var(--morado-oscuro);
   font-weight: 600;
 }
@@ -388,7 +405,7 @@ nav.principal a.activo {
   border-radius: var(--radio-chico);
   transition: background var(--paso), transform var(--paso);
 }
-.lista-noticias li > a:hover { background: #fff; transform: translateX(4px); box-shadow: var(--sombra-chica); }
+.lista-noticias li > a:hover { background: var(--superficie); transform: translateX(4px); box-shadow: var(--sombra-chica); }
 .lista-noticias img { width: 96px; height: 68px; object-fit: cover; border-radius: var(--radio-chico); flex-shrink: 0; }
 .lista-noticias .fecha { font-size: 12px; color: var(--fucsia); font-weight: 600; }
 .lista-noticias h4 { font-size: 16px; margin-bottom: 4px; }
@@ -399,7 +416,7 @@ nav.principal a.activo {
   display: block;
   border-radius: var(--radio);
   overflow: hidden;
-  background: #fff;
+  background: var(--superficie);
   box-shadow: var(--sombra-chica);
   transition: transform var(--paso), box-shadow var(--paso);
 }
@@ -426,7 +443,7 @@ nav.principal a.activo {
   gap: 24px;
 }
 .tarjeta-jugador {
-  background: #fff;
+  background: var(--superficie);
   border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
   overflow: hidden;
@@ -452,7 +469,7 @@ nav.principal a.activo {
 /* Competiciones: tarjetas con foto de portada */
 .grid-competiciones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 .tarjeta-competicion {
-  background: #fff;
+  background: var(--superficie);
   border-radius: var(--radio);
   overflow: hidden;
   box-shadow: var(--sombra-chica);
@@ -487,7 +504,7 @@ nav.principal a.activo {
 .tarjeta-competicion-cuerpo .resultado { font-family: 'Fraunces', serif; font-size: 16px; color: var(--fucsia); margin-bottom: 8px; }
 
 /* Calendario (tabla, en desuso desde el rediseño en tarjetas, se mantiene por compatibilidad) */
-.tabla-partidos { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra-chica); }
+.tabla-partidos { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--superficie); border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra-chica); }
 .tabla-partidos th {
   text-align: left;
   font-size: 12px;
@@ -521,7 +538,7 @@ nav.principal a.activo {
   border-radius: var(--radio-chico);
   font-family: inherit;
   font-size: 15px;
-  background: #fff;
+  background: var(--superficie);
   transition: border-color var(--paso), box-shadow var(--paso);
 }
 .formulario input:focus, .formulario textarea:focus {
@@ -538,7 +555,7 @@ nav.principal a.activo {
 /* ---------- Pie ---------- */
 /* ---------- Franja de patrocinadores (carrusel) ---------- */
 .franja-patrocinadores {
-  background: #fff;
+  background: var(--superficie);
   border-top: 1px solid var(--borde-suave);
   border-bottom: 1px solid var(--borde-suave);
   padding: 32px 0;
@@ -736,7 +753,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   padding: 10px 20px;
   border-radius: 999px;
   border: 1.5px solid var(--borde-suave);
-  background: #fff;
+  background: var(--superficie);
   font-family: inherit;
   font-size: 14.5px;
   font-weight: 600;
@@ -753,7 +770,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 /* ---------- Comentarios ---------- */
 .seccion-comentarios { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--borde-suave); }
 .lista-comentarios { list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
-.lista-comentarios li { background: #fff; border: 1px solid var(--borde-suave); border-radius: var(--radio-chico); padding: 14px 18px; }
+.lista-comentarios li { background: var(--superficie); border: 1px solid var(--borde-suave); border-radius: var(--radio-chico); padding: 14px 18px; }
 .comentario-cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
 .comentario-fecha { font-size: 12.5px; color: var(--gris-texto); }
 .lista-comentarios p { margin: 0; font-size: 14.5px; color: #333; }
@@ -964,6 +981,71 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .galeria-video video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
 .galeria-parallax-noticia { grid-template-columns: repeat(2, 1fr); }
 
+/* ---------- Lightbox de galería (noticias, gimnastas, competiciones, categorías) ---------- */
+.galeria-parallax-item { cursor: zoom-in; }
+.lightbox-galeria {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(6,10,20,.94);
+  align-items: center;
+  justify-content: center;
+}
+.lightbox-galeria.visible { display: flex; }
+.lightbox-galeria-img {
+  max-width: min(92vw, 1100px);
+  max-height: 86vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  animation: lightboxEntra .22s ease;
+}
+@keyframes lightboxEntra { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+.lightbox-galeria-cerrar,
+.lightbox-galeria-anterior,
+.lightbox-galeria-siguiente {
+  position: fixed;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--paso);
+}
+.lightbox-galeria-cerrar:hover,
+.lightbox-galeria-anterior:hover,
+.lightbox-galeria-siguiente:hover { background: rgba(255,255,255,.28); }
+.lightbox-galeria-cerrar {
+  top: 18px; right: 18px;
+  width: 42px; height: 42px;
+  font-size: 22px;
+}
+.lightbox-galeria-anterior,
+.lightbox-galeria-siguiente {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px; height: 48px;
+  font-size: 24px;
+}
+.lightbox-galeria-anterior { left: 14px; }
+.lightbox-galeria-siguiente { right: 14px; }
+.lightbox-galeria-contador {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,.75);
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+@media (max-width: 640px) {
+  .lightbox-galeria-anterior, .lightbox-galeria-siguiente { width: 40px; height: 40px; font-size: 20px; }
+}
+
 /* ---------- Countdown a la próxima competición ---------- */
 .cuenta-atras { margin-top: 16px; display: flex; gap: 10px; }
 .cuenta-atras-num {
@@ -993,7 +1075,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .filtro-categorias { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
 .filtro-categorias button {
   border: 1.5px solid var(--borde-suave);
-  background: #fff;
+  background: var(--superficie);
   color: var(--gris-texto);
   padding: 8px 18px;
   border-radius: 999px;
@@ -1025,7 +1107,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   padding: 9px 16px;
   border-radius: 999px;
   border: 1.5px solid var(--borde-suave);
-  background: #fff;
+  background: var(--superficie);
   color: var(--morado);
   cursor: pointer;
   transition: background var(--paso), transform var(--paso);
@@ -1037,15 +1119,43 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .selector-idioma a.activo { opacity: 1; font-weight: 700; text-decoration: underline; }
 
 /* ---------- Página Sobre el club ---------- */
-.lista-palmares { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.lista-palmares {
+  list-style: none;
+  padding: 0 0 0 28px;
+  margin: 0;
+  position: relative;
+}
+.lista-palmares::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--borde-suave);
+}
 .lista-palmares li {
-  background: #fff;
-  border-left: 4px solid var(--acento);
-  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+  position: relative;
+  background: var(--superficie);
+  border-radius: var(--radio-chico);
   padding: 12px 18px;
   box-shadow: var(--sombra-chica);
   font-family: 'Fraunces', serif;
+  margin-bottom: 14px;
 }
+.lista-palmares li::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--acento);
+  box-shadow: 0 0 0 3px var(--papel);
+}
+.lista-palmares li:last-child { margin-bottom: 0; }
 
 /* ---------- Guiño divertido en el escudo ---------- */
 #escudo-cabecera {
@@ -1102,3 +1212,164 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   nav.principal { display: none; }
   .btn-menu-movil { display: flex; }
 }
+
+/* ---------- Esqueleto de carga para imágenes ---------- */
+img.cargando-esqueleto {
+  background: linear-gradient(100deg, var(--borde-suave) 30%, #eef4fb 50%, var(--borde-suave) 70%);
+  background-size: 250% 100%;
+  animation: esqueletoDeslizante 1.4s ease-in-out infinite;
+}
+@keyframes esqueletoDeslizante {
+  0% { background-position: 200% 0; }
+  100% { background-position: -50% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  img.cargando-esqueleto { animation: none; background: var(--borde-suave); }
+}
+
+.punto-color-categoria {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.stat-icono {
+  width: 30px;
+  height: 30px;
+  color: var(--acento-suave);
+  margin-bottom: 2px;
+}
+
+/* ---------- Autocompletado del buscador ---------- */
+.sugerencias-busqueda {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  z-index: 200;
+  overflow: hidden;
+}
+.sugerencias-busqueda.visible { display: block; }
+.sugerencia-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-size: 14.5px;
+  border-bottom: 1px solid var(--borde-suave);
+}
+.sugerencia-item:last-child { border-bottom: none; }
+.sugerencia-item:hover { background: var(--papel); }
+.sugerencia-tipo {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--gris-texto);
+  flex-shrink: 0;
+}
+
+/* ---------- Interruptor lista/calendario y calendario de competiciones ---------- */
+.vista-cambio {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--papel);
+  border: 1px solid var(--borde-suave);
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 26px;
+}
+.vista-cambio button {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--gris-texto);
+  cursor: pointer;
+  transition: background var(--paso), color var(--paso);
+}
+.vista-cambio button.activo { background: var(--morado); color: #fff; }
+
+.calendario-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.calendario-cabecera h3 { margin: 0; text-transform: capitalize; }
+.calendario-cabecera button {
+  border: 1px solid var(--borde-suave);
+  background: var(--superficie);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background var(--paso);
+}
+.calendario-cabecera button:hover { background: var(--papel); }
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 30px;
+}
+.calendario-dia-nombre {
+  text-align: center;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  color: var(--gris-texto);
+  padding-bottom: 6px;
+  font-weight: 600;
+}
+.calendario-dia {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 13px;
+  color: var(--tinta);
+  position: relative;
+  background: var(--papel);
+}
+.calendario-dia.vacio { background: transparent; }
+.calendario-dia.hoy { box-shadow: inset 0 0 0 2px var(--acento); }
+.calendario-dia a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.calendario-dia-punto {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fucsia);
+}
+.calendario-dia.con-competicion { background: var(--acento-suave); cursor: pointer; font-weight: 700; }
+
+.cabecera-top-derecha { display: flex; align-items: center; gap: 14px; }
+.interruptor-tema {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  opacity: .85;
+  transition: opacity var(--paso), transform var(--paso);
+}
+.interruptor-tema:hover { opacity: 1; transform: scale(1.1); }

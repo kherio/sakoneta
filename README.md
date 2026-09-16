@@ -70,6 +70,29 @@ ajustes generales del sitio.
 - Menú adaptado a móvil, cabecera que se compacta al hacer scroll,
   migas de pan en las páginas de detalle, y un pequeño guiño: 5 clics
   seguidos sobre el escudo del encabezado activan un efecto sorpresa.
+- **Lightbox en las galerías**: al pulsar cualquier foto de una
+  galería (noticias, gimnastas, competiciones, categorías) se abre a
+  pantalla completa, con flechas para pasar a la siguiente/anterior y
+  cierre con Esc, clic fuera o el botón de cerrar.
+- **Esqueletos de carga** en las imágenes de tarjetas y galerías,
+  mientras terminan de descargar.
+- **Colores de acento por categoría**: cada categoría (Base,
+  Alevín...) puede tener su propio color, configurable desde el
+  panel, que se usa en sus píldoras y en los filtros para
+  reconocerlas de un vistazo.
+- **Iconos en las estadísticas de portada** (gimnastas, competiciones
+  disputadas, categorías, aparatos).
+- **Autocompletado en el buscador**: sugerencias mientras se escribe,
+  sin tener que pulsar "Buscar".
+- **Vista de calendario en Competiciones**, como alternativa a la
+  lista: un mes navegable con las competiciones marcadas en su día.
+- **Se puede instalar como aplicación** ("Añadir a pantalla de
+  inicio") en el móvil, con su propio icono y pantalla de carga.
+- **Modo oscuro**, activable con el interruptor de la cabecera; se
+  recuerda en el navegador de quien lo elija.
+- **Confeti** al abrir una competición cuyo resultado sea de podio
+  (oro, plata, bronce, campeón...).
+- **Línea de tiempo visual** para el palmarés en "Sobre el club".
 
 Todos los efectos visuales respetan la preferencia de "reducir
 movimiento" del sistema operativo, y se degradan sin errores si el
@@ -89,9 +112,10 @@ navegador no soporta alguna característica.
   hora de inicio (opcional), resultado una vez disputada, texto libre
   para contar cómo fue, galería de fotos y vídeos con selector visual
   de encuadre para la portada.
-- **Categorías**: crear, renombrar, reordenar (arrastrando) y borrar
-  las categorías que luego se asignan a gimnastas y competiciones;
-  cada una admite su propia galería de fotos.
+- **Categorías**: crear, renombrar, reordenar (arrastrando), elegir
+  su color de acento y borrar las categorías que luego se asignan a
+  gimnastas y competiciones; cada una admite su propia galería de
+  fotos.
 - **Elegir fotos ya subidas**: al crear o editar una noticia o una
   competición, se puede reutilizar cualquier foto o vídeo ya subido
   antes desde cualquier otra parte del panel, sin tener que volver a

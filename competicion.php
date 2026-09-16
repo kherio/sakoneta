@@ -48,6 +48,9 @@ $idAnterior = $stmtAnterior->fetchColumn();
 $previaAnterior = $idAnterior ? datosVistaPreviaCompeticion($pdo, (int)$idAnterior) : null;
 $previaSiguiente = $idSiguiente ? datosVistaPreviaCompeticion($pdo, (int)$idSiguiente) : null;
 
+$esResultadoPodio = $competicion['disputada'] && $competicion['resultado']
+    && preg_match('/\b(oro|plata|bronce|campe[oó]n|medalla|1º|1ª|primer[oa]?)\b/i', $competicion['resultado']);
+
 $categoriasCompeticion = $pdo->prepare('
     SELECT cc.categoria FROM competicion_categorias cc
     JOIN categorias cat ON cat.nombre = cc.categoria
@@ -142,6 +145,7 @@ require __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <div id="swipe-competicion"
+     data-podio="<?= $esResultadoPodio ? '1' : '' ?>"
      data-anterior="<?= $idAnterior ? 'competicion.php?id=' . (int)$idAnterior : '' ?>"
      data-siguiente="<?= $idSiguiente ? 'competicion.php?id=' . (int)$idSiguiente : '' ?>"
      style="display:none;" aria-hidden="true"></div>

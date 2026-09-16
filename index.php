@@ -25,11 +25,27 @@ $numCompeticionesStats = (int)$pdo->query('SELECT COUNT(*) FROM competiciones WH
 $numCategoriasStats = (int)$pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
 
 $estadisticasPortada = [
-    ['valor' => $ajustes['est1_valor'] ?? $numGimnastasStats, 'texto' => $ajustes['est1_texto'] ?: 'Gimnastas en el club'],
-    ['valor' => $ajustes['est2_valor'] ?? $numCompeticionesStats, 'texto' => $ajustes['est2_texto'] ?: 'Competiciones disputadas'],
-    ['valor' => $ajustes['est3_valor'] ?? $numCategoriasStats, 'texto' => $ajustes['est3_texto'] ?: 'Categorías, de base a senior'],
-    ['valor' => $ajustes['est4_valor'] ?? 5, 'texto' => $ajustes['est4_texto'] ?: 'Aparatos: aro, pelota, mazas, cinta y cuerda'],
+    ['valor' => $ajustes['est1_valor'] ?? $numGimnastasStats, 'texto' => $ajustes['est1_texto'] ?: 'Gimnastas en el club', 'icono' => 'gimnasta'],
+    ['valor' => $ajustes['est2_valor'] ?? $numCompeticionesStats, 'texto' => $ajustes['est2_texto'] ?: 'Competiciones disputadas', 'icono' => 'medalla'],
+    ['valor' => $ajustes['est3_valor'] ?? $numCategoriasStats, 'texto' => $ajustes['est3_texto'] ?: 'Categorías, de base a senior', 'icono' => 'categorias'],
+    ['valor' => $ajustes['est4_valor'] ?? 5, 'texto' => $ajustes['est4_texto'] ?: 'Aparatos: aro, pelota, mazas, cinta y cuerda', 'icono' => 'aro'],
 ];
+
+/**
+ * Icono SVG sencillo (trazo, sin relleno) para las estadísticas de
+ * la portada. Un puñado de formas hechas a mano relacionadas con la
+ * gimnasia rítmica, sin depender de ninguna librería de iconos externa.
+ */
+function iconoStat(string $nombre): string {
+    $iconos = [
+        'gimnasta' => '<circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v6M12 13.5l-4 6M12 13.5l4 6M8 10l-3 2M16 10l3 2"/>',
+        'medalla' => '<circle cx="12" cy="15" r="5.5"/><path d="M9.5 10 7 3h3l2 5M14.5 10 17 3h-3l-2 5"/><path d="M10.3 15.7l1.2 1.2 2.2-2.5"/>',
+        'categorias' => '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+        'aro' => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/>',
+    ];
+    $trazos = $iconos[$nombre] ?? $iconos['aro'];
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="stat-icono" aria-hidden="true">' . $trazos . '</svg>';
+}
 
 require __DIR__ . '/includes/header.php';
 ?>
@@ -70,6 +86,7 @@ require __DIR__ . '/includes/header.php';
   <div class="contenedor stats-grid">
     <?php foreach ($estadisticasPortada as $est): ?>
     <div class="stat-item">
+      <?= iconoStat($est['icono']) ?>
       <span class="stat-numero" data-hasta="<?= (int)$est['valor'] ?>">0</span>
       <span class="stat-etiqueta"><?= e($est['texto']) ?></span>
     </div>

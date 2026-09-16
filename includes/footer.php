@@ -78,6 +78,15 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
   </div>
   <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?> — sitio de ejemplo generado con fines de demostración.</div>
 </footer>
+
+<div class="lightbox-galeria" id="lightbox-galeria" aria-hidden="true">
+  <button type="button" class="lightbox-galeria-cerrar" id="lightbox-cerrar" aria-label="Cerrar">✕</button>
+  <button type="button" class="lightbox-galeria-anterior" id="lightbox-anterior" aria-label="Foto anterior">‹</button>
+  <img src="" alt="" class="lightbox-galeria-img" id="lightbox-img">
+  <button type="button" class="lightbox-galeria-siguiente" id="lightbox-siguiente" aria-label="Foto siguiente">›</button>
+  <div class="lightbox-galeria-contador" id="lightbox-contador"></div>
+</div>
+
 <script src="<?= versionArchivo('js/main.js') ?>"></script>
 </body>
 </html>
