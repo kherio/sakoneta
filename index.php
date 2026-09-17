@@ -144,7 +144,7 @@ require __DIR__ . '/includes/header.php';
     <div class="hero-fondo-foto" data-parallax="0.06" data-parallax-limite="35" style="background-image:url('img/<?= e($ajustes['inicio_imagen']) ?>');"></div>
   <?php endif; ?>
   <div class="contenedor">
-    <div>
+    <div class="hero-texto-centrado">
       <div class="hero-eyebrow"><span class="hero-kicker">★</span> <?= e($ajustes['hero_kicker'] ?: 'Equipo de referencia en gimnasia rítmica') ?></div>
       <h1 style="--tam-titulo:<?= e((string)(($ajustes['hero_titulo_tamano'] ?: 100) / 100)) ?>;"><?= e($ajustes['hero_titulo'] ?: t('hero_titulo')) ?></h1>
       <p><?= e($ajustes['hero_texto'] ?: t('hero_texto')) ?></p>

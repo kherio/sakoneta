@@ -296,6 +296,9 @@ nav.principal a.activo {
   animation: entradaHero .7s var(--paso) both;
 }
 .hero-eyebrow { color: var(--acento-suave); font-size: 15px; margin-bottom: 10px; font-weight: 600; }
+.hero-texto-centrado { text-align: center; }
+.hero-texto-centrado p { margin-left: auto; margin-right: auto; }
+.hero-texto-centrado .hero-cta { justify-content: center; }
 .hero-kicker { color: var(--acento); margin-right: 4px; }
 .hero h1 {
   color: #fff;
