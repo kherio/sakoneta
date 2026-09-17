@@ -10,6 +10,16 @@ $noticias = $pdo->query('SELECT * FROM noticias WHERE publicado = 1 ORDER BY fec
 $destacada = $noticias[0] ?? null;
 $restoNoticias = array_slice($noticias, 1);
 
+$gimnastasPortada = $pdo->query('SELECT * FROM gimnastas ORDER BY orden ASC LIMIT 4')->fetchAll();
+
+$galeriaPortada = $pdo->query("
+    SELECT cf.archivo, c.id AS competicion_id, c.nombre AS competicion_nombre
+    FROM competicion_fotos cf
+    JOIN competiciones c ON c.id = cf.competicion_id
+    WHERE cf.tipo = 'imagen'
+    ORDER BY cf.id DESC LIMIT 8
+")->fetchAll();
+
 $proxima = $pdo->query("SELECT * FROM competiciones WHERE disputada = 0 ORDER BY fecha ASC LIMIT 1")->fetch();
 $fechaProximaISO = null;
 if ($proxima) {
@@ -204,6 +214,58 @@ require __DIR__ . '/includes/header.php';
     <?php else: ?>
       <p><?= t('sin_noticias') ?></p>
     <?php endif; ?>
+  </div>
+</section>
+
+<?php if ($gimnastasPortada): ?>
+<section class="seccion" style="background:var(--papel);">
+  <div class="contenedor">
+    <div class="seccion-cabecera">
+      <h2>Nuestras gimnastas</h2>
+      <a href="gimnastas.php"><?= t('ver_todas') ?></a>
+    </div>
+    <div class="grid-plantilla">
+      <?php foreach ($gimnastasPortada as $g): ?>
+      <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;">
+        <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>"></div>
+        <div class="info">
+          <div class="dorsal" style="background:<?= e(colorCategoria($pdo, $g['categoria'])) ?>;"><?= e($g['categoria']) ?></div>
+          <h4><?= e($g['nombre']) ?></h4>
+          <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
+          <span class="tarjeta-cta">Ver ficha <span class="tarjeta-flecha">→</span></span>
+        </div>
+      </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if ($galeriaPortada): ?>
+<section class="seccion">
+  <div class="contenedor">
+    <div class="seccion-cabecera">
+      <h2>Momentos del club</h2>
+      <a href="competiciones.php"><?= t('nav_competiciones') ?> →</a>
+    </div>
+    <div class="galeria-portada-tira">
+      <?php foreach ($galeriaPortada as $foto): ?>
+      <a href="competicion.php?id=<?= (int)$foto['competicion_id'] ?>" class="galeria-portada-item animar-scroll" title="<?= e($foto['competicion_nombre']) ?>">
+        <img src="img/<?= e($foto['archivo']) ?>" alt="<?= e($foto['competicion_nombre']) ?>" loading="lazy">
+      </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<section class="seccion franja-club-teaser">
+  <div class="contenedor franja-club-teaser-caja">
+    <div>
+      <h2 style="margin-bottom:6px;">Conoce la historia del club</h2>
+      <p style="color:var(--gris-texto);margin:0;">Fundado en 1987, con equipos en todas las categorías. Descubre nuestra trayectoria y palmarés.</p>
+    </div>
+    <a href="sobre.php" class="boton oro" style="flex-shrink:0;">Sobre el club →</a>
   </div>
 </section>
 

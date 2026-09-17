@@ -20,6 +20,13 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Portada con narrativa completa**: titular/próxima competición →
+  noticias → gimnastas destacados → galería de momentos recientes →
+  invitación a conocer el club, cada bloque solo aparece si hay datos
+  que mostrar.
+- **Navegación anterior/siguiente entre noticias**, para poder seguir
+  leyendo sin volver al listado.
+
 - **Modo evento en la portada**: cuando falta poco para la próxima
   competición pendiente (2 días por defecto, configurable desde
   Ajustes), la página de inicio cambia por completo mientras dure esa
@@ -112,6 +119,13 @@ ajustes generales del sitio.
 - **Botones "Volver a..."** en las páginas de detalle (noticia,
   gimnasta, competición), que conservan el filtro de categoría si se
   llegó desde el propio listado filtrado.
+- **Microinteracciones en las tarjetas** (noticias, gimnastas,
+  competiciones): al pasar el ratón aparece un "Leer más/Ver
+  ficha/Ver detalles →", el título se desplaza levemente y la imagen
+  hace un zoom sutil; en táctil, un ligero toque al pulsar confirma
+  que es interactivo, sin depender de estados de hover.
+- **Indicador de sección** en la cabecera compacta (solo en móvil):
+  al hacer scroll, aparece el nombre de la sección junto al logo.
 - **Menú móvil accesible**: se cierra con Escape, al elegir una
   opción, devuelve el foco al botón que lo abrió, bloquea que el
   teclado navegue por el contenido de detrás mientras está abierto, y

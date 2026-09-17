@@ -26,6 +26,18 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
 $imagenOG = $origenSeguro . '/img/' . ($noticia['imagen'] ?: 'competicion.svg');
 $migas = [['texto' => t('nav_noticias'), 'url' => 'noticias.php'], ['texto' => $noticia['titulo']]];
 
+// Anterior/siguiente en el mismo orden que el listado (más reciente
+// primero): "siguiente" es la publicada justo después en el tiempo,
+// "anterior" la de justo antes.
+$stmtSiguiente = $pdo->prepare("SELECT id, titulo FROM noticias WHERE publicado = 1 AND (fecha > ? OR (fecha = ? AND id > ?)) ORDER BY fecha ASC, id ASC LIMIT 1");
+$stmtSiguiente->execute([$noticia['fecha'], $noticia['fecha'], $noticia['id']]);
+$noticiaSiguiente = $stmtSiguiente->fetch();
+
+$stmtAnterior = $pdo->prepare("SELECT id, titulo FROM noticias WHERE publicado = 1 AND (fecha < ? OR (fecha = ? AND id < ?)) ORDER BY fecha DESC, id DESC LIMIT 1");
+$stmtAnterior->execute([$noticia['fecha'], $noticia['fecha'], $noticia['id']]);
+$noticiaAnterior = $stmtAnterior->fetch();
+
+
 $urlActual = $origenSeguro . ($_SERVER['REQUEST_URI'] ?? '');
 $tituloCodificado = rawurlencode($noticia['titulo']);
 $urlCodificada = rawurlencode($urlActual);
@@ -147,6 +159,25 @@ require __DIR__ . '/includes/header.php';
           <button type="submit" class="boton oro" style="margin-top:14px;">Enviar comentario</button>
         </form>
       </div>
+
+      <?php if ($noticiaAnterior || $noticiaSiguiente): ?>
+      <nav class="navegacion-noticias" aria-label="Navegación entre noticias">
+        <?php if ($noticiaAnterior): ?>
+          <a href="noticia.php?id=<?= (int)$noticiaAnterior['id'] ?>" class="navegacion-noticias-enlace navegacion-noticias-anterior">
+            <span class="navegacion-noticias-etiqueta">← Anterior</span>
+            <span class="navegacion-noticias-titulo"><?= e($noticiaAnterior['titulo']) ?></span>
+          </a>
+        <?php else: ?>
+          <span></span>
+        <?php endif; ?>
+        <?php if ($noticiaSiguiente): ?>
+          <a href="noticia.php?id=<?= (int)$noticiaSiguiente['id'] ?>" class="navegacion-noticias-enlace navegacion-noticias-siguiente">
+            <span class="navegacion-noticias-etiqueta">Siguiente →</span>
+            <span class="navegacion-noticias-titulo"><?= e($noticiaSiguiente['titulo']) ?></span>
+          </a>
+        <?php endif; ?>
+      </nav>
+      <?php endif; ?>
 
       <p style="margin-top:24px;"><a href="noticias.php" class="boton-volver" data-volver-listado="noticias.php"><?= t('volver_noticias') ?></a></p>
     </article>
