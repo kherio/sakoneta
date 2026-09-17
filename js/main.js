@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var html = '<div class="calendario-cabecera">' +
         '<button type="button" id="calendario-mes-anterior" aria-label="Mes anterior">‹</button>' +
-        '<h3>' + nombresMes[mesMostrado] + ' de ' + anioMostrado + '</h3>' +
+        '<h3>' + nombresMes[mesMostrado] + ' ' + anioMostrado + '</h3>' +
         '<button type="button" id="calendario-mes-siguiente" aria-label="Mes siguiente">›</button>' +
         '</div><div class="calendario-grid">';
 
