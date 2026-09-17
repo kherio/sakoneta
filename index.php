@@ -161,7 +161,8 @@ require __DIR__ . '/includes/header.php';
         <span><?= e($proxima['nombre']) ?></span>
       </div>
       <div class="detalle">
-        📅 <?= e(formatearFecha($proxima['fecha'])) ?> · 📍 <?= e($proxima['lugar']) ?>
+        <span class="proximo-partido-linea">📅 <?= e(formatearFecha($proxima['fecha'])) ?></span>
+        <span class="proximo-partido-linea">📍 <?= e($proxima['lugar']) ?></span>
       </div>
       <div class="cuenta-atras-grande cuenta-atras-grande-chica" data-fecha="<?= e($fechaProximaISO) ?>">
         <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="dias">–</span><span class="cuenta-atras-etiqueta"><?= e(t('dias')) ?></span></div>

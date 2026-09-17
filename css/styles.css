@@ -329,6 +329,8 @@ nav.principal a.activo {
 }
 .proximo-partido .vs { color: var(--acento); font-size: 14px; }
 .proximo-partido .detalle { margin-top: 14px; font-size: 14px; color: #D7C3DD; }
+.proximo-partido-linea { display: block; }
+.proximo-partido-linea + .proximo-partido-linea { margin-top: 4px; }
 .cuenta-atras-grande-chica {
   margin: 18px 0 16px;
   gap: 8px;
