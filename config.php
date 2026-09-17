@@ -187,6 +187,21 @@ if (MODO_DEBUG) {
 // envía en peticiones de terceros y solo por HTTPS si el sitio ya usa HTTPS.
 $httpsActivo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+
+// Si el sitio está configurado para usar HTTPS (SITE_URL empieza por
+// https://, que es lo normal en producción) pero esta petición
+// concreta ha llegado por HTTP, se redirige antes de crear ninguna
+// sesión ni procesar ningún dato del formulario (login incluido):
+// así el usuario y la contraseña nunca llegan a viajar sin cifrar,
+// aunque el servidor permitiera acceder también por HTTP. En un
+// entorno local sin HTTPS de verdad (SAKONETA_SITE_URL=http://...),
+// esto no se activa.
+if (strpos(SITE_URL, 'https://') === 0 && !$httpsActivo && php_sapi_name() !== 'cli') {
+    $urlSegura = 'https://' . ($_SERVER['HTTP_HOST'] ?? parse_url(SITE_URL, PHP_URL_HOST)) . ($_SERVER['REQUEST_URI'] ?? '/');
+    header('Location: ' . $urlSegura, true, 301);
+    exit;
+}
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',

@@ -68,9 +68,9 @@ require __DIR__ . '/includes/header.php';
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
-          <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
-          <p class="lugar"><?= e($c['lugar']) ?></p>
-          <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>
+          <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e(campoIdioma($c, 'nombre')) ?></a></h3>
+          <p class="lugar"><?= e(campoIdioma($c, 'lugar')) ?></p>
+          <div class="resultado"><?= e(campoIdioma($c, 'resultado') ?: t('disputada')) ?></div>
           <span class="pill jugado"><?= t('disputada') ?></span>
           <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
         </div>

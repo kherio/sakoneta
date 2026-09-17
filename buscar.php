@@ -146,8 +146,8 @@ require __DIR__ . '/includes/header.php';
           <div class="marco-img"><img src="img/<?= e($n['imagen'] ?: 'competicion.svg') ?>" alt=""></div>
           <div class="cuerpo-tarjeta">
             <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
-            <h3><?= e($n['titulo']) ?></h3>
-            <p><?= e($n['resumen']) ?></p>
+            <h3><?= e(campoIdioma($n, 'titulo')) ?></h3>
+            <p><?= e(campoIdioma($n, 'resumen')) ?></p>
             <span class="tarjeta-cta">Leer más <span class="tarjeta-flecha">→</span></span>
           </div>
         </a>
@@ -188,8 +188,8 @@ require __DIR__ . '/includes/header.php';
           </a>
           <div class="tarjeta-competicion-cuerpo">
             <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
-            <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
-            <p class="lugar"><?= e($c['lugar']) ?></p>
+            <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e(campoIdioma($c, 'nombre')) ?></a></h3>
+            <p class="lugar"><?= e(campoIdioma($c, 'lugar')) ?></p>
             <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
           </div>
         </article>

@@ -76,11 +76,12 @@ $stmtMinutaje = $pdo->prepare('SELECT * FROM competicion_minutaje WHERE competic
 $stmtMinutaje->execute([$id]);
 $minutajeCompeticion = $stmtMinutaje->fetchAll();
 
-$tituloPagina = $competicion['nombre'];
-$descripcionOG = $competicion['descripcion'] ? recortarTexto(trim(explode("\n\n", $competicion['descripcion'])[0]), 160) : ($competicion['lugar'] . ' · ' . formatearFecha($competicion['fecha']));
+$tituloPagina = campoIdioma($competicion, 'nombre');
+$descripcionCompeticionIdioma = campoIdioma($competicion, 'descripcion');
+$descripcionOG = $descripcionCompeticionIdioma ? recortarTexto(trim(explode("\n\n", $descripcionCompeticionIdioma)[0]), 160) : (campoIdioma($competicion, 'lugar') . ' · ' . formatearFecha($competicion['fecha']));
 $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
 $imagenOG = $origenSeguro . '/img/' . $fotoPrincipal;
-$migas = [['texto' => t('nav_competiciones'), 'url' => 'competiciones.php'], ['texto' => $competicion['nombre']]];
+$migas = [['texto' => t('nav_competiciones'), 'url' => 'competiciones.php'], ['texto' => campoIdioma($competicion, 'nombre')]];
 require __DIR__ . '/includes/header.php';
 ?>
 
@@ -89,22 +90,22 @@ require __DIR__ . '/includes/header.php';
   <div class="contenedor franja-portada-texto">
     <div class="franja-competicion-subtitulo">
       <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e(implode(' · ', $categoriasCompeticion)) ?></span>
-      · <?= e(formatearFecha($competicion['fecha'])) ?><?= !empty($competicion['hora']) ? ' a las ' . e($competicion['hora']) : '' ?> · <?= e($competicion['lugar']) ?>
+      · <?= e(formatearFecha($competicion['fecha'])) ?><?= !empty($competicion['hora']) ? ' a las ' . e($competicion['hora']) : '' ?> · <?= e(campoIdioma($competicion, 'lugar')) ?>
       <?php if ($competicion['disputada']): ?>
-        · <?= e($competicion['resultado'] ?: t('disputada')) ?>
+        · <?= e(campoIdioma($competicion, 'resultado') ?: t('disputada')) ?>
       <?php else: ?>
         · <?= t('pendiente') ?>
       <?php endif; ?>
     </div>
-    <h2><?= e($competicion['nombre']) ?></h2>
+    <h2><?= e(campoIdioma($competicion, 'nombre')) ?></h2>
   </div>
 </section>
 
-<?php if (!empty($competicion['descripcion'])): ?>
+<?php if ($descripcionCompeticionIdioma !== ''): ?>
 <section class="seccion" style="padding-bottom:<?= $otrasFotos ? '0' : '64px' ?>;">
   <div class="contenedor">
     <div class="detalle-noticia">
-      <?php foreach (explode("\n\n", $competicion['descripcion']) as $parrafo): ?>
+      <?php foreach (explode("\n\n", $descripcionCompeticionIdioma) as $parrafo): ?>
         <?php if (trim($parrafo) !== ''): ?>
           <p><?= nl2br(e($parrafo)) ?></p>
         <?php endif; ?>
@@ -173,7 +174,7 @@ require __DIR__ . '/includes/header.php';
 </section>
 <?php endif; ?>
 
-<?php if (!$otrasFotos && empty($competicion['descripcion'])): ?>
+<?php if (!$otrasFotos && $descripcionCompeticionIdioma === ''): ?>
 <section class="seccion">
   <div class="contenedor"></div>
 </section>

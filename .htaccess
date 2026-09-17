@@ -40,6 +40,20 @@ DirectoryIndex index.php index.html
     php_value max_input_time 300
 </IfModule>
 
+# Redirección HTTP → HTTPS a nivel de servidor. Es un refuerzo:
+# config.php ya hace esta misma redirección a nivel de aplicación (y
+# de hecho es la que manda si el servidor comparte IP con otros
+# sitios que sí necesiten HTTP), pero tenerla aquí también protege
+# cualquier petición que por lo que sea no llegara a ejecutar PHP.
+# Comentado por defecto: solo tiene sentido activarlo si este sitio
+# tiene su propio certificado SSL en el servidor real y quieres que
+# el propio Apache corte el paso antes de llegar a PHP. Descomenta
+# las 3 líneas si es tu caso.
+# <IfModule mod_rewrite.c>
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
 # Bloquear cualquier URL que pase por una carpeta .git (ej. /.git/config,
 # /.git/HEAD, /.git/objects/...). RewriteRule sí es válido en .htaccess
 # (a diferencia de <DirectoryMatch>, que NO lo es y podía provocar un

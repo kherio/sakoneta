@@ -27,6 +27,13 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Contenido bilingüe de verdad (castellano/euskera)**: noticias y
+  competiciones pueden tener una versión en euskera de su título,
+  resumen/descripción, resultado y lugar, campo a campo y opcional.
+  Si no se rellena, la web muestra automáticamente el texto en
+  castellano en su lugar (`campoIdioma()`), así el contenido antiguo
+  sigue viéndose bien sin tener que traducirlo todo de golpe.
+
 - **Horario de gimnastas por competición**: si se sube el PDF de
   minutaje, el panel puede intentar extraer automáticamente a qué
   hora compite cada gimnasta del club (usando `pdftotext`, si está
@@ -325,6 +332,26 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 ## Seguridad
 
+- **HTTPS forzado a nivel de aplicación**: si `SITE_URL` empieza por
+  `https://` (lo normal en producción) y una petición llega por HTTP,
+  `config.php` redirige a la versión segura antes de crear ninguna
+  sesión ni procesar ningún dato de formulario (login incluido). En
+  un entorno local sin HTTPS de verdad (`SAKONETA_SITE_URL=http://...`),
+  esto no se activa. Hay también una regla equivalente, comentada por
+  defecto, en `.htaccess` como refuerzo opcional a nivel de servidor.
+- **Validación real de fechas en el servidor** (`fechaValida()`): el
+  campo `type="date"` del navegador no es ninguna garantía por sí
+  solo; noticias y competiciones comprueban que la fecha enviada sea
+  una fecha de verdad antes de guardarla.
+- **`dar_like.php` protegido**: exige POST y CSRF (antes solo miraba
+  `$_POST['id']`, sin comprobar ni el método ni el token, así que
+  cualquier otro sitio podía intentar manipular el contador de "me
+  gusta" con un envío desde la página de un visitante).
+- **Formularios de edición a prueba de id inexistente**: si se abre
+  `noticia_form.php`, `competicion_form.php` o `gimnasta_form.php`
+  con el id de un registro que no existe, se redirige al listado en
+  vez de seguir como si fuera una edición válida (que podía acabar
+  creando fotos huérfanas sin ningún registro real al que pertenecer).
 - **Cabeceras HTTP de seguridad** en todas las páginas: `X-Content-Type-Options`,
   `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`
   (solo cuando la petición ya es HTTPS de verdad) y una

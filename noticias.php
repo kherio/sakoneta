@@ -26,8 +26,8 @@ require __DIR__ . '/includes/header.php';
         <div class="marco-img"><img src="img/<?= e($n['imagen'] ?: 'competicion.svg') ?>" alt=""></div>
         <div class="cuerpo-tarjeta">
           <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
-          <h3><?= e($n['titulo']) ?></h3>
-          <p><?= e($n['resumen']) ?></p>
+          <h3><?= e(campoIdioma($n, 'titulo')) ?></h3>
+          <p><?= e(campoIdioma($n, 'resumen')) ?></p>
           <span class="tarjeta-cta">Leer más <span class="tarjeta-flecha">→</span></span>
         </div>
       </a>

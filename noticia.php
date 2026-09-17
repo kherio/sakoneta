@@ -20,26 +20,26 @@ if (!$noticia) {
     exit;
 }
 
-$tituloPagina = $noticia['titulo'];
-$descripcionOG = $noticia['resumen'];
+$tituloPagina = campoIdioma($noticia, 'titulo');
+$descripcionOG = campoIdioma($noticia, 'resumen');
 $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
 $imagenOG = $origenSeguro . '/img/' . ($noticia['imagen'] ?: 'competicion.svg');
-$migas = [['texto' => t('nav_noticias'), 'url' => 'noticias.php'], ['texto' => $noticia['titulo']]];
+$migas = [['texto' => t('nav_noticias'), 'url' => 'noticias.php'], ['texto' => campoIdioma($noticia, 'titulo')]];
 
 // Anterior/siguiente en el mismo orden que el listado (más reciente
 // primero): "siguiente" es la publicada justo después en el tiempo,
 // "anterior" la de justo antes.
-$stmtSiguiente = $pdo->prepare("SELECT id, titulo FROM noticias WHERE publicado = 1 AND (fecha > ? OR (fecha = ? AND id > ?)) ORDER BY fecha ASC, id ASC LIMIT 1");
+$stmtSiguiente = $pdo->prepare("SELECT id, titulo, titulo_eu FROM noticias WHERE publicado = 1 AND (fecha > ? OR (fecha = ? AND id > ?)) ORDER BY fecha ASC, id ASC LIMIT 1");
 $stmtSiguiente->execute([$noticia['fecha'], $noticia['fecha'], $noticia['id']]);
 $noticiaSiguiente = $stmtSiguiente->fetch();
 
-$stmtAnterior = $pdo->prepare("SELECT id, titulo FROM noticias WHERE publicado = 1 AND (fecha < ? OR (fecha = ? AND id < ?)) ORDER BY fecha DESC, id DESC LIMIT 1");
+$stmtAnterior = $pdo->prepare("SELECT id, titulo, titulo_eu FROM noticias WHERE publicado = 1 AND (fecha < ? OR (fecha = ? AND id < ?)) ORDER BY fecha DESC, id DESC LIMIT 1");
 $stmtAnterior->execute([$noticia['fecha'], $noticia['fecha'], $noticia['id']]);
 $noticiaAnterior = $stmtAnterior->fetch();
 
 
 $urlActual = $origenSeguro . ($_SERVER['REQUEST_URI'] ?? '');
-$tituloCodificado = rawurlencode($noticia['titulo']);
+$tituloCodificado = rawurlencode(campoIdioma($noticia, 'titulo'));
 $urlCodificada = rawurlencode($urlActual);
 
 $stmtFotos = $pdo->prepare('SELECT * FROM noticia_fotos WHERE noticia_id = ? ORDER BY orden ASC');
@@ -60,7 +60,7 @@ require __DIR__ . '/includes/header.php';
   <div class="franja-portada-imagen franja-noticia-imagen" data-parallax="0.1" data-parallax-limite="50" style="background-image:url('img/<?= e($noticia['imagen'] ?: 'competicion.svg') ?>');background-position:<?= e(posicionCss($noticia['imagen_posicion'] ?? null)) ?>;"></div>
   <div class="contenedor franja-portada-texto">
     <div class="fecha franja-noticia-fecha"><?= e(formatearFecha($noticia['fecha'])) ?></div>
-    <h1 class="franja-noticia-titulo"><?= e($noticia['titulo']) ?></h1>
+    <h1 class="franja-noticia-titulo"><?= e(campoIdioma($noticia, 'titulo')) ?></h1>
   </div>
 </section>
 
@@ -68,7 +68,7 @@ require __DIR__ . '/includes/header.php';
   <div class="contenedor">
     <article class="detalle-noticia detalle-noticia-sin-cabecera">
       <div class="cuerpo">
-        <?php foreach (explode("\n\n", $noticia['contenido']) as $parrafo): ?>
+        <?php foreach (explode("\n\n", campoIdioma($noticia, 'contenido')) as $parrafo): ?>
           <?php if (trim($parrafo) !== ''): ?>
             <p><?= nl2br(e($parrafo)) ?></p>
           <?php endif; ?>
@@ -95,7 +95,7 @@ require __DIR__ . '/includes/header.php';
       <?php endif; ?>
 
       <div class="me-gusta-noticia">
-        <button type="button" id="boton-me-gusta" class="boton-me-gusta <?= $yaLeGustaEstaNoticia ? 'activo' : '' ?>" data-id="<?= (int)$noticia['id'] ?>">
+        <button type="button" id="boton-me-gusta" class="boton-me-gusta <?= $yaLeGustaEstaNoticia ? 'activo' : '' ?>" data-id="<?= (int)$noticia['id'] ?>" data-csrf="<?= e(tokenCsrf()) ?>">
           <span class="corazon">♥</span>
           <span id="contador-me-gusta"><?= (int)$noticia['likes'] ?></span>
           <span class="me-gusta-etiqueta">Me gusta</span>
@@ -165,7 +165,7 @@ require __DIR__ . '/includes/header.php';
         <?php if ($noticiaAnterior): ?>
           <a href="noticia.php?id=<?= (int)$noticiaAnterior['id'] ?>" class="navegacion-noticias-enlace navegacion-noticias-anterior">
             <span class="navegacion-noticias-etiqueta">← Anterior</span>
-            <span class="navegacion-noticias-titulo"><?= e($noticiaAnterior['titulo']) ?></span>
+            <span class="navegacion-noticias-titulo"><?= e(campoIdioma($noticiaAnterior, 'titulo')) ?></span>
           </a>
         <?php else: ?>
           <span></span>
@@ -173,7 +173,7 @@ require __DIR__ . '/includes/header.php';
         <?php if ($noticiaSiguiente): ?>
           <a href="noticia.php?id=<?= (int)$noticiaSiguiente['id'] ?>" class="navegacion-noticias-enlace navegacion-noticias-siguiente">
             <span class="navegacion-noticias-etiqueta">Siguiente →</span>
-            <span class="navegacion-noticias-titulo"><?= e($noticiaSiguiente['titulo']) ?></span>
+            <span class="navegacion-noticias-titulo"><?= e(campoIdioma($noticiaSiguiente, 'titulo')) ?></span>
           </a>
         <?php endif; ?>
       </nav>

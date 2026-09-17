@@ -15,7 +15,11 @@ if ($id) {
     $stmt = $pdo->prepare('SELECT * FROM competiciones WHERE id = ?');
     $stmt->execute([$id]);
     $encontrada = $stmt->fetch();
-    if ($encontrada) $competicion = $encontrada;
+    if (!$encontrada) {
+        header('Location: competiciones.php');
+        exit;
+    }
+    $competicion = $encontrada;
 }
 
 $tituloPagina = $id ? 'Editar competición' : 'Nueva competición';
@@ -31,17 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigirCsrf();
     $competicion['nombre'] = trim($_POST['nombre'] ?? '');
+    $competicion['nombre_eu'] = trim($_POST['nombre_eu'] ?? '');
     $categoriasElegidas = array_values(array_intersect((array)($_POST['categorias'] ?? []), $categorias));
     if (!$categoriasElegidas) {
         $categoriasElegidas = [$categorias[0] ?? 'Infantil'];
     }
     $competicion['categoria'] = $categoriasElegidas[0];
     $competicion['lugar'] = trim($_POST['lugar'] ?? '');
+    $competicion['lugar_eu'] = trim($_POST['lugar_eu'] ?? '');
     $competicion['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
     $competicion['hora'] = preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', trim($_POST['hora'] ?? '')) ? trim($_POST['hora']) : null;
     $competicion['disputada'] = isset($_POST['disputada']) ? 1 : 0;
     $competicion['resultado'] = $competicion['disputada'] ? trim($_POST['resultado'] ?? '') : null;
+    $competicion['resultado_eu'] = $competicion['disputada'] ? trim($_POST['resultado_eu'] ?? '') : null;
     $competicion['descripcion'] = trim($_POST['descripcion'] ?? '');
+    $competicion['descripcion_eu'] = trim($_POST['descripcion_eu'] ?? '');
     if (preg_match('/^(\d{1,3})\s+(\d{1,3})$/', trim($_POST['imagen_posicion'] ?? ''), $m) && (int)$m[1] <= 100 && (int)$m[2] <= 100) {
         $competicion['imagen_posicion'] = (int)$m[1] . ' ' . (int)$m[2];
     } else {
@@ -50,14 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 
     if ($competicion['nombre'] === '' || $competicion['lugar'] === '') {
         $error = 'El nombre y el lugar son obligatorios.';
+    } elseif (!fechaValida($competicion['fecha'])) {
+        $error = 'La fecha no es válida.';
     } else {
         // Guardar los datos básicos primero (crea el id si es una competición nueva)
         if ($id) {
-            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, hora=?, resultado=?, disputada=?, descripcion=?, imagen_posicion=? WHERE id=?');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $id]);
+            $stmt = $pdo->prepare('UPDATE competiciones SET nombre=?, categoria=?, lugar=?, fecha=?, hora=?, resultado=?, disputada=?, descripcion=?, imagen_posicion=?, nombre_eu=?, lugar_eu=?, resultado_eu=?, descripcion_eu=? WHERE id=?');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $competicion['nombre_eu'] ?: null, $competicion['lugar_eu'] ?: null, $competicion['resultado_eu'] ?: null, $competicion['descripcion_eu'] ?: null, $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, hora, resultado, disputada, descripcion, imagen_posicion) VALUES (?,?,?,?,?,?,?,?,?)');
-            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion']]);
+            $stmt = $pdo->prepare('INSERT INTO competiciones (nombre, categoria, lugar, fecha, hora, resultado, disputada, descripcion, imagen_posicion, nombre_eu, lugar_eu, resultado_eu, descripcion_eu) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$competicion['nombre'], $competicion['categoria'], $competicion['lugar'], $competicion['fecha'], $competicion['hora'], $competicion['resultado'], $competicion['disputada'], $competicion['descripcion'] ?: null, $competicion['imagen_posicion'], $competicion['nombre_eu'] ?: null, $competicion['lugar_eu'] ?: null, $competicion['resultado_eu'] ?: null, $competicion['descripcion_eu'] ?: null]);
             $id = (int)$pdo->lastInsertId();
         }
 
@@ -185,6 +195,10 @@ require __DIR__ . '/includes/layout_header.php';
       <p style="font-size:12.5px;color:var(--gris);margin-top:-4px;">Marca todas las categorías que participen en esta competición (puede ser más de una).</p>
     </div>
   </div>
+  <div class="campo">
+    <label for="nombre_eu">Nombre en euskera <span style="font-weight:400;color:var(--gris);">(opcional — si se deja en blanco, en euskera se muestra el nombre en castellano)</span></label>
+    <input type="text" id="nombre_eu" name="nombre_eu" value="<?= e($competicion['nombre_eu'] ?? '') ?>">
+  </div>
 
   <div class="fila-2">
     <div class="campo">
@@ -200,6 +214,10 @@ require __DIR__ . '/includes/layout_header.php';
       <input type="time" id="hora" name="hora" value="<?= e($competicion['hora'] ?? '') ?>">
     </div>
   </div>
+  <div class="campo">
+    <label for="lugar_eu">Lugar en euskera <span style="font-weight:400;color:var(--gris);">(opcional)</span></label>
+    <input type="text" id="lugar_eu" name="lugar_eu" value="<?= e($competicion['lugar_eu'] ?? '') ?>">
+  </div>
 
   <div class="campo">
     <label><input type="checkbox" name="disputada" id="disputada" <?= $competicion['disputada'] ? 'checked' : '' ?> style="width:auto;"> Ya disputada (permite indicar el resultado)</label>
@@ -209,10 +227,18 @@ require __DIR__ . '/includes/layout_header.php';
     <label for="resultado">Resultado</label>
     <input type="text" id="resultado" name="resultado" value="<?= e($competicion['resultado'] ?? '') ?>" placeholder="Ej: Oro en conjunto, 4ª individual">
   </div>
+  <div class="campo">
+    <label for="resultado_eu">Resultado en euskera <span style="font-weight:400;color:var(--gris);">(opcional)</span></label>
+    <input type="text" id="resultado_eu" name="resultado_eu" value="<?= e($competicion['resultado_eu'] ?? '') ?>">
+  </div>
 
   <div class="campo">
     <label for="descripcion">Información sobre el campeonato (opcional)</label>
     <textarea id="descripcion" name="descripcion" placeholder="Cuenta cómo fue la jornada, cómo se preparó el equipo, anécdotas... Separa los párrafos con una línea en blanco."><?= e($competicion['descripcion'] ?? '') ?></textarea>
+  </div>
+  <div class="campo">
+    <label for="descripcion_eu">Información en euskera <span style="font-weight:400;color:var(--gris);">(opcional)</span></label>
+    <textarea id="descripcion_eu" name="descripcion_eu"><?= e($competicion['descripcion_eu'] ?? '') ?></textarea>
   </div>
 
   <div class="campo">

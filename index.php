@@ -235,8 +235,8 @@ require __DIR__ . '/includes/header.php';
         <img src="img/<?= e($destacada['imagen'] ?: 'competicion.svg') ?>" alt="">
         <div class="cuerpo-overlay">
           <div class="fecha"><?= e(formatearFecha($destacada['fecha'])) ?></div>
-          <h3><?= e($destacada['titulo']) ?></h3>
-          <p><?= e($destacada['resumen']) ?></p>
+          <h3><?= e(campoIdioma($destacada, 'titulo')) ?></h3>
+          <p><?= e(campoIdioma($destacada, 'resumen')) ?></p>
         </div>
       </a>
 
@@ -247,7 +247,7 @@ require __DIR__ . '/includes/header.php';
             <img src="img/<?= e($n['imagen'] ?: 'cantera.svg') ?>" alt="">
             <span>
               <span class="fecha"><?= e(formatearFecha($n['fecha'])) ?></span>
-              <h4><?= e($n['titulo']) ?></h4>
+              <h4><?= e(campoIdioma($n, 'titulo')) ?></h4>
             </span>
           </a>
         </li>

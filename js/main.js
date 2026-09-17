@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
       botonMeGusta.disabled = true;
       var datos = new URLSearchParams();
       datos.append('id', botonMeGusta.getAttribute('data-id'));
+      datos.append('csrf_token', botonMeGusta.getAttribute('data-csrf'));
       fetch('dar_like.php', { method: 'POST', body: datos })
         .then(function (r) { return r.json(); })
         .then(function (r) {

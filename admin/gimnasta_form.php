@@ -15,7 +15,11 @@ if ($id) {
     $stmt = $pdo->prepare('SELECT * FROM gimnastas WHERE id = ?');
     $stmt->execute([$id]);
     $encontrada = $stmt->fetch();
-    if ($encontrada) $gimnasta = $encontrada;
+    if (!$encontrada) {
+        header('Location: gimnastas.php');
+        exit;
+    }
+    $gimnasta = $encontrada;
 }
 
 $tituloPagina = $id ? 'Editar gimnasta' : 'Nueva gimnasta';

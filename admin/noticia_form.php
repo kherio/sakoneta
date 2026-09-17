@@ -15,7 +15,15 @@ if ($id) {
     $stmt = $pdo->prepare('SELECT * FROM noticias WHERE id = ?');
     $stmt->execute([$id]);
     $encontrada = $stmt->fetch();
-    if ($encontrada) $noticia = $encontrada;
+    if (!$encontrada) {
+        // El id no corresponde a ninguna noticia real: seguir como
+        // si fuera una edición (con $id apuntando a nada) acabaría
+        // guardando fotos huérfanas, sin ninguna noticia de verdad
+        // a la que pertenecer.
+        header('Location: noticias.php');
+        exit;
+    }
+    $noticia = $encontrada;
     exigirPuedeEditarNoticia($noticia);
 }
 
@@ -29,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $noticia['titulo'] = trim($_POST['titulo'] ?? '');
     $noticia['resumen'] = trim($_POST['resumen'] ?? '');
     $noticia['contenido'] = trim($_POST['contenido'] ?? '');
+    $noticia['titulo_eu'] = trim($_POST['titulo_eu'] ?? '');
+    $noticia['resumen_eu'] = trim($_POST['resumen_eu'] ?? '');
+    $noticia['contenido_eu'] = trim($_POST['contenido_eu'] ?? '');
     $noticia['fecha'] = $_POST['fecha'] ?? date('Y-m-d');
     $noticia['publicado'] = (isset($_POST['publicado']) && rolActual() !== 'colaborador') ? 1 : 0;
     if (preg_match('/^(\d{1,3})\s+(\d{1,3})$/', trim($_POST['imagen_posicion'] ?? ''), $m) && (int)$m[1] <= 100 && (int)$m[2] <= 100) {
@@ -39,13 +50,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
 
     if ($noticia['titulo'] === '' || $noticia['resumen'] === '' || $noticia['contenido'] === '') {
         $error = 'Título, resumen y contenido son obligatorios.';
+    } elseif (!fechaValida($noticia['fecha'])) {
+        $error = 'La fecha no es válida.';
     } else {
         if ($id) {
-            $stmt = $pdo->prepare('UPDATE noticias SET titulo=?, resumen=?, contenido=?, fecha=?, publicado=?, imagen_posicion=? WHERE id=?');
-            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], $id]);
+            $stmt = $pdo->prepare('UPDATE noticias SET titulo=?, resumen=?, contenido=?, titulo_eu=?, resumen_eu=?, contenido_eu=?, fecha=?, publicado=?, imagen_posicion=? WHERE id=?');
+            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['titulo_eu'], $noticia['resumen_eu'], $noticia['contenido_eu'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], $id]);
         } else {
-            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, fecha, publicado, imagen_posicion, autor_id) VALUES (?,?,?,?,?,?,?)');
-            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], (int)($_SESSION['admin_usuario_id'] ?? 0)]);
+            $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, contenido, titulo_eu, resumen_eu, contenido_eu, fecha, publicado, imagen_posicion, autor_id) VALUES (?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$noticia['titulo'], $noticia['resumen'], $noticia['contenido'], $noticia['titulo_eu'], $noticia['resumen_eu'], $noticia['contenido_eu'], $noticia['fecha'], $noticia['publicado'], $noticia['imagen_posicion'], (int)($_SESSION['admin_usuario_id'] ?? 0)]);
             $id = (int)$pdo->lastInsertId();
         }
 
@@ -133,15 +146,27 @@ require __DIR__ . '/includes/layout_header.php';
     <label for="titulo">Título</label>
     <input type="text" id="titulo" name="titulo" value="<?= e($noticia['titulo']) ?>" required>
   </div>
+  <div class="campo">
+    <label for="titulo_eu">Título en euskera <span style="font-weight:400;color:var(--gris);">(opcional — si se deja en blanco, en euskera se muestra el título en castellano)</span></label>
+    <input type="text" id="titulo_eu" name="titulo_eu" value="<?= e($noticia['titulo_eu'] ?? '') ?>">
+  </div>
 
   <div class="campo">
     <label for="resumen">Resumen (aparece en los listados)</label>
     <input type="text" id="resumen" name="resumen" value="<?= e($noticia['resumen']) ?>" required>
   </div>
+  <div class="campo">
+    <label for="resumen_eu">Resumen en euskera <span style="font-weight:400;color:var(--gris);">(opcional)</span></label>
+    <input type="text" id="resumen_eu" name="resumen_eu" value="<?= e($noticia['resumen_eu'] ?? '') ?>">
+  </div>
 
   <div class="campo">
     <label for="contenido">Contenido (separa los párrafos con una línea en blanco)</label>
     <textarea id="contenido" name="contenido" required><?= e($noticia['contenido']) ?></textarea>
+  </div>
+  <div class="campo">
+    <label for="contenido_eu">Contenido en euskera <span style="font-weight:400;color:var(--gris);">(opcional)</span></label>
+    <textarea id="contenido_eu" name="contenido_eu"><?= e($noticia['contenido_eu'] ?? '') ?></textarea>
   </div>
 
   <div class="campo">

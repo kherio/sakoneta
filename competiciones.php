@@ -54,7 +54,7 @@ require __DIR__ . '/includes/header.php';
     <script type="application/json" id="datos-calendario-competiciones"><?= json_encode(array_map(fn($c) => [
         'id' => (int)$c['id'],
         'fecha' => $c['fecha'],
-        'nombre' => $c['nombre'],
+        'nombre' => campoIdioma($c, 'nombre'),
     ], $competiciones)) ?></script>
     <div id="vista-calendario-competiciones" role="tabpanel" aria-labelledby="pestana-calendario" style="display:none;"></div>
 
@@ -78,10 +78,10 @@ require __DIR__ . '/includes/header.php';
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
-          <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
-          <p class="lugar"><?= e($c['lugar']) ?></p>
+          <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e(campoIdioma($c, 'nombre')) ?></a></h3>
+          <p class="lugar"><?= e(campoIdioma($c, 'lugar')) ?></p>
           <?php if ($c['disputada']): ?>
-            <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>
+            <div class="resultado"><?= e(campoIdioma($c, 'resultado') ?: t('disputada')) ?></div>
             <span class="pill jugado"><?= t('disputada') ?></span>
           <?php else: ?>
             <span class="pill pendiente"><?= t('pendiente') ?></span>

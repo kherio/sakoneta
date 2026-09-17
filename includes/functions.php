@@ -4,6 +4,22 @@ function e(?string $value): string {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Valida que una fecha enviada desde un formulario sea una fecha de
+ * verdad en formato AAAA-MM-DD (el que envía <input type="date">),
+ * y no solo algo con esa forma (rechaza "9999-99-99", "2026-02-30",
+ * etc.). El navegador ya limita lo que se puede escribir en el
+ * campo, pero eso no es ninguna garantía: hace falta comprobarlo
+ * también en el servidor.
+ */
+function fechaValida(?string $fecha): bool {
+    if (!$fecha || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+        return false;
+    }
+    [$anio, $mes, $dia] = array_map('intval', explode('-', $fecha));
+    return checkdate($mes, $dia, $anio);
+}
+
 function formatearFecha(?string $fecha): string {
     if (!$fecha) return '';
     $meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -192,7 +208,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 9;
+const VERSION_ESQUEMA_SAKONETA = 10;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -214,6 +230,13 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     agregarColumnaSiFalta($pdo, 'noticias', 'likes', 'INTEGER NOT NULL DEFAULT 0');
     agregarColumnaSiFalta($pdo, 'noticias', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
     agregarColumnaSiFalta($pdo, 'noticias', 'autor_id', 'INTEGER');
+    // Versión en euskera, opcional: si se deja en blanco, la web
+    // pública muestra automáticamente el texto en castellano en su
+    // lugar (así el contenido antiguo, sin traducir, sigue viéndose
+    // bien y no hay que traducirlo todo de golpe).
+    agregarColumnaSiFalta($pdo, 'noticias', 'titulo_eu', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'noticias', 'resumen_eu', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'noticias', 'contenido_eu', 'TEXT');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS gimnastas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -249,6 +272,10 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion', 'TEXT');
     agregarColumnaSiFalta($pdo, 'competiciones', 'imagen_posicion', "TEXT NOT NULL DEFAULT 'arriba'");
     agregarColumnaSiFalta($pdo, 'competiciones', 'hora', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'nombre_eu', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'lugar_eu', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'resultado_eu', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'competiciones', 'descripcion_eu', 'TEXT');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_categorias (
         competicion_id INTEGER NOT NULL,
@@ -1259,15 +1286,15 @@ function datosVistaPreviaCompeticion(PDO $pdo, int $id): ?array {
     $foto = $competicion['imagen_portada'] ?: ($stmtFoto->fetchColumn() ?: 'competicion.svg');
 
     return [
-        'nombre' => $competicion['nombre'],
+        'nombre' => campoIdioma($competicion, 'nombre'),
         'categorias' => $categorias,
         'imagen' => 'img/' . $foto,
         'posicion' => posicionCss($competicion['imagen_posicion'] ?? null),
         'fecha' => $competicion['fecha'],
         'hora' => $competicion['hora'],
-        'lugar' => $competicion['lugar'],
+        'lugar' => campoIdioma($competicion, 'lugar'),
         'disputada' => (bool)$competicion['disputada'],
-        'resultado' => $competicion['resultado'],
+        'resultado' => campoIdioma($competicion, 'resultado'),
     ];
 }
 

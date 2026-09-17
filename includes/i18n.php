@@ -1,14 +1,33 @@
 <?php
 // Sistema de idioma ligero: traduce los textos fijos de la interfaz
 // (menús, botones, títulos de sección...). El contenido que escribe el
-// club (noticias, nombres de gimnastas, lugares...) se muestra tal cual
-// se haya escrito, en el idioma en que se redactó.
+// club (noticias, competiciones...) puede tener también una versión en
+// euskera, opcional, campo a campo: si no se ha rellenado, se muestra
+// el texto en castellano en su lugar (ver campoIdioma() más abajo).
 
 function idiomaActual(): string {
     if (isset($_GET['lang']) && in_array($_GET['lang'], ['es', 'eu'], true)) {
         $_SESSION['idioma'] = $_GET['lang'];
     }
     return $_SESSION['idioma'] ?? 'es';
+}
+
+/**
+ * Para contenido que el club escribe (noticias, competiciones...):
+ * si estamos en euskera y ese registro tiene rellena la versión en
+ * euskera de este campo (por convención, "{$campo}_eu"), se usa esa;
+ * si no, se muestra el campo normal (en castellano). Así el
+ * contenido antiguo sin traducir se sigue viendo bien, y no hace
+ * falta traducir todo de golpe para empezar a usarlo.
+ */
+function campoIdioma(array $fila, string $campo): string {
+    if (idiomaActual() === 'eu') {
+        $valorEu = trim((string)($fila[$campo . '_eu'] ?? ''));
+        if ($valorEu !== '') {
+            return $valorEu;
+        }
+    }
+    return (string)($fila[$campo] ?? '');
 }
 
 /**
