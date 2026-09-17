@@ -75,6 +75,19 @@ require __DIR__ . '/includes/header.php';
       </article>
 
       <article class="hito animar-scroll">
+        <div class="hito-anio">1990</div>
+        <div class="hito-cuerpo">
+          <h3>Sakoneta empieza a competir en conjuntos</h3>
+          <p>El club amplía su apuesta más allá del individual: a partir de
+            1990 Sakoneta comienza a participar también en la modalidad de
+            <strong>conjuntos</strong> en el Campeonato de España, sentando las
+            bases del formato que, décadas después, le daría algunos de sus
+            mayores éxitos — desde el título por equipos de 2016 hasta el
+            histórico bronce de 2024.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
         <div class="hito-anio hito-anio-seleccion">1993</div>
         <div class="hito-cuerpo">
           <h3>🇪🇸 Lorena Barbadillo, segunda gimnasta en la selección</h3>
@@ -182,6 +195,19 @@ require __DIR__ . '/includes/header.php';
       </article>
 
       <article class="hito animar-scroll">
+        <div class="hito-anio">2020</div>
+        <div class="hito-cuerpo">
+          <h3>Eneko Lambea, primer campeón de España absoluto</h3>
+          <p>Con solo 16 años, y tras haber sido ya campeón de España infantil
+            (2017 y 2018) y junior (2019), Eneko Lambea da el salto definitivo:
+            se proclama <strong>campeón de España de Primera Categoría</strong>
+            masculina gracias a dos actuaciones sobresalientes con el aro y la
+            pelota. "No puedo pensar en una vida sin la gimnasia", declaraba
+            nada más subir al primer cajón del podio.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
         <div class="hito-anio">2021</div>
         <div class="hito-cuerpo">
           <h3>El adiós de Saioa Agirre</h3>
@@ -192,6 +218,8 @@ require __DIR__ . '/includes/header.php';
             que, dos décadas antes, había llevado a Sakoneta hasta los Juegos
             Olímpicos de Sídney, y que ahora forma a la siguiente generación
             desde el banquillo.</p>
+          <p>Ese mismo año, Eneko Lambea revalida su título de campeón de
+            España de Primera Categoría por segunda vez consecutiva.</p>
         </div>
       </article>
 
@@ -506,23 +534,66 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
+<section class="seccion" style="background:var(--papel);">
+  <div class="contenedor">
+    <div class="bloque-etiqueta">Entrenadoras</div>
+    <div class="seccion-cabecera">
+      <h2>Quienes han sostenido el club desde el banquillo</h2>
+    </div>
+    <p style="max-width:70ch;color:var(--gris-texto);margin-top:-8px;margin-bottom:32px;">
+      Ninguna medalla de este palmarés existiría sin las entrenadoras que,
+      generación tras generación, han formado a las gimnastas de Sakoneta.
+    </p>
+    <div class="atletas-grid">
+      <article class="atleta-card animar-scroll">
+        <h3>María Cruz Cobelas</h3>
+        <p class="atleta-intro">La entrenadora fundadora. Puso en marcha la escuela en 1985 junto a Jesús Vázquez, entonces director del Polideportivo Sakoneta, y sentó las bases de todo lo que vendría después.</p>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">Años 90</div>
+          <p>Tras Mari Cruz, entrenadoras como Macarena Milla, Esperanza
+            Rodríguez y Natalia Brettes mantuvieron el buen nivel del club
+            durante los años siguientes.</p>
+        </div>
+      </article>
+      <article class="atleta-card animar-scroll">
+        <h3>Judith Torralba</h3>
+        <p class="atleta-intro">Al frente del equipo desde el año 2000, más de dos décadas ininterrumpidas formando a varias generaciones de gimnastas de Sakoneta, incluida toda la etapa de Saioa Agirre y Eneko Lambea.</p>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">Actualidad</div>
+          <p>Hoy comparte cuerpo técnico con Alba Lambea, y con dos nombres muy
+            especiales que ya conoces de este palmarés: <strong>Eva
+            Santamariña</strong> e <strong>Igone Arribas</strong>, dos
+            exgimnastas del club que, terminada su etapa como competidoras,
+            decidieron volver a Sakoneta para formar a la siguiente
+            generación desde el banquillo.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="historia-cierre animar-scroll">
   <div class="contenedor">
-    <h2>🌟 Una historia que sigue creciendo</h2>
-    <p class="historia-cierre-cantera">Nada de esto habría sido posible sin la escuela. Detrás de
+    <h2>Una historia que todavía se está escribiendo</h2>
+    <p>Desde aquellas primeras niñas que comenzaron a entrenar en el
+      Polideportivo Sakoneta hasta las gimnastas y gimnastas que hoy compiten
+      en los grandes escenarios nacionales, han pasado generaciones de
+      deportistas, entrenadoras, familias y personas que han hecho posible
+      que el club siga creciendo.</p>
+    <p class="historia-cierre-versos">
+      Algunas llegaron a ser campeonas de España.<br>
+      Otras vistieron el maillot de la selección española.<br>
+      Algunas llegaron hasta unos Juegos Olímpicos.<br>
+      Pero todas forman parte de la misma historia.<br>
+      <strong>La historia de Sakoneta.</strong>
+    </p>
+    <p class="historia-cierre-cantera">Y nada de esto habría sido posible sin la escuela. Detrás de
       cada podio, cada convocatoria y cada nombre propio de este palmarés hay
       cientos de horas de entrenamiento silencioso de las gimnastas de base:
       las que empiezan hoy con la cuerda o el aro, las que suben de categoría
       cada septiembre, las que puede que nunca salgan en un titular pero
       sostienen, temporada tras temporada, la cantera que hace posible que
       Sakoneta siga escribiendo historia.</p>
-    <p>Desde las primeras generaciones de Sakoneta hasta las actuales, el club
-      ha construido una trayectoria marcada por la formación y por la
-      presencia constante en las grandes competiciones nacionales.</p>
-    <p>Campeonas de España, medallistas nacionales, equipos campeones,
-      conjuntos de Primera Categoría y gimnastas que han llegado a vestir el
-      maillot de la selección española forman parte de una misma historia.
-      Una historia que continúa escribiéndose cada temporada.</p>
     <p class="historia-cierre-lema">Desde 1987, formando gimnastas.<br>Creando equipo.<br>Viviendo la rítmica.</p>
     <div class="historia-cierre-nombres">
       Eider Mendizabal · Lorena Barbadillo · Igone Arribas · Saioa Agirre ·

@@ -2073,6 +2073,15 @@ img.cargando-esqueleto {
   font-weight: 500;
   max-width: 62ch;
 }
+.historia-cierre-versos {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(17px, 2.2vw, 21px);
+  color: rgba(255,255,255,.92) !important;
+  line-height: 1.9 !important;
+  margin: 28px auto !important;
+  max-width: 52ch;
+}
+.historia-cierre-versos strong { color: #E8C874; }
 .historia-cierre p { max-width: 65ch; margin: 0 auto 14px; color: rgba(255,255,255,.85); font-size: 15.5px; }
 .historia-cierre-lema {
   font-family: 'Fraunces', serif;
