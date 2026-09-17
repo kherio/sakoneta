@@ -2461,3 +2461,21 @@ img.cargando-esqueleto {
   .grupos-grid, .preguntas-grid { grid-template-columns: 1fr; }
   .unete-flotante { right: 12px; bottom: 12px; padding: 11px 18px; font-size: 13px; }
 }
+
+.unete-aviso-inscripcion {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  background: var(--papel);
+  border: 1px solid var(--borde-suave);
+  border-left: 4px solid var(--fucsia);
+  border-radius: var(--radio);
+  padding: 26px 30px;
+  margin-top: 36px;
+}
+.unete-aviso-icono { font-size: 30px; flex-shrink: 0; }
+.unete-aviso-inscripcion h3 { font-size: 18px; margin-bottom: 8px; }
+.unete-aviso-inscripcion p { color: var(--gris-texto); font-size: 14.5px; margin-bottom: 16px; }
+@media (max-width: 720px) {
+  .unete-aviso-inscripcion { flex-direction: column; gap: 12px; padding: 22px; }
+}

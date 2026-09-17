@@ -63,6 +63,20 @@ require __DIR__ . '/includes/header.php';
     <p style="text-align:center;color:var(--gris-texto);font-size:14.5px;margin-top:24px;">
       ¿No tienes claro en qué grupo encajarías? No pasa nada — cuéntanoslo y te orientamos nosotras.
     </p>
+
+    <div class="unete-aviso-inscripcion animar-scroll">
+      <div class="unete-aviso-icono">📅</div>
+      <div>
+        <h3>¿Cuándo se abre la inscripción?</h3>
+        <p>Las inscripciones se abren normalmente a principio de curso, no
+          durante todo el año (este 2026 el plazo se abrió en mayo). Si nos
+          escribes fuera de esas fechas, apuntamos tu interés, pero la forma
+          más segura de no perderte la apertura del plazo es
+          <strong>suscribirte a nuestras noticias</strong>: te avisamos por
+          correo en cuanto se abra.</p>
+        <a href="#suscripcion" class="boton contorno">Suscribirme a las noticias →</a>
+      </div>
+    </div>
   </div>
 </section>
 

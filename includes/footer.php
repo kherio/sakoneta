@@ -60,7 +60,7 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
       <a href="contacto.php"><?= t('nav_contacto') ?></a>
       <a href="admin/index.php"><?= t('nav_acceso') ?> administración</a>
     </div>
-    <div>
+    <div id="suscripcion">
       <h4>Recibe nuestras noticias</h4>
       <?php if (isset($_GET['suscrito']) && $_GET['suscrito'] === '1'): ?>
         <p class="suscripcion-aviso">¡Gracias! Ya estás suscrito.</p>
