@@ -42,18 +42,23 @@ require __DIR__ . '/includes/header.php';
     <div class="hitos-linea">
 
       <article class="hito animar-scroll">
-        <div class="hito-anio hito-anio-fundacion">1987</div>
+        <div class="hito-anio hito-anio-fundacion">1985</div>
         <div class="hito-cuerpo">
           <h3>🌱 Los comienzos</h3>
-          <p>Sakoneta Gimnasia Erritmiko Taldea echa a andar en Leioa. Aitziber
-            Iriondo, Eva Susana Bernardo y Eider Mendizabal están entre las
-            primeras gimnastas que destacan cuando el club empieza a competir a
-            nivel provincial, autonómico y estatal.</p>
-          <p>Ese mismo año, Eider Mendizabal es 5.ª en el Torneo Internacional
-            de Pamplona, y poco después llegarían su título de campeona de
-            España en cinta, un bronce nacional en pelota y el subcampeonato de
-            España de 2.ª Categoría — la primera gran gimnasta de la historia
-            del club.</p>
+          <p>En 1985 se funda la Escuela de Gimnasia Rítmica en el Polideportivo
+            Sakoneta de Leioa, promovida por la entrenadora María Cruz Cobelas
+            y por Jesús Vázquez, entonces director del polideportivo. A la
+            vista del potencial de algunas de las niñas que acudían a la
+            escuela, y con la aprobación y participación de las familias, en
+            <strong>1987</strong> se funda oficialmente el Club Gimnasia Rítmica
+            Sakoneta de Leioa.</p>
+          <p>Aitziber Iriondo, Eva Susana Bernardo y Eider Mendizabal están
+            entre las primeras gimnastas que destacan cuando el club empieza a
+            competir a nivel provincial, autonómico y estatal. Ese mismo 1987,
+            Eider es 5.ª en el Torneo Internacional de Pamplona, y poco después
+            llegarían su título de campeona de España en cinta, un bronce
+            nacional en pelota y el subcampeonato de España de 2.ª
+            Categoría — la primera gran gimnasta de la historia del club.</p>
         </div>
       </article>
 
@@ -177,6 +182,20 @@ require __DIR__ . '/includes/header.php';
       </article>
 
       <article class="hito animar-scroll">
+        <div class="hito-anio">2021</div>
+        <div class="hito-cuerpo">
+          <h3>El adiós de Saioa Agirre</h3>
+          <p>Tras años como la referencia indiscutible del club, Saioa Agirre
+            se despide de la competición. Elige disputar su última temporada
+            junto a su amiga y también campeona Maddi Otaola, entrenadas por
+            Judith Torralba e <strong>Igone Arribas</strong> — la misma gimnasta
+            que, dos décadas antes, había llevado a Sakoneta hasta los Juegos
+            Olímpicos de Sídney, y que ahora forma a la siguiente generación
+            desde el banquillo.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
         <div class="hito-anio">2022</div>
         <div class="hito-cuerpo">
           <h3>🚀 Nueva generación: Eneko Lambea, campeón de España</h3>
@@ -194,15 +213,31 @@ require __DIR__ . '/includes/header.php';
       </article>
 
       <article class="hito animar-scroll">
+        <div class="hito-anio">2023</div>
+        <div class="hito-cuerpo">
+          <h3>🥇 Campeonas de España, categoría sénior</h3>
+          <p>El conjunto sénior de Sakoneta se proclama <strong>campeón de
+            España</strong> en el Campeonato de España de Conjuntos celebrado en
+            Valladolid, liderando la categoría sénior con 56,550 puntos por
+            delante del Ritmo (Castilla y León, plata) y el Arenas Corza's
+            Maspalomas (Canarias, bronce). El punto de partida de la temporada
+            que un año después culminaría con el histórico podio de 2024.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
         <div class="hito-anio">2024</div>
         <div class="hito-cuerpo">
           <h3>Podio histórico en conjuntos</h3>
-          <p>Sakoneta alcanza por primera vez el podio en el Campeonato de España
-            de Primera Categoría de conjuntos, consiguiendo una histórica
-            <strong>medalla de bronce</strong> en Pamplona.</p>
+          <p>Tras revalidar el buen momento con una medalla de plata en la
+            Copa de España de Primera Categoría en Zaragoza, Sakoneta alcanza
+            por primera vez el podio en el Campeonato de España de Primera
+            Categoría de conjuntos, consiguiendo una histórica <strong>medalla
+            de bronce</strong> en Pamplona.</p>
           <p class="hito-equipo">Naroa Ribeiro · June Orza · Araia Salazar · Eneko Lambea · Julene Eraña</p>
-          <p>Su ejercicio de 3 pelotas y 2 aros les llevó hasta la tercera posición
-            entre los conjuntos de mayor nivel del Estado.</p>
+          <p>Su ejercicio de 3 pelotas y 2 aros, con música de Los Cazafantasmas,
+            les llevó hasta la tercera posición entre los conjuntos de mayor
+            nivel del Estado.</p>
           <p>Ese mismo año, Eneko Lambea consigue la medalla de plata en Primera
             Categoría masculina en el Campeonato de España. Asier Carrasco logra
             el bronce en categoría junior y el ascenso a la máxima categoría.</p>
@@ -227,6 +262,20 @@ require __DIR__ . '/includes/header.php';
           </ul>
           <p>Y Daria Rubtsova consigue la mejor puntuación de su rotación en pelota
             en categoría infantil.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio">2025</div>
+        <div class="hito-cuerpo">
+          <h3>🤝 Una escuela para todas</h3>
+          <p>Sakoneta se une a la asociación Haszten para poner en marcha una
+            escuela de gimnasia rítmica inclusiva en el polideportivo del
+            club, un proyecto pionero que apuesta por la inclusión real dentro
+            de la estructura deportiva convencional de este deporte. Cuarenta
+            años después de que naciera la primera escuela en este mismo
+            pabellón, Sakoneta sigue abriendo sus puertas a quien quiera
+            soñar con la rítmica.</p>
         </div>
       </article>
 
