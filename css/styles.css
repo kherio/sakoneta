@@ -1927,3 +1927,175 @@ img.cargando-esqueleto {
   color: var(--fucsia);
   width: 90px;
 }
+
+/* ---------- Página de historia y palmarés ---------- */
+.historia-hero {
+  background: var(--degradado);
+  color: #fff;
+  padding: 64px 0 56px;
+  text-align: center;
+}
+.historia-hero-etiqueta {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--acento-suave);
+  margin-bottom: 10px;
+}
+.historia-hero h1 { font-size: clamp(32px, 5vw, 48px); margin-bottom: 16px; }
+.historia-hero p { max-width: 65ch; margin: 0 auto; color: rgba(255,255,255,.88); font-size: 16.5px; }
+
+/* Medallas: una pequeña cápsula en vez del emoji suelto, para que
+   quede más cuidado visualmente */
+.logro-medalla {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 4px;
+  font-size: 14px;
+}
+.hito-logros {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hito-logros li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--tinta);
+}
+.hito-equipo {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: var(--fucsia);
+  font-size: 15.5px;
+}
+
+/* Línea de tiempo de grandes hitos */
+.hitos-linea { position: relative; max-width: 900px; margin: 0 auto; }
+.hito {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 28px;
+  padding-bottom: 44px;
+  position: relative;
+}
+.hito:last-child { padding-bottom: 0; }
+.hito::before {
+  content: "";
+  position: absolute;
+  left: 54px;
+  top: 46px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--borde-suave);
+}
+.hito:last-child::before { display: none; }
+.hito-anio {
+  font-family: 'Fraunces', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--degradado);
+  border-radius: 16px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sombra-chica);
+  position: relative;
+  z-index: 1;
+}
+.hito-cuerpo h3 { font-size: 21px; margin-bottom: 8px; }
+.hito-cuerpo p { color: var(--gris-texto); font-size: 15px; }
+
+/* Tarjetas de gimnastas / internacional */
+.atletas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.atleta-card {
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 26px 28px;
+}
+.atleta-card h3 { font-size: 20px; margin-bottom: 6px; color: var(--fucsia); }
+.atleta-intro { color: var(--gris-texto); font-size: 14.5px; margin-bottom: 14px; }
+.atleta-anio { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--borde-suave); }
+.atleta-anio:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+.atleta-anio-etiqueta { font-weight: 700; font-size: 13.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--tinta); margin-bottom: 6px; }
+.atleta-card p { color: var(--gris-texto); font-size: 14.5px; }
+
+/* Conjuntos y equipos */
+.conjuntos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.conjunto-card {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  padding: 24px 26px;
+  box-shadow: var(--sombra-chica);
+}
+.conjunto-anio {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fucsia);
+  margin-bottom: 10px;
+}
+.conjunto-card p { color: var(--gris-texto); font-size: 14.5px; }
+
+/* Franja de cierre */
+.historia-cierre {
+  background: linear-gradient(160deg, #08183A 0%, var(--morado-oscuro) 100%);
+  color: #fff;
+  text-align: center;
+  padding: 72px 0;
+}
+.historia-cierre h2 { margin-bottom: 20px; }
+.historia-cierre p { max-width: 65ch; margin: 0 auto 14px; color: rgba(255,255,255,.85); font-size: 15.5px; }
+.historia-cierre-lema {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  font-style: italic;
+  color: var(--acento-suave) !important;
+  margin: 32px 0 24px !important;
+  line-height: 1.5;
+}
+.historia-cierre-nombres {
+  max-width: 70ch;
+  margin: 0 auto;
+  font-size: 13.5px;
+  color: rgba(255,255,255,.6);
+  line-height: 1.8;
+}
+
+@media (max-width: 720px) {
+  .atletas-grid, .conjuntos-grid { grid-template-columns: 1fr; }
+  .hito { grid-template-columns: 70px 1fr; gap: 16px; }
+  .hito-anio { font-size: 20px; height: 70px; border-radius: 12px; }
+  .hito::before { left: 34px; top: 26px; }
+}
+
+.historia-teaser {
+  margin-top: 40px;
+  background: var(--degradado);
+  border-radius: var(--radio);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}

@@ -35,6 +35,14 @@ require __DIR__ . '/includes/header.php';
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>
+
+    <div class="historia-teaser">
+      <div>
+        <h3 style="margin-bottom:6px;color:#fff;">🏆 Historia y palmarés completo</h3>
+        <p style="color:#fff;opacity:.85;margin:0;">Desde 1987, gimnastas, conjuntos y equipos de Sakoneta han llegado a lo más alto de la gimnasia rítmica nacional — y algunos, también a la selección española.</p>
+      </div>
+      <a href="historia.php" class="boton oro" style="flex-shrink:0;">Ver historia completa →</a>
+    </div>
   </div>
 </section>
 
