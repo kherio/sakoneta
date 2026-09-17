@@ -44,18 +44,89 @@ require __DIR__ . '/includes/header.php';
       <article class="hito animar-scroll">
         <div class="hito-anio hito-anio-fundacion">1987</div>
         <div class="hito-cuerpo">
-          <h3>Nace Sakoneta</h3>
-          <p>Sakoneta Gimnasia Erritmiko Taldea echa a andar en Leioa, con la
-            ilusión de formar a las primeras generaciones de gimnastas del club.
-            Desde entonces, la escuela no ha dejado de crecer temporada tras
-            temporada, sentando las bases de todo lo que vendría después.</p>
+          <h3>🌱 Los comienzos</h3>
+          <p>Sakoneta Gimnasia Erritmiko Taldea echa a andar en Leioa. Aitziber
+            Iriondo, Eva Susana Bernardo y Eider Mendizabal están entre las
+            primeras gimnastas que destacan cuando el club empieza a competir a
+            nivel provincial, autonómico y estatal.</p>
+          <p>Ese mismo año, Eider Mendizabal es 5.ª en el Torneo Internacional
+            de Pamplona, y poco después llegarían su título de campeona de
+            España en cinta, un bronce nacional en pelota y el subcampeonato de
+            España de 2.ª Categoría — la primera gran gimnasta de la historia
+            del club.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-seleccion">1989</div>
+        <div class="hito-cuerpo">
+          <h3>🇪🇸 Eider Mendizabal, primera gimnasta de Sakoneta en la selección española</h3>
+          <p>Eider se convierte en la primera gimnasta del club en vestir el
+            maillot de la selección española. Participa en Campeonatos de
+            Europa, donde consigue una medalla de bronce en la modalidad de
+            conjuntos, y abre un camino que otras dos compañeras de Sakoneta
+            seguirían en la década siguiente.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-seleccion">1993</div>
+        <div class="hito-cuerpo">
+          <h3>🇪🇸 Lorena Barbadillo, segunda gimnasta en la selección</h3>
+          <p>Lorena Barbadillo se convierte en la segunda gimnasta de Sakoneta
+            en formar parte de la selección española. Con el conjunto nacional
+            conseguiría después medallas en los Campeonatos del Mundo
+            celebrados en París.</p>
+          <p>Antes de que acabara el siglo, Sakoneta ya había puesto a <strong>dos
+            gimnastas en la selección española</strong> — un dato que pocos
+            clubes de su tamaño pueden decir.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-seleccion">1996-2001</div>
+        <div class="hito-cuerpo">
+          <h3>⭐ Igone Arribas</h3>
+          <p>Igone empieza en Sakoneta con 9 años. En categoría junior encadena
+            una racha de resultados que la convierten en una de las grandes
+            gimnastas de la historia del club:</p>
+          <ul class="hito-logros">
+            <li><span class="logro-medalla">🥇</span> Oro en cuerda, Campeonato de España Individual B (1996)</li>
+            <li><span class="logro-medalla">🥇</span> Oro en pelota, Campeonato de España Individual B (1997)</li>
+            <li><span class="logro-medalla">🥈</span> Plata por autonomías (1999)</li>
+            <li><span class="logro-medalla">🥉</span> Bronce por clubes (1999)</li>
+            <li><span class="logro-medalla">🥉</span> Bronce en pelota (1999)</li>
+            <li><span class="logro-medalla">🥉</span> Bronce en mazas (1999)</li>
+            <li><span class="logro-medalla">🥇🥇</span> Dos oros con Sakoneta, Campeonato de España de Conjuntos (1999)</li>
+          </ul>
+          <p>En noviembre de 1999 entra en el conjunto sénior de la selección
+            española, siendo la <strong>tercera gimnasta de Sakoneta</strong> en
+            llegar al equipo nacional. En el año 2000 participa con España en
+            los <strong>Juegos Olímpicos de Sídney</strong>, donde el conjunto
+            español termina 10.º en la fase de clasificación — uno de los
+            hitos más grandes de la historia del club.</p>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-rango">2000-2012</div>
+        <div class="hito-cuerpo">
+          <h3>🌱 Generación de transición y consolidación</h3>
+          <p>Una etapa de trabajo silencioso en la que Sakoneta sigue formando
+            gimnastas y afianzando su lugar en la gimnasia rítmica vasca. En
+            2013, Eva Santamariña ya es una gimnasta sénior consolidada —campeona
+            de Euskadi sénior ese año, y participante con la selección vasca en
+            el Campeonato de España de la Juventud— junto a otros nombres de su
+            generación como Nerea Linares, Silvia Fuente, Sol Moreno, Marina
+            Ortiz de Zárate y Naroa Pérez, que ya sumaban resultados
+            autonómicos y nacionales antes del gran salto que vendría después.</p>
         </div>
       </article>
 
       <article class="hito animar-scroll">
         <div class="hito-anio">2013</div>
         <div class="hito-cuerpo">
-          <h3>Primer gran salto nacional</h3>
+          <h3>🏆 La generación Saioa Agirre: primer gran salto nacional</h3>
           <p>Saioa Agirre se proclama campeona de España Infantil Absoluta,
             convirtiéndose en una de las grandes protagonistas de la gimnasia
             rítmica nacional y abriendo una etapa especialmente brillante para
@@ -108,7 +179,7 @@ require __DIR__ . '/includes/header.php';
       <article class="hito animar-scroll">
         <div class="hito-anio">2022</div>
         <div class="hito-cuerpo">
-          <h3>Eneko Lambea, campeón de España</h3>
+          <h3>🚀 Nueva generación: Eneko Lambea, campeón de España</h3>
           <p>Eneko Lambea se proclama por tercer año consecutivo campeón de España
             de Primera Categoría masculina. En las finales por aparatos suma
             además:</p>
@@ -164,12 +235,49 @@ require __DIR__ . '/includes/header.php';
 </section>
 
 <section class="seccion">
+
   <div class="contenedor">
     <div class="bloque-etiqueta">Palmarés</div>
     <div class="seccion-cabecera">
       <h2>Nuestras grandes campeonas</h2>
     </div>
     <div class="atletas-grid">
+
+      <article class="atleta-card animar-scroll">
+        <h3>Eider Mendizabal</h3>
+        <p class="atleta-intro">La primera gran gimnasta de la historia de Sakoneta, y la primera en llegar a la selección española.</p>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">Finales de los 80</div>
+          <ul class="hito-logros">
+            <li><span class="logro-medalla">🥇</span> Campeona de España en cinta</li>
+            <li><span class="logro-medalla">🥈</span> Subcampeona de España de 2.ª Categoría</li>
+            <li><span class="logro-medalla">🥉</span> Bronce nacional en pelota</li>
+            <li><span class="logro-medalla">—</span> 5.ª en el Torneo Internacional de Pamplona (1987)</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="atleta-card animar-scroll">
+        <h3>Igone Arribas</h3>
+        <p class="atleta-intro">Empezó en Sakoneta con 9 años y llegó a los Juegos Olímpicos con la selección española.</p>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">1996-1997 · Junior</div>
+          <ul class="hito-logros">
+            <li><span class="logro-medalla">🥇</span> Oro en cuerda, Campeonato de España Individual B (1996)</li>
+            <li><span class="logro-medalla">🥇</span> Oro en pelota, Campeonato de España Individual B (1997)</li>
+          </ul>
+        </div>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">1999</div>
+          <ul class="hito-logros">
+            <li><span class="logro-medalla">🥈</span> Plata por autonomías</li>
+            <li><span class="logro-medalla">🥉</span> Bronce por clubes</li>
+            <li><span class="logro-medalla">🥉</span> Bronce en pelota</li>
+            <li><span class="logro-medalla">🥉</span> Bronce en mazas</li>
+            <li><span class="logro-medalla">🥇🥇</span> Dos oros con Sakoneta, Campeonato de España de Conjuntos</li>
+          </ul>
+        </div>
+      </article>
 
       <article class="atleta-card animar-scroll">
         <h3>Saioa Agirre</h3>
@@ -310,38 +418,39 @@ require __DIR__ . '/includes/header.php';
       <h2>Sakoneta en la selección española</h2>
     </div>
     <p class="seleccion-espanola-intro">
-      Algunas gimnastas formadas en Sakoneta han llegado a vestir el maillot de
+      Tres gimnastas formadas en Sakoneta han llegado a vestir el maillot de
       la selección española, llevando el nombre del club hasta los grandes
-      campeonatos internacionales.
+      campeonatos internacionales — algo que pocos clubes de su tamaño pueden
+      decir.
     </p>
     <div class="seleccion-grid">
 
       <article class="seleccion-card animar-scroll">
         <div class="seleccion-anio">1989</div>
         <h3>Eider Mendizabal</h3>
-        <p>Primera gimnasta de Sakoneta en formar parte de la selección
-          española. Participó en competiciones internacionales y consiguió una
-          medalla de bronce en modalidad de conjuntos en un Campeonato de
-          Europa.</p>
-        <p class="seleccion-card-nota">Su trayectoria abrió el camino para futuras generaciones de gimnastas del club.</p>
+        <p class="seleccion-card-orden">1.ª gimnasta de Sakoneta en la selección española</p>
+        <p>Participó en Campeonatos de Europa, donde consiguió una medalla de
+          bronce en modalidad de conjuntos.</p>
+        <p class="seleccion-card-nota">Su trayectoria abrió el camino para las dos gimnastas del club que llegarían a la selección en la década siguiente.</p>
       </article>
 
       <article class="seleccion-card animar-scroll">
         <div class="seleccion-anio">1993</div>
         <h3>Lorena Barbadillo</h3>
-        <p>Segunda gimnasta de Sakoneta en incorporarse a la selección
-          española. Con el conjunto español consiguió posteriormente
-          resultados destacados en Campeonatos del Mundo, incluyendo una
-          medalla de plata y una de bronce.</p>
+        <p class="seleccion-card-orden">2.ª gimnasta de Sakoneta en la selección española</p>
+        <p>Con el conjunto español consiguió posteriormente medallas en los
+          Campeonatos del Mundo celebrados en París.</p>
       </article>
 
       <article class="seleccion-card animar-scroll">
         <div class="seleccion-anio">1999-2001</div>
         <h3>Igone Arribas</h3>
-        <p>Formó parte de la selección española de conjuntos. Su trayectoria
-          internacional incluye la participación en los Juegos Olímpicos de
-          Sídney 2000, donde el conjunto español terminó en 10.ª posición.</p>
-        <p class="seleccion-card-nota">Antes de llegar a la selección absoluta, había conseguido títulos nacionales en categoría junior.</p>
+        <p class="seleccion-card-orden">3.ª gimnasta de Sakoneta en la selección española</p>
+        <p>Entró en el conjunto sénior en noviembre de 1999, tras una racha de
+          medallas en categoría junior. En el año 2000 participó con España en
+          los <strong>Juegos Olímpicos de Sídney</strong>, donde el conjunto
+          español terminó 10.º en la fase de clasificación.</p>
+        <p class="seleccion-card-nota">Antes de llegar a la selección absoluta, había conseguido títulos nacionales en categoría junior — ver su palmarés completo más arriba.</p>
       </article>
 
     </div>

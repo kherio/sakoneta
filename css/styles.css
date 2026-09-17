@@ -2095,6 +2095,7 @@ img.cargando-esqueleto {
   .atletas-grid, .conjuntos-grid { grid-template-columns: 1fr; }
   .hito { grid-template-columns: 70px 1fr; gap: 16px; }
   .hito-anio { font-size: 20px; height: 70px; border-radius: 12px; }
+  .hito-anio-seleccion, .hito-anio-rango { font-size: 11px; }
   .hito::before { left: 34px; top: 26px; }
 }
 
@@ -2128,6 +2129,24 @@ img.cargando-esqueleto {
 /* Caja de fundación (1987) en la línea temporal: se distingue del
    resto de hitos (que son resultados deportivos) con un color propio */
 .hito-anio-fundacion { background: linear-gradient(135deg, #C99A2E, #8A6A1E); }
+/* Hitos relacionados con la selección española: mismo acento dorado
+   que el cuadro de honor, para que se reconozcan de un vistazo antes
+   de llegar a esa sección */
+.hito-anio-seleccion { background: linear-gradient(135deg, #E8C874, #B8923E); font-size: 15px; }
+.hito-anio-rango { font-size: 15px; }
+
+.seleccion-card-orden {
+  display: inline-block;
+  font-size: 12.5px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: #101E42 !important;
+  background: #E8C874;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px !important;
+}
 
 /* Cuadro de honor: Sakoneta en la selección española, con un
    tratamiento visual propio y distinto del resto de la página, para
