@@ -2245,3 +2245,106 @@ img.cargando-esqueleto {
   .historia-acceso { flex-direction: column; text-align: center; padding: 32px 24px; }
   .historia-acceso-datos { justify-content: center; text-align: left; }
 }
+
+/* ---------- Página "Conoce Sakoneta" ---------- */
+.conoce-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.conoce-item {
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 26px 28px;
+}
+.conoce-item-icono { font-size: 28px; margin-bottom: 12px; }
+.conoce-item h3 { font-size: 18px; margin-bottom: 8px; }
+.conoce-item p { color: var(--gris-texto); font-size: 14.5px; }
+
+/* Línea de metodología: iniciación -> base -> competición -> alto nivel */
+.metodologia-linea {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+.metodologia-paso {
+  display: flex;
+  gap: 22px;
+  padding-bottom: 30px;
+  position: relative;
+}
+.metodologia-paso:last-child { padding-bottom: 0; }
+.metodologia-paso::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 46px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--borde-suave);
+}
+.metodologia-paso:last-child::before { display: none; }
+.metodologia-numero {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--degradado);
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.metodologia-paso h3 { font-size: 18px; margin-bottom: 6px; }
+.metodologia-paso p { color: var(--gris-texto); font-size: 14.5px; }
+
+.modalidades-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.modalidad-card {
+  background: var(--papel);
+  border-radius: var(--radio);
+  padding: 26px 28px;
+}
+.modalidad-card h3 { font-size: 18px; margin-bottom: 8px; }
+.modalidad-card p { color: var(--gris-texto); font-size: 14.5px; }
+
+/* "Una familia que crece": huecos para fotos reales, con aviso claro
+   de que hay que subirlas desde el panel en vez de usar imágenes de
+   archivo sin derechos */
+.familia-fotos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.familia-foto-hueco {
+  aspect-ratio: 4/3;
+  border: 2px dashed var(--borde);
+  border-radius: var(--radio);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+  background: var(--papel);
+}
+.familia-foto-hueco span { font-size: 32px; opacity: .5; }
+.familia-foto-hueco p { color: var(--gris-texto); font-size: 13px; margin: 0; }
+.familia-foto-hueco small { color: var(--gris); }
+
+@media (max-width: 720px) {
+  .conoce-grid, .modalidades-grid { grid-template-columns: 1fr; }
+  .familia-fotos { grid-template-columns: 1fr; }
+}
