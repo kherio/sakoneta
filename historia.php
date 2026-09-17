@@ -351,6 +351,13 @@ require __DIR__ . '/includes/header.php';
 <section class="historia-cierre animar-scroll">
   <div class="contenedor">
     <h2>🌟 Una historia que sigue creciendo</h2>
+    <p class="historia-cierre-cantera">Nada de esto habría sido posible sin la escuela. Detrás de
+      cada podio, cada convocatoria y cada nombre propio de este palmarés hay
+      cientos de horas de entrenamiento silencioso de las gimnastas de base:
+      las que empiezan hoy con la cuerda o el aro, las que suben de categoría
+      cada septiembre, las que puede que nunca salgan en un titular pero
+      sostienen, temporada tras temporada, la cantera que hace posible que
+      Sakoneta siga escribiendo historia.</p>
     <p>Desde las primeras generaciones de Sakoneta hasta las actuales, el club
       ha construido una trayectoria marcada por la formación y por la
       presencia constante en las grandes competiciones nacionales.</p>

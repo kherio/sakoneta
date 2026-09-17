@@ -2064,6 +2064,12 @@ img.cargando-esqueleto {
   padding: 72px 0;
 }
 .historia-cierre h2 { color: #fff; font-size: clamp(26px, 4vw, 38px); margin-bottom: 20px; }
+.historia-cierre-cantera {
+  font-size: 17px !important;
+  color: #fff !important;
+  font-weight: 500;
+  max-width: 62ch;
+}
 .historia-cierre p { max-width: 65ch; margin: 0 auto 14px; color: rgba(255,255,255,.85); font-size: 15.5px; }
 .historia-cierre-lema {
   font-family: 'Fraunces', serif;
