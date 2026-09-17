@@ -1421,7 +1421,6 @@ function extraerTextoPdf(string $rutaAbsoluta): ?string {
  */
 function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
     $gimnastas = $pdo->query('SELECT id, nombre FROM gimnastas ORDER BY orden ASC')->fetchAll();
-    if (!$gimnastas) return [];
 
     // Se evita a propósito la extensión mbstring (no se usa en
     // ningún otro sitio de este proyecto, así que no se puede dar
@@ -1435,15 +1434,43 @@ function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
         return strtr($texto, ['Á'=>'á','É'=>'é','Í'=>'í','Ó'=>'ó','Ú'=>'ú','Ñ'=>'ñ','Ü'=>'ü']);
     };
 
+    // Palabras del propio nombre del club, y términos habituales de
+    // aparato/categoría, que no forman parte del nombre de ninguna
+    // gimnasta: se usan para descartar candidatos que en realidad son
+    // el nombre del club, y para recortar del final de un nombre
+    // adivinado si se ha colado alguna (los minutajes suelen poner el
+    // aparato justo después del nombre).
+    $palabrasClub = ['sakoneta', 'cd', 'club', 'rg', 'ge', 'gimnasia', 'erritmiko', 'taldea', 'deportivo'];
+    $palabrasNoNombre = array_merge($palabrasClub, [
+        'aro', 'pelota', 'mazas', 'cinta', 'cuerda', 'conjunto', 'individual',
+        'base', 'alevin', 'alevín', 'infantil', 'cadete', 'junior', 'júnior', 'senior', 'sénior',
+        'prebenjamin', 'prebenjamín', 'benjamin', 'benjamín',
+    ]);
+
     $lineas = preg_split('/\r\n|\r|\n/', $textoPdf);
     $resultados = [];
     $yaEncontrados = [];
+    $nombresYaExtraidos = [];
 
     foreach ($lineas as $linea) {
         $lineaLimpia = trim(preg_replace('/\s+/', ' ', $linea));
         if ($lineaLimpia === '') continue;
-        $lineaNormalizada = $normalizar($lineaLimpia);
 
+        // Primer filtro, el que pedías: la fila tiene que mencionar
+        // al club (Sakoneta o SAKONETA, sin importar mayúsculas) para
+        // considerarse siquiera. "Sakoneta" no lleva ninguna letra
+        // acentuada, así que basta con stripos() de toda la vida.
+        if (stripos($lineaLimpia, 'sakoneta') === false) {
+            continue;
+        }
+
+        $lineaNormalizada = $normalizar($lineaLimpia);
+        preg_match('/\b([01]?\d|2[0-3])[:.hH]([0-5]\d)\b/', $lineaLimpia, $coincidenciaHora);
+        $hora = $coincidenciaHora ? sprintf('%02d:%02d', (int)$coincidenciaHora[1], (int)$coincidenciaHora[2]) : null;
+
+        // Dentro de una fila que ya sabemos que es del club, se
+        // intenta reconocer a una gimnasta concreta del plantel...
+        $gimnastaReconocida = null;
         foreach ($gimnastas as $g) {
             if (isset($yaEncontrados[$g['id']])) continue; // una aparición por gimnasta es suficiente
             $nombreNormalizado = $normalizar($g['nombre']);
@@ -1451,24 +1478,64 @@ function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
             // funcionando bien en UTF-8 para comprobar "¿aparece
             // este texto dentro de este otro?", sin necesitar
             // mbstring para ello.
-            if ($nombreNormalizado === '' || strpos($lineaNormalizada, $nombreNormalizado) === false) {
-                continue;
+            if ($nombreNormalizado !== '' && strpos($lineaNormalizada, $nombreNormalizado) !== false) {
+                $gimnastaReconocida = $g;
+                break;
             }
-            preg_match('/\b([01]?\d|2[0-3])[:.hH]([0-5]\d)\b/', $lineaLimpia, $coincidenciaHora);
-            $hora = $coincidenciaHora ? sprintf('%02d:%02d', (int)$coincidenciaHora[1], (int)$coincidenciaHora[2]) : null;
+        }
 
+        if ($gimnastaReconocida) {
             $resultados[] = [
-                'gimnasta_id' => (int)$g['id'],
-                'nombre' => $g['nombre'],
+                'gimnasta_id' => (int)$gimnastaReconocida['id'],
+                'nombre' => $gimnastaReconocida['nombre'],
                 'hora' => $hora,
                 'dato_extra' => $lineaLimpia,
             ];
-            $yaEncontrados[$g['id']] = true;
+            $yaEncontrados[$gimnastaReconocida['id']] = true;
+            continue;
+        }
+
+        // ...y si no se reconoce a nadie del plantel actual (puede
+        // ser una gimnasta nueva que todavía no esté dada de alta),
+        // se intenta adivinar el nombre igualmente a partir de la
+        // propia fila, para no perder esa fila del todo: se buscan
+        // tramos de 2 a 4 palabras seguidas que empiecen en mayúscula
+        // (así suelen aparecer los nombres propios), descartando los
+        // que en realidad son el nombre del club.
+        if (preg_match_all('/\b(?:[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+(?:\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+){1,3})\b/u', $lineaLimpia, $coincidenciasNombre)) {
+            foreach ($coincidenciasNombre[0] as $candidato) {
+                // Se recortan del final las palabras que en realidad
+                // son un aparato o una categoría, no parte del
+                // nombre (p. ej. "Irati Zubizarreta Pelota" -> "Irati
+                // Zubizarreta").
+                $palabrasCandidato = explode(' ', $candidato);
+                while (count($palabrasCandidato) > 2 && in_array($normalizar(end($palabrasCandidato)), $palabrasNoNombre, true)) {
+                    array_pop($palabrasCandidato);
+                }
+                $candidato = implode(' ', $palabrasCandidato);
+
+                $candidatoNormalizado = $normalizar($candidato);
+                $esNombreDelClub = false;
+                foreach ($palabrasClub as $palabra) {
+                    if (strpos($candidatoNormalizado, $palabra) !== false) { $esNombreDelClub = true; break; }
+                }
+                if ($esNombreDelClub || isset($nombresYaExtraidos[$candidatoNormalizado])) continue;
+
+                $resultados[] = [
+                    'gimnasta_id' => null,
+                    'nombre' => $candidato,
+                    'hora' => $hora,
+                    'dato_extra' => $lineaLimpia,
+                ];
+                $nombresYaExtraidos[$candidatoNormalizado] = true;
+                break; // un nombre adivinado por fila es suficiente
+            }
         }
     }
 
     return $resultados;
 }
+
 
 function obtenerAjustes(PDO $pdo): array {
     $ajustes = $pdo->query('SELECT * FROM ajustes WHERE id = 1')->fetch();

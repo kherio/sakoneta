@@ -329,7 +329,11 @@ require __DIR__ . '/includes/layout_header.php';
     Si has subido el PDF de minutaje de la competición, puedes intentar
     extraer automáticamente a qué hora compite cada gimnasta del club
     (botón "Intentar extraer horarios" junto al documento, más
-    arriba). <strong>Esto es solo un borrador</strong>: revísalo,
+    arriba). Solo se tienen en cuenta las filas donde aparezca
+    "Sakoneta" o "SAKONETA"; dentro de esas, si reconoce a alguien
+    del plantel usa ese nombre tal cual, y si no, adivina el nombre
+    igualmente (marcado como "No reconocida", para revisarlo con más
+    atención). <strong>Esto es solo un borrador</strong>: revísalo,
     corrige lo que haga falta y confírmalo antes de que se publique
     en la ficha de la competición.
   </p>
@@ -343,6 +347,9 @@ require __DIR__ . '/includes/layout_header.php';
         <input type="hidden" name="fila_gimnasta_id[<?= $i ?>]" value="<?= (int)$fila['gimnasta_id'] ?>">
         <input type="text" name="fila_nombre[<?= $i ?>]" value="<?= e($fila['nombre']) ?>" style="max-width:220px;">
         <input type="text" name="fila_hora[<?= $i ?>]" value="<?= e($fila['hora'] ?? '') ?>" placeholder="HH:MM" style="max-width:90px;">
+        <?php if (!$fila['gimnasta_id']): ?>
+          <span style="font-size:11.5px;font-weight:600;color:#9B6B00;background:#FFF3D6;padding:2px 8px;border-radius:999px;">No reconocida en el plantel — revisa el nombre</span>
+        <?php endif; ?>
         <span style="font-size:12.5px;color:var(--gris);flex:1;min-width:200px;">"<?= e($fila['dato_extra']) ?>"</span>
       </div>
     <?php endforeach; ?>
