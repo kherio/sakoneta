@@ -1342,7 +1342,15 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   nav.principal { display: none; }
   .btn-menu-movil { display: flex; }
   .cabecera.compacta .cabecera-seccion-actual { display: inline-block; margin-right: auto; }
-  .franja-portada { max-height: 62vh; }
+  /* Esta es la regla que de verdad manda en la altura de la cabecera
+     de una competición (gana por especificidad a cualquier ".franja-
+     portada" suelto): en móvil, con un ancho de pantalla muy
+     estrecho, 56vh de alto deja el recuadro casi cuadrado, y una
+     foto panorámica de pabellón no se recorta arriba/abajo en ese
+     caso —se recorta por los lados—, así que se ve toda su altura de
+     golpe (gradas y pista juntas) en vez de solo una franja de la
+     foto, como pasa en escritorio. */
+  .franja-competicion.franja-portada { min-height: 220px; max-height: 46vh; }
 }
 
 /* ---------- Esqueleto de carga para imágenes ---------- */
