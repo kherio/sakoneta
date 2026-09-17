@@ -35,10 +35,22 @@ require __DIR__ . '/includes/header.php';
 
 <section class="seccion" style="background:var(--papel);">
   <div class="contenedor">
+    <div class="bloque-etiqueta">Historia</div>
     <div class="seccion-cabecera">
-      <h2>🏆 Grandes hitos</h2>
+      <h2>De 1987 a hoy</h2>
     </div>
     <div class="hitos-linea">
+
+      <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-fundacion">1987</div>
+        <div class="hito-cuerpo">
+          <h3>Nace Sakoneta</h3>
+          <p>Sakoneta Gimnasia Erritmiko Taldea echa a andar en Leioa, con la
+            ilusión de formar a las primeras generaciones de gimnastas del club.
+            Desde entonces, la escuela no ha dejado de crecer temporada tras
+            temporada, sentando las bases de todo lo que vendría después.</p>
+        </div>
+      </article>
 
       <article class="hito animar-scroll">
         <div class="hito-anio">2013</div>
@@ -153,8 +165,9 @@ require __DIR__ . '/includes/header.php';
 
 <section class="seccion">
   <div class="contenedor">
+    <div class="bloque-etiqueta">Palmarés</div>
     <div class="seccion-cabecera">
-      <h2>🥇 Palmarés individual</h2>
+      <h2>Nuestras grandes campeonas</h2>
     </div>
     <div class="atletas-grid">
 
@@ -290,44 +303,45 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<section class="seccion">
+<section class="seleccion-espanola animar-scroll">
   <div class="contenedor">
+    <div class="bloque-etiqueta bloque-etiqueta-oro">Cuadro de honor</div>
     <div class="seccion-cabecera">
-      <h2>🌍 Sakoneta y la gimnasia rítmica internacional</h2>
+      <h2>Sakoneta en la selección española</h2>
     </div>
-    <p style="max-width:70ch;color:var(--gris-texto);margin-top:-8px;margin-bottom:32px;">
-      La historia de Sakoneta también está vinculada a la gimnasia rítmica
-      internacional a través de gimnastas formadas en el club que llegaron a
-      representar a Euskadi y a España.
+    <p class="seleccion-espanola-intro">
+      Algunas gimnastas formadas en Sakoneta han llegado a vestir el maillot de
+      la selección española, llevando el nombre del club hasta los grandes
+      campeonatos internacionales.
     </p>
-    <div class="atletas-grid">
+    <div class="seleccion-grid">
 
-      <article class="atleta-card animar-scroll">
+      <article class="seleccion-card animar-scroll">
+        <div class="seleccion-anio">1989</div>
         <h3>Eider Mendizabal</h3>
-        <p>Fue la primera gimnasta de Sakoneta en formar parte de la selección
-          española, en 1989. Participó en competiciones internacionales y
-          consiguió una medalla de bronce en modalidad de conjuntos en un
-          Campeonato de Europa.</p>
-        <p>Su trayectoria abrió el camino para futuras generaciones de gimnastas
-          del club.</p>
+        <p>Primera gimnasta de Sakoneta en formar parte de la selección
+          española. Participó en competiciones internacionales y consiguió una
+          medalla de bronce en modalidad de conjuntos en un Campeonato de
+          Europa.</p>
+        <p class="seleccion-card-nota">Su trayectoria abrió el camino para futuras generaciones de gimnastas del club.</p>
       </article>
 
-      <article class="atleta-card animar-scroll">
+      <article class="seleccion-card animar-scroll">
+        <div class="seleccion-anio">1993</div>
         <h3>Lorena Barbadillo</h3>
-        <p>En 1993, se convirtió en la segunda gimnasta de Sakoneta en
-          incorporarse a la selección española. Con el conjunto español
-          consiguió posteriormente resultados destacados en Campeonatos del
-          Mundo, incluyendo una medalla de plata y una de bronce.</p>
+        <p>Segunda gimnasta de Sakoneta en incorporarse a la selección
+          española. Con el conjunto español consiguió posteriormente
+          resultados destacados en Campeonatos del Mundo, incluyendo una
+          medalla de plata y una de bronce.</p>
       </article>
 
-      <article class="atleta-card animar-scroll">
+      <article class="seleccion-card animar-scroll">
+        <div class="seleccion-anio">1999-2001</div>
         <h3>Igone Arribas</h3>
-        <p>Formada en Sakoneta, llegó a formar parte de la selección española de
-          conjuntos entre 1999 y 2001. Su trayectoria internacional incluye la
-          participación en los Juegos Olímpicos de Sídney 2000, donde el
-          conjunto español terminó en 10.ª posición.</p>
-        <p>Antes de llegar a la selección absoluta, Arribas había conseguido
-          títulos nacionales en categoría junior.</p>
+        <p>Formó parte de la selección española de conjuntos. Su trayectoria
+          internacional incluye la participación en los Juegos Olímpicos de
+          Sídney 2000, donde el conjunto español terminó en 10.ª posición.</p>
+        <p class="seleccion-card-nota">Antes de llegar a la selección absoluta, había conseguido títulos nacionales en categoría junior.</p>
       </article>
 
     </div>

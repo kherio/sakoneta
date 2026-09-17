@@ -2099,3 +2099,64 @@ img.cargando-esqueleto {
   gap: 24px;
   flex-wrap: wrap;
 }
+
+/* Etiqueta de bloque: separa visualmente "Historia" de "Palmarés" */
+.bloque-etiqueta {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--fucsia);
+  padding: 5px 16px;
+  border: 1.5px solid var(--fucsia);
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+.bloque-etiqueta-oro { color: #C99A2E; border-color: #C99A2E; }
+
+/* Caja de fundación (1987) en la línea temporal: se distingue del
+   resto de hitos (que son resultados deportivos) con un color propio */
+.hito-anio-fundacion { background: linear-gradient(135deg, #C99A2E, #8A6A1E); }
+
+/* Cuadro de honor: Sakoneta en la selección española, con un
+   tratamiento visual propio y distinto del resto de la página, para
+   que destaque como lo que es: lo más alto a lo que ha llegado una
+   gimnasta formada en el club. */
+.seleccion-espanola {
+  background: linear-gradient(160deg, #101E42 0%, var(--morado-oscuro) 100%);
+  color: #fff;
+  padding: 72px 0;
+}
+.seleccion-espanola .bloque-etiqueta-oro { color: #E8C874; border-color: #E8C874; }
+.seleccion-espanola h2 { color: #fff; }
+.seleccion-espanola-intro { max-width: 65ch; color: rgba(255,255,255,.82); font-size: 15.5px; margin-top: -8px; margin-bottom: 32px; }
+.seleccion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.seleccion-card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(232,200,116,.35);
+  border-radius: var(--radio);
+  padding: 26px 24px;
+}
+.seleccion-anio {
+  display: inline-block;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #101E42;
+  background: #E8C874;
+  padding: 3px 14px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+.seleccion-card h3 { color: #fff; font-size: 19px; margin-bottom: 8px; }
+.seleccion-card p { color: rgba(255,255,255,.82); font-size: 14.5px; }
+.seleccion-card-nota { color: rgba(255,255,255,.6) !important; font-size: 13.5px !important; font-style: italic; }
+
+@media (max-width: 720px) {
+  .seleccion-grid { grid-template-columns: 1fr; }
+}
