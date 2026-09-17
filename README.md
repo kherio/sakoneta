@@ -20,13 +20,19 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Las competiciones, en el centro de la portada**: la tarjeta de
+  próxima competición del titular ahora lleva una cuenta atrás en
+  cajas grandes (días/horas/min) y un enlace directo a su ficha; justo
+  debajo, una línea de tiempo "Últimas competiciones" con las últimas
+  disputadas (✓, con su resultado) y la próxima pendiente (→,
+  "Próximamente"), para que se note que la temporada está viva.
 - **Portada con narrativa completa**: titular/próxima competición →
-  noticias → galería de momentos recientes → invitación a conocer el
-  club, cada bloque solo aparece si hay datos que mostrar. (Se quitó
-  deliberadamente un adelanto de gimnastas que hubo aquí: mostrar
-  fotos y nombres de menores en la página más visible de la web no
-  es buena idea sin haber decidido antes una política de imagen por
-  gimnasta.)
+  últimas competiciones → noticias → galería de momentos recientes →
+  invitación a conocer el club, cada bloque solo aparece si hay datos
+  que mostrar. (Se quitó deliberadamente un adelanto de gimnastas que
+  hubo aquí: mostrar fotos y nombres de menores en la página más
+  visible de la web no es buena idea sin haber decidido antes una
+  política de imagen por gimnasta.)
 - **Navegación anterior/siguiente entre noticias**, para poder seguir
   leyendo sin volver al listado.
 

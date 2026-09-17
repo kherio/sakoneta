@@ -19,6 +19,12 @@ $galeriaPortada = $pdo->query("
 ")->fetchAll();
 
 $proxima = $pdo->query("SELECT * FROM competiciones WHERE disputada = 0 ORDER BY fecha ASC LIMIT 1")->fetch();
+
+// Para la línea de tiempo "Últimas competiciones": las últimas
+// disputadas (más reciente primero) y, al final, la próxima
+// pendiente (si la hay), para que se lea como el hilo de la
+// temporada: lo que ya ha pasado y lo que viene después.
+$ultimasCompeticiones = $pdo->query("SELECT * FROM competiciones WHERE disputada = 1 ORDER BY fecha DESC LIMIT 3")->fetchAll();
 $fechaProximaISO = null;
 if ($proxima) {
     $fechaProximaISO = $proxima['fecha'] . 'T' . ($proxima['hora'] ?: '00:00') . ':00';
@@ -155,15 +161,53 @@ require __DIR__ . '/includes/header.php';
         <span><?= e($proxima['nombre']) ?></span>
       </div>
       <div class="detalle">
-        <?= e(formatearFecha($proxima['fecha'])) ?> · <?= e($proxima['lugar']) ?>
+        📅 <?= e(formatearFecha($proxima['fecha'])) ?> · 📍 <?= e($proxima['lugar']) ?>
       </div>
-      <div class="cuenta-atras" data-fecha="<?= e($fechaProximaISO) ?>" data-dias="<?= e(t('dias')) ?>" data-horas="<?= e(t('horas')) ?>" data-min="<?= e(t('min')) ?>" data-seg="<?= e(t('seg')) ?>">
-        <span class="cuenta-atras-num">–</span>
+      <div class="cuenta-atras-grande cuenta-atras-grande-chica" data-fecha="<?= e($fechaProximaISO) ?>">
+        <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="dias">–</span><span class="cuenta-atras-etiqueta"><?= e(t('dias')) ?></span></div>
+        <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="horas">–</span><span class="cuenta-atras-etiqueta"><?= e(t('horas')) ?></span></div>
+        <div class="cuenta-atras-caja"><span class="cuenta-atras-num" data-unidad="min">–</span><span class="cuenta-atras-etiqueta"><?= e(t('min')) ?></span></div>
       </div>
+      <a href="competicion.php?id=<?= (int)$proxima['id'] ?>" class="proximo-partido-enlace"><?= t('ver_competicion') ?></a>
     </div>
     <?php endif; ?>
   </div>
 </section>
+
+<?php if ($ultimasCompeticiones || $proxima): ?>
+<section class="seccion linea-tiempo-competiciones-seccion">
+  <div class="contenedor">
+    <div class="seccion-cabecera">
+      <h2><?= t('ultimas_competiciones') ?></h2>
+      <a href="competiciones.php"><?= t('ver_todas') ?></a>
+    </div>
+    <ul class="linea-tiempo-competiciones">
+      <?php foreach ($ultimasCompeticiones as $c): ?>
+      <li class="animar-scroll">
+        <a href="competicion.php?id=<?= (int)$c['id'] ?>">
+          <span class="linea-tiempo-icono linea-tiempo-icono-jugada">✓</span>
+          <span class="linea-tiempo-texto">
+            <strong><?= e($c['nombre']) ?></strong>
+            <span><?= e($c['resultado'] ?: t('disputada')) ?></span>
+          </span>
+        </a>
+      </li>
+      <?php endforeach; ?>
+      <?php if ($proxima): ?>
+      <li class="animar-scroll">
+        <a href="competicion.php?id=<?= (int)$proxima['id'] ?>">
+          <span class="linea-tiempo-icono linea-tiempo-icono-proxima">→</span>
+          <span class="linea-tiempo-texto">
+            <strong><?= e($proxima['nombre']) ?></strong>
+            <span><?= t('proximamente') ?></span>
+          </span>
+        </a>
+      </li>
+      <?php endif; ?>
+    </ul>
+  </div>
+</section>
+<?php endif; ?>
 
 <section class="franja-stats animar-scroll">
   <div class="contenedor stats-grid">
