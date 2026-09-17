@@ -10,21 +10,7 @@ $noticias = $pdo->query('SELECT * FROM noticias WHERE publicado = 1 ORDER BY fec
 $destacada = $noticias[0] ?? null;
 $restoNoticias = array_slice($noticias, 1);
 
-$galeriaPortada = $pdo->query("
-    SELECT cf.archivo, c.id AS competicion_id, c.nombre AS competicion_nombre
-    FROM competicion_fotos cf
-    JOIN competiciones c ON c.id = cf.competicion_id
-    WHERE cf.tipo = 'imagen'
-    ORDER BY cf.id DESC LIMIT 8
-")->fetchAll();
-
 $proxima = $pdo->query("SELECT * FROM competiciones WHERE disputada = 0 ORDER BY fecha ASC LIMIT 1")->fetch();
-
-// Para la línea de tiempo "Últimas competiciones": las últimas
-// disputadas (más reciente primero) y, al final, la próxima
-// pendiente (si la hay), para que se lea como el hilo de la
-// temporada: lo que ya ha pasado y lo que viene después.
-$ultimasCompeticiones = $pdo->query("SELECT * FROM competiciones WHERE disputada = 1 ORDER BY fecha DESC LIMIT 3")->fetchAll();
 $fechaProximaISO = null;
 if ($proxima) {
     $fechaProximaISO = $proxima['fecha'] . 'T' . ($proxima['hora'] ?: '00:00') . ':00';
@@ -187,41 +173,6 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<?php if ($ultimasCompeticiones || $proxima): ?>
-<section class="seccion linea-tiempo-competiciones-seccion">
-  <div class="contenedor">
-    <div class="seccion-cabecera">
-      <h2><?= t('ultimas_competiciones') ?></h2>
-      <a href="competiciones.php"><?= t('ver_todas_competiciones') ?></a>
-    </div>
-    <ul class="linea-tiempo-competiciones">
-      <?php foreach ($ultimasCompeticiones as $c): ?>
-      <li class="animar-scroll">
-        <a href="competicion.php?id=<?= (int)$c['id'] ?>">
-          <span class="linea-tiempo-icono linea-tiempo-icono-jugada">✓</span>
-          <span class="linea-tiempo-texto">
-            <strong><?= e($c['nombre']) ?></strong>
-            <span><?= e($c['resultado'] ?: t('disputada')) ?></span>
-          </span>
-        </a>
-      </li>
-      <?php endforeach; ?>
-      <?php if ($proxima): ?>
-      <li class="animar-scroll">
-        <a href="competicion.php?id=<?= (int)$proxima['id'] ?>">
-          <span class="linea-tiempo-icono linea-tiempo-icono-proxima">→</span>
-          <span class="linea-tiempo-texto">
-            <strong><?= e($proxima['nombre']) ?></strong>
-            <span><?= t('proximamente') ?></span>
-          </span>
-        </a>
-      </li>
-      <?php endif; ?>
-    </ul>
-  </div>
-</section>
-<?php endif; ?>
-
 <section class="seccion">
   <div class="contenedor">
     <div class="seccion-cabecera">
@@ -259,24 +210,6 @@ require __DIR__ . '/includes/header.php';
     <?php endif; ?>
   </div>
 </section>
-
-<?php if ($galeriaPortada): ?>
-<section class="seccion">
-  <div class="contenedor">
-    <div class="seccion-cabecera">
-      <h2>Momentos del club</h2>
-      <a href="competiciones.php"><?= t('nav_competiciones') ?> →</a>
-    </div>
-    <div class="galeria-portada-tira">
-      <?php foreach ($galeriaPortada as $foto): ?>
-      <a href="competicion.php?id=<?= (int)$foto['competicion_id'] ?>" class="galeria-portada-item animar-scroll" title="<?= e($foto['competicion_nombre']) ?>">
-        <img src="img/<?= e($foto['archivo']) ?>" alt="<?= e($foto['competicion_nombre']) ?>" loading="lazy">
-      </a>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-<?php endif; ?>
 
 <section class="seccion franja-club-teaser">
   <div class="contenedor franja-club-teaser-caja">
