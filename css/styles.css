@@ -1750,8 +1750,9 @@ img.cargando-esqueleto {
   border: 1px solid rgba(255,255,255,.28);
   backdrop-filter: blur(6px);
   border-radius: 16px;
-  padding: 16px 16px 14px;
-  min-width: 78px;
+  padding: 16px 10px 14px;
+  width: 92px;
+  flex-shrink: 0;
   box-shadow: 0 16px 34px -14px rgba(0,0,0,.55);
   animation: cuentaAtrasLatido 2.4s ease-in-out infinite;
 }
@@ -1784,7 +1785,7 @@ img.cargando-esqueleto {
 }
 @media (max-width: 640px) {
   .cuenta-atras-grande { gap: 8px; }
-  .cuenta-atras-caja { min-width: 60px; padding: 12px 8px 10px; border-radius: 12px; }
+  .cuenta-atras-caja { width: 66px; padding: 12px 4px 10px; border-radius: 12px; }
 }
 
 /* ---------- Galería de la portada (tira de fotos recientes) ---------- */

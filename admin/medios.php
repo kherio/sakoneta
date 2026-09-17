@@ -68,7 +68,7 @@ require __DIR__ . '/includes/layout_header.php';
         <?php else: ?>
           <div style="font-size:11.5px;color:var(--gris);margin-bottom:8px;">Sin usar</div>
         <?php endif; ?>
-        <button type="submit" formaction="medio_borrar.php" name="archivo" value="<?= e($rutaRelativa) ?>" class="borrar" style="font-size:12.5px;"
+        <button type="submit" formaction="medio_borrar.php" name="archivo" value="<?= e($rutaRelativa) ?>" class="borrar"
            onclick="return confirm('<?= $usos ? '¡Esta foto está en uso! Si la borras, se quitará también de donde se está usando. ¿Continuar?' : '¿Borrar esta foto?' ?>');">
           Borrar
         </button>

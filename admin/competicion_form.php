@@ -257,7 +257,7 @@ require __DIR__ . '/includes/layout_header.php';
           <?php else: ?>
           <p style="font-size:11.5px;color:var(--gris);margin:4px 0;">Vídeo</p>
           <?php endif; ?>
-          <button type="submit" formaction="competicion_foto_borrar.php" name="id" value="<?= (int)$f['id'] ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;width:100%;" onclick="return confirm('¿Borrar este archivo?');">Borrar</button>
+          <button type="submit" formaction="competicion_foto_borrar.php" name="id" value="<?= (int)$f['id'] ?>" class="borrar borrar-bloque" onclick="return confirm('¿Borrar este archivo?');">Borrar</button>
         </div>
       <?php endforeach; ?>
     </div>
@@ -305,9 +305,9 @@ require __DIR__ . '/includes/layout_header.php';
         <span style="font-size:20px;">📄</span>
         <a href="../img/<?= e($doc['archivo']) ?>" target="_blank" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($doc['nombre_original']) ?></a>
         <?php if (strtolower(pathinfo($doc['archivo'], PATHINFO_EXTENSION)) === 'pdf'): ?>
-          <button type="submit" formaction="competicion_extraer_minutaje.php" name="documento_id" value="<?= (int)$doc['id'] ?>" style="font-size:13px;">Intentar extraer horarios</button>
+          <button type="submit" formaction="competicion_extraer_minutaje.php" name="documento_id" value="<?= (int)$doc['id'] ?>" class="editar">Intentar extraer horarios</button>
         <?php endif; ?>
-        <button type="submit" formaction="competicion_documento_borrar.php" name="documento_id" value="<?= (int)$doc['id'] ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Borrar este documento?');">Borrar</button>
+        <button type="submit" formaction="competicion_documento_borrar.php" name="documento_id" value="<?= (int)$doc['id'] ?>" class="borrar" onclick="return confirm('¿Borrar este documento?');">Borrar</button>
       </li>
     <?php endforeach; ?>
   </ul>
@@ -364,12 +364,12 @@ require __DIR__ . '/includes/layout_header.php';
         <td style="padding:8px 6px;font-weight:600;width:70px;"><?= e($fila['hora'] ?? '—') ?></td>
         <td style="padding:8px 6px;"><?= e($fila['nombre']) ?></td>
         <td style="padding:8px 6px;text-align:right;width:80px;">
-          <button type="submit" formaction="competicion_minutaje_fila_borrar.php" name="fila_id" value="<?= (int)$fila['id'] ?>" class="borrar" style="font-size:12px;">Borrar</button>
+          <button type="submit" formaction="competicion_minutaje_fila_borrar.php" name="fila_id" value="<?= (int)$fila['id'] ?>" class="borrar">Borrar</button>
         </td>
       </tr>
     <?php endforeach; ?>
   </table>
-  <button type="submit" formaction="competicion_minutaje_borrar.php" name="competicion_id" value="<?= (int)$id ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Borrar todo el horario de esta competición?');">Borrar todo el horario</button>
+  <button type="submit" formaction="competicion_minutaje_borrar.php" name="competicion_id" value="<?= (int)$id ?>" class="borrar" onclick="return confirm('¿Borrar todo el horario de esta competición?');">Borrar todo el horario</button>
   <?php elseif (!$minutajeBorrador): ?>
     <p style="color:var(--gris);font-size:14px;">Todavía no hay ningún horario guardado para esta competición.</p>
   <?php endif; ?>

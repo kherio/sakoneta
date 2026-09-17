@@ -200,7 +200,7 @@ require __DIR__ . '/includes/layout_header.php';
           <?php else: ?>
           <p style="font-size:11.5px;color:var(--gris);margin:4px 0;">Vídeo</p>
           <?php endif; ?>
-          <button type="submit" formaction="noticia_foto_borrar.php" name="id" value="<?= (int)$f['id'] ?>" class="borrar" style="font-size:12px;display:block;margin-top:4px;width:100%;" onclick="return confirm('¿Borrar este archivo?');">Borrar</button>
+          <button type="submit" formaction="noticia_foto_borrar.php" name="id" value="<?= (int)$f['id'] ?>" class="borrar borrar-bloque" onclick="return confirm('¿Borrar este archivo?');">Borrar</button>
         </div>
       <?php endforeach; ?>
     </div>
