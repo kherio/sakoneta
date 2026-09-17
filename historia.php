@@ -195,15 +195,29 @@ require __DIR__ . '/includes/header.php';
       </article>
 
       <article class="hito animar-scroll">
+        <div class="hito-anio hito-anio-rango">2016-2019</div>
+        <div class="hito-cuerpo">
+          <h3>Eneko Lambea: el ascenso hacia la cima</h3>
+          <p>Antes de llegar a lo más alto, Eneko encadena una progresión
+            perfecta, subiendo un peldaño cada año sin fallar ninguno:</p>
+          <ul class="hito-logros">
+            <li><span class="logro-medalla">🥉</span> Primera medalla nacional: bronce en categoría infantil (2016)</li>
+            <li><span class="logro-medalla">🥇</span> Campeón de España infantil (2017)</li>
+            <li><span class="logro-medalla">🥇</span> Campeón de España infantil, revalida el título (2018)</li>
+            <li><span class="logro-medalla">🥇</span> Campeón de España junior (2019)</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="hito animar-scroll">
         <div class="hito-anio">2020</div>
         <div class="hito-cuerpo">
           <h3>Eneko Lambea, primer campeón de España absoluto</h3>
-          <p>Con solo 16 años, y tras haber sido ya campeón de España infantil
-            (2017 y 2018) y junior (2019), Eneko Lambea da el salto definitivo:
-            se proclama <strong>campeón de España de Primera Categoría</strong>
-            masculina gracias a dos actuaciones sobresalientes con el aro y la
-            pelota. "No puedo pensar en una vida sin la gimnasia", declaraba
-            nada más subir al primer cajón del podio.</p>
+          <p>Con solo 16 años, Eneko da el salto definitivo: se proclama
+            <strong>campeón de España de Primera Categoría</strong> masculina
+            gracias a dos actuaciones sobresalientes con el aro y la pelota.
+            "No puedo pensar en una vida sin la gimnasia", declaraba nada más
+            subir al primer cajón del podio.</p>
         </div>
       </article>
 
@@ -391,9 +405,16 @@ require __DIR__ . '/includes/header.php';
           Sakoneta. Comenzó su trayectoria en el club desde muy pequeño y se
           convirtió en uno de los referentes de la gimnasia rítmica masculina.</p>
         <div class="atleta-anio">
-          <div class="atleta-anio-etiqueta">Campeonato de España</div>
+          <div class="atleta-anio-etiqueta">2016-2019 · Infantil y junior</div>
           <ul class="hito-logros">
-            <li><span class="logro-medalla">🥇</span> Campeón de España de Primera Categoría</li>
+            <li><span class="logro-medalla">🥉</span> Primera medalla nacional: bronce infantil (2016)</li>
+            <li><span class="logro-medalla">🥇</span> Campeón de España infantil (2017 y 2018)</li>
+            <li><span class="logro-medalla">🥇</span> Campeón de España junior (2019)</li>
+          </ul>
+        </div>
+        <div class="atleta-anio">
+          <div class="atleta-anio-etiqueta">Primera Categoría</div>
+          <ul class="hito-logros">
             <li><span class="logro-medalla">🥇</span> Campeón de España en 2020</li>
             <li><span class="logro-medalla">🥇</span> Campeón de España en 2021</li>
             <li><span class="logro-medalla">🥇</span> Campeón de España en 2022</li>
