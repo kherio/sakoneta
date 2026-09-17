@@ -192,7 +192,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 8;
+const VERSION_ESQUEMA_SAKONETA = 9;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -264,6 +264,19 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         competicion_id INTEGER NOT NULL,
         archivo TEXT NOT NULL,
         nombre_original TEXT NOT NULL,
+        orden INTEGER NOT NULL DEFAULT 0
+    )");
+
+    // Horario de las gimnastas del club dentro de una competición,
+    // extraído (con revisión humana obligatoria) del PDF de minutaje
+    // que suba el club, o escrito a mano directamente.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS competicion_minutaje (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        competicion_id INTEGER NOT NULL,
+        gimnasta_id INTEGER,
+        nombre TEXT NOT NULL,
+        hora TEXT,
+        dato_extra TEXT,
         orden INTEGER NOT NULL DEFAULT 0
     )");
     // Migración: cada competición que ya tuviera una categoría en la
@@ -1199,6 +1212,7 @@ function borrarCompeticionCompleta(PDO $pdo, int $id): void {
     try {
         $pdo->prepare('DELETE FROM competicion_fotos WHERE competicion_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM competicion_documentos WHERE competicion_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM competicion_minutaje WHERE competicion_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM competicion_categorias WHERE competicion_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM competiciones WHERE id = ?')->execute([$id]);
         $pdo->commit();
@@ -1375,6 +1389,85 @@ function leerFlash(string $clave) {
     $valor = $_SESSION['flash'][$clave] ?? null;
     unset($_SESSION['flash'][$clave]);
     return $valor;
+}
+
+/**
+ * Extrae el texto de un PDF con pdftotext (paquete poppler-utils),
+ * si está instalado en el servidor. Devuelve null si no se puede
+ * (no está instalado, shell_exec deshabilitado, o el PDF no tiene
+ * texto real dentro —por ejemplo, una hoja escaneada como imagen—).
+ * -layout intenta conservar la disposición en columnas, que suele
+ * ayudar a que la hora y el nombre queden en la misma línea.
+ */
+function extraerTextoPdf(string $rutaAbsoluta): ?string {
+    if (!is_file($rutaAbsoluta) || !function_exists('shell_exec')) {
+        return null;
+    }
+    $ruta = trim((string)@shell_exec('which pdftotext 2>/dev/null'));
+    if ($ruta === '' || !is_file($ruta)) {
+        return null;
+    }
+    $comando = escapeshellarg($ruta) . ' -layout ' . escapeshellarg($rutaAbsoluta) . ' - 2>/dev/null';
+    $salida = @shell_exec($comando);
+    return $salida !== null && trim($salida) !== '' ? $salida : null;
+}
+
+/**
+ * Busca, dentro del texto de un PDF de minutaje, las líneas que
+ * mencionen a alguna gimnasta del club, y si hay una hora cerca en
+ * esa misma línea, la extrae también. Esto es solo un BORRADOR: se
+ * revisa y confirma a mano desde el panel antes de guardarse de
+ * verdad, nunca se publica solo.
+ */
+function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
+    $gimnastas = $pdo->query('SELECT id, nombre FROM gimnastas ORDER BY orden ASC')->fetchAll();
+    if (!$gimnastas) return [];
+
+    // Se evita a propósito la extensión mbstring (no se usa en
+    // ningún otro sitio de este proyecto, así que no se puede dar
+    // por hecho que esté instalada en el servidor): strtolower() ya
+    // pasa a minúsculas el texto ASCII correctamente, y el mapa
+    // siguiente cubre las mayúsculas acentuadas propias del
+    // castellano/euskera que strtolower() no reconoce por ir en
+    // varios bytes.
+    $normalizar = function (string $texto): string {
+        $texto = strtolower(trim(preg_replace('/\s+/', ' ', $texto)));
+        return strtr($texto, ['Á'=>'á','É'=>'é','Í'=>'í','Ó'=>'ó','Ú'=>'ú','Ñ'=>'ñ','Ü'=>'ü']);
+    };
+
+    $lineas = preg_split('/\r\n|\r|\n/', $textoPdf);
+    $resultados = [];
+    $yaEncontrados = [];
+
+    foreach ($lineas as $linea) {
+        $lineaLimpia = trim(preg_replace('/\s+/', ' ', $linea));
+        if ($lineaLimpia === '') continue;
+        $lineaNormalizada = $normalizar($lineaLimpia);
+
+        foreach ($gimnastas as $g) {
+            if (isset($yaEncontrados[$g['id']])) continue; // una aparición por gimnasta es suficiente
+            $nombreNormalizado = $normalizar($g['nombre']);
+            // Búsqueda de subcadena a nivel de bytes: sigue
+            // funcionando bien en UTF-8 para comprobar "¿aparece
+            // este texto dentro de este otro?", sin necesitar
+            // mbstring para ello.
+            if ($nombreNormalizado === '' || strpos($lineaNormalizada, $nombreNormalizado) === false) {
+                continue;
+            }
+            preg_match('/\b([01]?\d|2[0-3])[:.hH]([0-5]\d)\b/', $lineaLimpia, $coincidenciaHora);
+            $hora = $coincidenciaHora ? sprintf('%02d:%02d', (int)$coincidenciaHora[1], (int)$coincidenciaHora[2]) : null;
+
+            $resultados[] = [
+                'gimnasta_id' => (int)$g['id'],
+                'nombre' => $g['nombre'],
+                'hora' => $hora,
+                'dato_extra' => $lineaLimpia,
+            ];
+            $yaEncontrados[$g['id']] = true;
+        }
+    }
+
+    return $resultados;
 }
 
 function obtenerAjustes(PDO $pdo): array {

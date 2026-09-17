@@ -8,6 +8,13 @@ gestionar todo el contenido: noticias, gimnastas, competiciones,
 categorías, patrocinadores, comentarios, mensajes de contacto y los
 ajustes generales del sitio.
 
+> **Dependencia opcional — `pdftotext`**: la extracción automática de
+> horarios desde el PDF de minutaje de una competición (ver más abajo)
+> necesita la herramienta `pdftotext`, del paquete `poppler-utils`
+> (`sudo apt install poppler-utils` en Debian/Ubuntu). Si no está
+> instalada, el resto de la web funciona exactamente igual; esa única
+> función avisa con un mensaje claro en vez de fallar.
+
 > **Sobre el logo y los colores**: el logo (`img/logo-sakoneta.png`)
 > es el logo real del club, recortado y con el fondo quitado a partir
 > de una foto de baja resolución; si en algún momento hay un archivo
@@ -19,6 +26,13 @@ ajustes generales del sitio.
 > `--morado`, etc.).
 
 ## Qué incluye la web pública
+
+- **Horario de gimnastas por competición**: si se sube el PDF de
+  minutaje, el panel puede intentar extraer automáticamente a qué
+  hora compite cada gimnasta del club (usando `pdftotext`, si está
+  instalado en el servidor). El resultado es siempre un borrador
+  editable que hay que revisar y confirmar a mano antes de que
+  aparezca en la ficha pública de la competición.
 
 - **Las competiciones, en el centro de la portada**: la tarjeta de
   próxima competición del titular ahora lleva una cuenta atrás en
@@ -178,8 +192,9 @@ navegador no soporta alguna característica.
 - **Competiciones**: nombre, una o varias categorías, lugar, fecha,
   hora de inicio (opcional), resultado una vez disputada, texto libre
   para contar cómo fue, galería de fotos y vídeos con selector visual
-  de encuadre para la portada, y documentos adjuntos (PDF o Word)
-  como convocatorias o resultados oficiales.
+  de encuadre para la portada, documentos adjuntos (PDF o Word) como
+  convocatorias o resultados oficiales, y horario de las gimnastas
+  del club extraído (con revisión obligatoria) del PDF de minutaje.
 - **Categorías**: crear, renombrar, reordenar (arrastrando), elegir
   su color de acento y borrar las categorías que luego se asignan a
   gimnastas y competiciones; cada una admite su propia galería de

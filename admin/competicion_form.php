@@ -141,6 +141,11 @@ $mediaBiblioteca = array_filter(listarMediaSubida(), fn($m) => !in_array($m['arc
 $documentos = $id ? $pdo->prepare('SELECT * FROM competicion_documentos WHERE competicion_id = ? ORDER BY orden ASC') : null;
 if ($documentos) { $documentos->execute([$id]); $documentos = $documentos->fetchAll(); } else { $documentos = []; }
 
+$minutajeGuardado = $id ? $pdo->prepare('SELECT * FROM competicion_minutaje WHERE competicion_id = ? ORDER BY hora ASC, orden ASC') : null;
+if ($minutajeGuardado) { $minutajeGuardado->execute([$id]); $minutajeGuardado = $minutajeGuardado->fetchAll(); } else { $minutajeGuardado = []; }
+$minutajeBorrador = $_SESSION['minutaje_borrador'][$id] ?? [];
+$errorMinutaje = leerFlash('minutaje_error');
+
 // Releer la portada actual por si se acaba de actualizar en este envío
 if ($id) {
     $portadaActual = $pdo->prepare('SELECT imagen_portada FROM competiciones WHERE id = ?');
@@ -299,6 +304,9 @@ require __DIR__ . '/includes/layout_header.php';
       <li style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--borde);border-radius:8px;">
         <span style="font-size:20px;">📄</span>
         <a href="../img/<?= e($doc['archivo']) ?>" target="_blank" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($doc['nombre_original']) ?></a>
+        <?php if (strtolower(pathinfo($doc['archivo'], PATHINFO_EXTENSION)) === 'pdf'): ?>
+          <button type="submit" formaction="competicion_extraer_minutaje.php" name="documento_id" value="<?= (int)$doc['id'] ?>" style="font-size:13px;">Intentar extraer horarios</button>
+        <?php endif; ?>
         <button type="submit" formaction="competicion_documento_borrar.php" name="documento_id" value="<?= (int)$doc['id'] ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Borrar este documento?');">Borrar</button>
       </li>
     <?php endforeach; ?>
@@ -310,7 +318,57 @@ require __DIR__ . '/includes/layout_header.php';
     <input type="file" id="documentos" name="documentos[]" accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple>
   </div>
 
-  <button type="submit" class="btn">Guardar competición</button>
+  <?php if ($errorMinutaje): ?>
+    <p style="background:#FDECEC;color:#9B1C1C;padding:12px 16px;border-radius:8px;font-size:14px;"><?= e($errorMinutaje) ?></p>
+  <?php endif; ?>
+
+  <?php if ($id): ?>
+  <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
+  <h3 style="margin-top:0;">Horario de nuestras gimnastas</h3>
+  <p style="color:var(--gris);font-size:14px;max-width:65ch;margin-top:-8px;">
+    Si has subido el PDF de minutaje de la competición, puedes intentar
+    extraer automáticamente a qué hora compite cada gimnasta del club
+    (botón "Intentar extraer horarios" junto al documento, más
+    arriba). <strong>Esto es solo un borrador</strong>: revísalo,
+    corrige lo que haga falta y confírmalo antes de que se publique
+    en la ficha de la competición.
+  </p>
+
+  <?php if ($minutajeBorrador): ?>
+  <div style="background:#FFF8E6;border:1px solid #F0D98C;border-radius:10px;padding:16px 18px;margin-bottom:20px;">
+    <p style="margin-top:0;font-weight:600;">Borrador sin confirmar — revísalo antes de guardar:</p>
+    <?php foreach ($minutajeBorrador as $i => $fila): ?>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+        <input type="checkbox" name="fila_incluir[<?= $i ?>]" value="1" checked style="width:auto;">
+        <input type="hidden" name="fila_gimnasta_id[<?= $i ?>]" value="<?= (int)$fila['gimnasta_id'] ?>">
+        <input type="text" name="fila_nombre[<?= $i ?>]" value="<?= e($fila['nombre']) ?>" style="max-width:220px;">
+        <input type="text" name="fila_hora[<?= $i ?>]" value="<?= e($fila['hora'] ?? '') ?>" placeholder="HH:MM" style="max-width:90px;">
+        <span style="font-size:12.5px;color:var(--gris);flex:1;min-width:200px;">"<?= e($fila['dato_extra']) ?>"</span>
+      </div>
+    <?php endforeach; ?>
+    <button type="submit" formaction="competicion_minutaje_guardar.php" name="competicion_id" value="<?= (int)$id ?>" class="btn" style="margin-top:8px;">Confirmar y guardar este horario</button>
+  </div>
+  <?php endif; ?>
+
+  <?php if ($minutajeGuardado): ?>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
+    <?php foreach ($minutajeGuardado as $fila): ?>
+      <tr style="border-bottom:1px solid var(--borde);">
+        <td style="padding:8px 6px;font-weight:600;width:70px;"><?= e($fila['hora'] ?? '—') ?></td>
+        <td style="padding:8px 6px;"><?= e($fila['nombre']) ?></td>
+        <td style="padding:8px 6px;text-align:right;width:80px;">
+          <button type="submit" formaction="competicion_minutaje_fila_borrar.php" name="fila_id" value="<?= (int)$fila['id'] ?>" class="borrar" style="font-size:12px;">Borrar</button>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+  </table>
+  <button type="submit" formaction="competicion_minutaje_borrar.php" name="competicion_id" value="<?= (int)$id ?>" class="borrar" style="font-size:13px;" onclick="return confirm('¿Borrar todo el horario de esta competición?');">Borrar todo el horario</button>
+  <?php elseif (!$minutajeBorrador): ?>
+    <p style="color:var(--gris);font-size:14px;">Todavía no hay ningún horario guardado para esta competición.</p>
+  <?php endif; ?>
+  <?php endif; ?>
+
+  <button type="submit" class="btn" style="margin-top:24px;">Guardar competición</button>
   <a href="competiciones.php" class="btn secundario">Cancelar</a>
 </form>
 

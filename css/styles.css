@@ -1896,3 +1896,19 @@ img.cargando-esqueleto {
 .linea-tiempo-texto { display: flex; flex-direction: column; gap: 2px; }
 .linea-tiempo-texto strong { font-size: 16px; color: var(--tinta); }
 .linea-tiempo-texto span { font-size: 13.5px; color: var(--gris-texto); }
+
+/* ---------- Horario de gimnastas en la ficha de competición ---------- */
+.tabla-horario-minutaje {
+  width: 100%;
+  max-width: 60ch;
+  border-collapse: collapse;
+}
+.tabla-horario-minutaje tr { border-bottom: 1px solid var(--borde-suave); }
+.tabla-horario-minutaje tr:last-child { border-bottom: none; }
+.tabla-horario-minutaje td { padding: 10px 8px; font-size: 15px; }
+.tabla-horario-hora {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  color: var(--fucsia);
+  width: 90px;
+}

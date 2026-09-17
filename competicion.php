@@ -72,6 +72,10 @@ $stmtDocs = $pdo->prepare('SELECT * FROM competicion_documentos WHERE competicio
 $stmtDocs->execute([$id]);
 $documentosCompeticion = $stmtDocs->fetchAll();
 
+$stmtMinutaje = $pdo->prepare('SELECT * FROM competicion_minutaje WHERE competicion_id = ? ORDER BY hora ASC, orden ASC');
+$stmtMinutaje->execute([$id]);
+$minutajeCompeticion = $stmtMinutaje->fetchAll();
+
 $tituloPagina = $competicion['nombre'];
 $descripcionOG = $competicion['descripcion'] ? recortarTexto(trim(explode("\n\n", $competicion['descripcion'])[0]), 160) : ($competicion['lugar'] . ' · ' . formatearFecha($competicion['fecha']));
 $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
@@ -106,6 +110,22 @@ require __DIR__ . '/includes/header.php';
         <?php endif; ?>
       <?php endforeach; ?>
     </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if ($minutajeCompeticion): ?>
+<section class="seccion" style="padding-top:0;">
+  <div class="contenedor">
+    <h3>Horario de nuestras gimnastas</h3>
+    <table class="tabla-horario-minutaje">
+      <?php foreach ($minutajeCompeticion as $fila): ?>
+        <tr>
+          <td class="tabla-horario-hora"><?= $fila['hora'] ? e($fila['hora']) : '—' ?></td>
+          <td><?= e($fila['nombre']) ?></td>
+        </tr>
+      <?php endforeach; ?>
+    </table>
   </div>
 </section>
 <?php endif; ?>
