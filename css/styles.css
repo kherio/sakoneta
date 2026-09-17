@@ -2095,7 +2095,6 @@ img.cargando-esqueleto {
   .atletas-grid, .conjuntos-grid { grid-template-columns: 1fr; }
   .hito { grid-template-columns: 70px 1fr; gap: 16px; }
   .hito-anio { font-size: 20px; height: 70px; border-radius: 12px; }
-  .hito-anio-seleccion, .hito-anio-rango { font-size: 11px; }
   .hito::before { left: 34px; top: 26px; }
 }
 
@@ -2134,6 +2133,9 @@ img.cargando-esqueleto {
    de llegar a esa sección */
 .hito-anio-seleccion { background: linear-gradient(135deg, #E8C874, #B8923E); font-size: 15px; }
 .hito-anio-rango { font-size: 15px; }
+@media (max-width: 720px) {
+  .hito-anio-seleccion, .hito-anio-rango { font-size: 10.5px; }
+}
 
 .seleccion-card-orden {
   display: inline-block;
