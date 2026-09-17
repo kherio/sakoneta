@@ -200,9 +200,10 @@ table.admin-tabla td { padding: 13px 14px; border-bottom: 1px solid var(--borde)
 table.admin-tabla tbody tr { transition: background var(--paso); }
 table.admin-tabla tbody tr:hover { background: var(--papel); }
 table.admin-tabla tbody tr:last-child td { border-bottom: none; }
-table.admin-tabla .acciones { display: flex; gap: 10px; align-items: center; }
+table.admin-tabla .acciones { vertical-align: middle; white-space: nowrap; }
 table.admin-tabla .acciones form { margin: 0; display: contents; }
-table.admin-tabla .acciones a, table.admin-tabla .acciones button { font-size: 13.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; transition: background var(--paso); font-family: inherit; background: none; border: none; cursor: pointer; }
+table.admin-tabla .acciones a, table.admin-tabla .acciones button { font-size: 13.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; transition: background var(--paso); font-family: inherit; background: none; border: none; cursor: pointer; margin-right: 6px; }
+table.admin-tabla .acciones a:last-child, table.admin-tabla .acciones button:last-child { margin-right: 0; }
 table.admin-tabla .acciones .editar { color: var(--morado); }
 table.admin-tabla .acciones .editar:hover { background: var(--borde); }
 table.admin-tabla .acciones .borrar { color: var(--rojo); }
