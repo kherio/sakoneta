@@ -2167,3 +2167,48 @@ img.cargando-esqueleto {
 @media (max-width: 720px) {
   .seleccion-grid { grid-template-columns: 1fr; }
 }
+
+/* Tarjeta de acceso a Historia y palmarés, desde Sobre el club */
+.historia-acceso {
+  margin-top: 40px;
+  background: linear-gradient(160deg, #101E42 0%, var(--morado-oscuro) 100%);
+  border-radius: var(--radio);
+  padding: 40px 44px;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  color: #fff;
+}
+.historia-acceso-emblema {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(232,200,116,.15);
+  border: 2px solid rgba(232,200,116,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+}
+.historia-acceso-cuerpo h3 { color: #fff; font-size: clamp(20px, 2.4vw, 26px); margin: 10px 0 10px; }
+.historia-acceso-cuerpo > p { color: rgba(255,255,255,.82); font-size: 15px; max-width: 62ch; margin-bottom: 22px; }
+.historia-acceso-datos {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.historia-acceso-datos > div { display: flex; flex-direction: column; gap: 2px; }
+.historia-acceso-datos strong {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  color: #E8C874;
+  line-height: 1;
+}
+.historia-acceso-datos span { font-size: 12.5px; color: rgba(255,255,255,.65); max-width: 16ch; }
+
+@media (max-width: 720px) {
+  .historia-acceso { flex-direction: column; text-align: center; padding: 32px 24px; }
+  .historia-acceso-datos { justify-content: center; text-align: left; }
+}

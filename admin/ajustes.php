@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $splashActivo = isset($_POST['splash_activo']) ? 1 : 0;
     $inicioImagenTitulo = trim($_POST['inicio_imagen_titulo'] ?? '');
     $sobreHistoria = trim($_POST['sobre_historia'] ?? '');
-    $sobrePalmares = trim($_POST['sobre_palmares'] ?? '');
     $heroKicker = trim($_POST['hero_kicker'] ?? '');
     $heroTitulo = trim($_POST['hero_titulo'] ?? '');
     $heroTituloTamano = in_array((int)($_POST['hero_titulo_tamano'] ?? 100), [80, 90, 100, 115, 130, 150], true) ? (int)$_POST['hero_titulo_tamano'] : 100;
@@ -58,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, sobre_palmares=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
-                $sobreHistoria ?: null, $sobrePalmares ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
+                $sobreHistoria ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
                 $nombreSitioNuevo ?: null, $esloganSitioNuevo ?: null, $pieTituloNuevo ?: null, $pieTextoNuevo ?: null, $modoEventoDias,
                 $estadisticas['est1_valor'], $estadisticas['est1_texto'],
                 $estadisticas['est2_valor'], $estadisticas['est2_texto'],
@@ -87,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['splash_activo'] = $splashActivo;
     $ajustes['inicio_imagen_titulo'] = $inicioImagenTitulo;
     $ajustes['sobre_historia'] = $sobreHistoria;
-    $ajustes['sobre_palmares'] = $sobrePalmares;
     $ajustes['hero_kicker'] = $heroKicker;
     $ajustes['hero_titulo'] = $heroTitulo;
     $ajustes['hero_titulo_tamano'] = $heroTituloTamano;
@@ -239,10 +237,7 @@ $defectoEst = [
     <label for="sobre_historia">Historia del club</label>
     <textarea id="sobre_historia" name="sobre_historia"><?= e($ajustes['sobre_historia'] ?? '') ?></textarea>
   </div>
-  <div class="campo">
-    <label for="sobre_palmares">Palmarés (un logro por línea)</label>
-    <textarea id="sobre_palmares" name="sobre_palmares" placeholder="Ej: Bronce por equipos, Campeonato de Euskadi 2025"><?= e($ajustes['sobre_palmares'] ?? '') ?></textarea>
-  </div>
+  <p style="font-size:13px;color:var(--gris);margin-top:-8px;">El palmarés completo del club se gestiona ahora en la página "Historia y palmarés" (accesible desde "Sobre el club" en la web pública), no aquí.</p>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
