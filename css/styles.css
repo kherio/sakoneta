@@ -2305,6 +2305,15 @@ img.cargando-esqueleto {
 }
 .metodologia-paso h3 { font-size: 18px; margin-bottom: 6px; }
 .metodologia-paso p { color: var(--gris-texto); font-size: 14.5px; }
+.metodologia-destacado {
+  margin-top: 14px !important;
+  padding: 14px 18px;
+  background: var(--papel);
+  border-left: 3px solid var(--fucsia);
+  border-radius: 0 10px 10px 0;
+  color: var(--tinta) !important;
+  font-style: italic;
+}
 
 .modalidades-grid {
   display: grid;

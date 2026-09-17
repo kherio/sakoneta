@@ -134,6 +134,11 @@ require __DIR__ . '/includes/header.php';
             sin presión, incluida nuestra escuela inclusiva junto a Haszten.
             Aquí no importa el resultado: importa que a la niña o al niño le
             guste lo que está descubriendo.</p>
+          <p class="metodologia-destacado">Cada una de las niñas que hoy da
+            sus primeros pasos con la cuerda o el aro en la escuela es, sin
+            saberlo todavía, una futura integrante del equipo de Sakoneta.
+            Toda la historia de este club —desde Eider Mendizabal hasta
+            Eneko Lambea— empezó exactamente aquí.</p>
         </div>
       </div>
       <div class="metodologia-paso animar-scroll">
