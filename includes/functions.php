@@ -1444,7 +1444,7 @@ function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
     $palabrasNoNombre = array_merge($palabrasClub, [
         'aro', 'pelota', 'mazas', 'cinta', 'cuerda', 'conjunto', 'individual',
         'base', 'alevin', 'alevín', 'infantil', 'cadete', 'junior', 'júnior', 'senior', 'sénior',
-        'prebenjamin', 'prebenjamín', 'benjamin', 'benjamín',
+        'prebenjamin', 'prebenjamín', 'benjamin', 'benjamín', 'juvenil', 'promesas', 'absoluto',
     ]);
 
     $lineas = preg_split('/\r\n|\r|\n/', $textoPdf);
@@ -1453,6 +1453,14 @@ function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
     $nombresYaExtraidos = [];
 
     foreach ($lineas as $linea) {
+        // Se guarda también la línea SIN colapsar los espacios: hace
+        // falta tal cual para poder separarla por columnas más
+        // abajo (pdftotext -layout separa cada columna de la tabla
+        // con dos o más espacios seguidos, así que esos espacios de
+        // más son la pista que dice dónde empieza y acaba cada dato,
+        // independientemente de si el texto está en MAYÚSCULAS,
+        // Mayúscula Inicial o minúsculas).
+        $lineaOriginal = rtrim($linea, "\r\n");
         $lineaLimpia = trim(preg_replace('/\s+/', ' ', $linea));
         if ($lineaLimpia === '') continue;
 
@@ -1497,40 +1505,77 @@ function extraerMinutajeDeTexto(PDO $pdo, string $textoPdf): array {
 
         // ...y si no se reconoce a nadie del plantel actual (puede
         // ser una gimnasta nueva que todavía no esté dada de alta),
-        // se intenta adivinar el nombre igualmente a partir de la
-        // propia fila, para no perder esa fila del todo: se buscan
-        // tramos de 2 a 4 palabras seguidas que empiecen en mayúscula
-        // (así suelen aparecer los nombres propios), descartando los
-        // que en realidad son el nombre del club.
-        if (preg_match_all('/\b(?:[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+(?:\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+){1,3})\b/u', $lineaLimpia, $coincidenciasNombre)) {
-            foreach ($coincidenciasNombre[0] as $candidato) {
-                // Se recortan del final las palabras que en realidad
-                // son un aparato o una categoría, no parte del
-                // nombre (p. ej. "Irati Zubizarreta Pelota" -> "Irati
-                // Zubizarreta").
-                $palabrasCandidato = explode(' ', $candidato);
+        // se intenta adivinar el nombre igualmente, para no perder
+        // esa fila del todo.
+        $candidato = null;
+
+        // Método principal: columnas reales de la tabla. Se separa
+        // la línea original (sin colapsar) por cada tramo de 2 o más
+        // espacios seguidos, se localiza la columna que contiene el
+        // nombre del club, y se coge la columna justo anterior como
+        // nombre — así es como suelen venir estos listados (Orden,
+        // Nombre, Club, Categoría, Aparato, Hora), y funciona igual
+        // de bien en mayúsculas que en Mayúscula Inicial.
+        $columnas = array_values(array_filter(
+            array_map('trim', preg_split('/\s{2,}/', $lineaOriginal)),
+            fn($c) => $c !== ''
+        ));
+        foreach ($columnas as $i => $col) {
+            if ($i === 0 || stripos($col, 'sakoneta') === false) continue;
+            $posibleNombre = $columnas[$i - 1];
+            // Tiene que parecer un nombre de verdad: solo letras y
+            // espacios, un par de palabras (no un número de orden ni
+            // una categoría suelta de una sola palabra), y que no sea
+            // a su vez el nombre de un club (p. ej. "Club Laredo",
+            // que puede aparecer en otras partes del PDF —como el
+            // listado de clubes participantes— junto al nombre del
+            // club de Sakoneta sin ser una fila real de minutaje).
+            if (!preg_match('/^[a-zA-ZÁÉÍÓÚÑÜáéíóúñü]+(?:\s+[a-zA-ZÁÉÍÓÚÑÜáéíóúñü]+){1,3}$/u', $posibleNombre)) {
+                continue;
+            }
+            $posibleNormalizado = $normalizar($posibleNombre);
+            $esNombreDeClub = false;
+            foreach ($palabrasClub as $palabra) {
+                if (strpos($posibleNormalizado, $palabra) !== false) { $esNombreDeClub = true; break; }
+            }
+            if (!$esNombreDeClub) {
+                $candidato = $posibleNombre;
+                break;
+            }
+        }
+
+        // Último recurso, por si la fila no tuviera columnas bien
+        // separadas por espacios (por ejemplo, un PDF sin tabla real,
+        // solo texto corrido): se buscan tramos de 2 a 4 palabras que
+        // empiecen en mayúscula, recortando del final aparatos o
+        // categorías que se hayan colado.
+        if ($candidato === null && preg_match_all('/\b(?:[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+(?:\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+){1,3})\b/u', $lineaLimpia, $coincidenciasNombre)) {
+            foreach ($coincidenciasNombre[0] as $posible) {
+                $palabrasCandidato = explode(' ', $posible);
                 while (count($palabrasCandidato) > 2 && in_array($normalizar(end($palabrasCandidato)), $palabrasNoNombre, true)) {
                     array_pop($palabrasCandidato);
                 }
-                $candidato = implode(' ', $palabrasCandidato);
-
-                $candidatoNormalizado = $normalizar($candidato);
+                $posible = implode(' ', $palabrasCandidato);
+                $posibleNormalizado = $normalizar($posible);
                 $esNombreDelClub = false;
                 foreach ($palabrasClub as $palabra) {
-                    if (strpos($candidatoNormalizado, $palabra) !== false) { $esNombreDelClub = true; break; }
+                    if (strpos($posibleNormalizado, $palabra) !== false) { $esNombreDelClub = true; break; }
                 }
-                if ($esNombreDelClub || isset($nombresYaExtraidos[$candidatoNormalizado])) continue;
-
-                $resultados[] = [
-                    'gimnasta_id' => null,
-                    'nombre' => $candidato,
-                    'hora' => $hora,
-                    'dato_extra' => $lineaLimpia,
-                ];
-                $nombresYaExtraidos[$candidatoNormalizado] = true;
-                break; // un nombre adivinado por fila es suficiente
+                if (!$esNombreDelClub) { $candidato = $posible; break; }
             }
         }
+
+        if ($candidato === null) continue;
+        $candidatoNormalizado = $normalizar($candidato);
+        if (isset($nombresYaExtraidos[$candidatoNormalizado])) continue;
+
+        $resultados[] = [
+            'gimnasta_id' => null,
+            'nombre' => $candidato,
+            'hora' => $hora,
+            'dato_extra' => $lineaLimpia,
+        ];
+        $nombresYaExtraidos[$candidatoNormalizado] = true;
     }
 
     return $resultados;
