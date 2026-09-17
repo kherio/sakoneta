@@ -10,8 +10,6 @@ $noticias = $pdo->query('SELECT * FROM noticias WHERE publicado = 1 ORDER BY fec
 $destacada = $noticias[0] ?? null;
 $restoNoticias = array_slice($noticias, 1);
 
-$gimnastasPortada = $pdo->query('SELECT * FROM gimnastas ORDER BY orden ASC LIMIT 4')->fetchAll();
-
 $galeriaPortada = $pdo->query("
     SELECT cf.archivo, c.id AS competicion_id, c.nombre AS competicion_nombre
     FROM competicion_fotos cf
@@ -216,30 +214,6 @@ require __DIR__ . '/includes/header.php';
     <?php endif; ?>
   </div>
 </section>
-
-<?php if ($gimnastasPortada): ?>
-<section class="seccion" style="background:var(--papel);">
-  <div class="contenedor">
-    <div class="seccion-cabecera">
-      <h2>Nuestras gimnastas</h2>
-      <a href="gimnastas.php"><?= t('ver_todas') ?></a>
-    </div>
-    <div class="grid-plantilla">
-      <?php foreach ($gimnastasPortada as $g): ?>
-      <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;">
-        <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>"></div>
-        <div class="info">
-          <div class="dorsal" style="background:<?= e(colorCategoria($pdo, $g['categoria'])) ?>;"><?= e($g['categoria']) ?></div>
-          <h4><?= e($g['nombre']) ?></h4>
-          <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
-          <span class="tarjeta-cta">Ver ficha <span class="tarjeta-flecha">→</span></span>
-        </div>
-      </a>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-<?php endif; ?>
 
 <?php if ($galeriaPortada): ?>
 <section class="seccion">

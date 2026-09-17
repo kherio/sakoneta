@@ -21,9 +21,12 @@ ajustes generales del sitio.
 ## Qué incluye la web pública
 
 - **Portada con narrativa completa**: titular/próxima competición →
-  noticias → gimnastas destacados → galería de momentos recientes →
-  invitación a conocer el club, cada bloque solo aparece si hay datos
-  que mostrar.
+  noticias → galería de momentos recientes → invitación a conocer el
+  club, cada bloque solo aparece si hay datos que mostrar. (Se quitó
+  deliberadamente un adelanto de gimnastas que hubo aquí: mostrar
+  fotos y nombres de menores en la página más visible de la web no
+  es buena idea sin haber decidido antes una política de imagen por
+  gimnasta.)
 - **Navegación anterior/siguiente entre noticias**, para poder seguir
   leyendo sin volver al listado.
 
