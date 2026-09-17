@@ -361,7 +361,7 @@ require __DIR__ . '/includes/header.php';
     <p class="historia-cierre-lema">Desde 1987, formando gimnastas.<br>Creando equipo.<br>Viviendo la rítmica.</p>
     <div class="historia-cierre-nombres">
       Eider Mendizabal · Lorena Barbadillo · Igone Arribas · Saioa Agirre ·
-      Eva Santamariña · Sol Moreno · Izaro Martín · Eneko Lambea ·
+      Eva Santamariña · Sol Moreno · Eneko Lambea ·
       Asier Carrasco · Daria Rubtsova · y todas las gimnastas y gimnastas
       que han formado parte de Sakoneta.
     </div>

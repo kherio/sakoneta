@@ -2063,14 +2063,15 @@ img.cargando-esqueleto {
   text-align: center;
   padding: 72px 0;
 }
-.historia-cierre h2 { margin-bottom: 20px; }
+.historia-cierre h2 { color: #fff; font-size: clamp(26px, 4vw, 38px); margin-bottom: 20px; }
 .historia-cierre p { max-width: 65ch; margin: 0 auto 14px; color: rgba(255,255,255,.85); font-size: 15.5px; }
 .historia-cierre-lema {
   font-family: 'Fraunces', serif;
   font-size: clamp(20px, 3vw, 28px);
   font-style: italic;
   color: var(--acento-suave) !important;
-  margin: 32px 0 24px !important;
+  text-align: center;
+  margin: 32px auto 24px !important;
   line-height: 1.5;
 }
 .historia-cierre-nombres {
