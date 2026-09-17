@@ -84,6 +84,29 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
 <a href="unete.php" class="unete-flotante">🤸 Únete a Sakoneta</a>
 <?php endif; ?>
 
+<!-- Huevo de pascua: ↑ ↓ ← → en cualquier página activa el "Modo Sakoneta" -->
+<div class="modo-sakoneta" id="modo-sakoneta" aria-live="polite" aria-hidden="true">
+  <div class="modo-sakoneta-cintas" aria-hidden="true">
+    <span class="msk-cinta msk-cinta-1"></span>
+    <span class="msk-cinta msk-cinta-2"></span>
+    <span class="msk-cinta msk-cinta-3"></span>
+    <span class="msk-cinta msk-cinta-4"></span>
+    <span class="msk-cinta msk-cinta-5"></span>
+  </div>
+  <div class="modo-sakoneta-tarjeta">
+    <p class="modo-sakoneta-titulo">✨ Has descubierto el Modo Sakoneta ✨</p>
+    <div class="modo-sakoneta-aparatos">
+      <span style="--msk-i:0">🎀<br>Aro</span>
+      <span style="--msk-i:1">🟡<br>Pelota</span>
+      <span style="--msk-i:2">🔵<br>Cinta</span>
+      <span style="--msk-i:3">🟣<br>Mazas</span>
+      <span style="--msk-i:4">🪢<br>Cuerda</span>
+    </div>
+    <p class="modo-sakoneta-bienvenida">¡Bienvenido/a al equipo!</p>
+    <p class="modo-sakoneta-secreto">Solo los más curiosos llegan hasta aquí 🤫</p>
+  </div>
+</div>
+
 <div class="lightbox-galeria" id="lightbox-galeria" aria-hidden="true">
   <button type="button" class="lightbox-galeria-cerrar" id="lightbox-cerrar" aria-label="Cerrar">✕</button>
   <button type="button" class="lightbox-galeria-anterior" id="lightbox-anterior" aria-label="Foto anterior">‹</button>

@@ -937,4 +937,46 @@ document.addEventListener('DOMContentLoaded', function () {
       else if (e.key === 'ArrowRight') abrirLightbox(indiceActual + 1);
     });
   }
+
+  // --- Huevo de pascua: "Modo Sakoneta" (↑ ↓ ← →, en cualquier página) ---
+  var mskOverlay = document.getElementById('modo-sakoneta');
+  if (mskOverlay) {
+    var mskSecuencia = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    var mskProgreso = 0;
+    var mskActivo = false;
+
+    document.addEventListener('keydown', function (e) {
+      // No interferir si la persona está escribiendo en un campo
+      var elActivo = document.activeElement;
+      var enCampoTexto = elActivo && (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(elActivo.tagName) !== -1 || elActivo.isContentEditable);
+      if (enCampoTexto) { mskProgreso = 0; return; }
+
+      if (e.key === mskSecuencia[mskProgreso]) {
+        mskProgreso++;
+        if (mskProgreso === mskSecuencia.length) {
+          mskProgreso = 0;
+          activarModoSakoneta();
+        }
+      } else {
+        // Si la tecla fallida es a la vez el inicio de la secuencia,
+        // no se pierde del todo: cuenta como si fuera el primer paso.
+        mskProgreso = (e.key === mskSecuencia[0]) ? 1 : 0;
+      }
+    });
+
+    function activarModoSakoneta() {
+      if (mskActivo) return; // ya está activo, no se relanza encima
+      mskActivo = true;
+      mskOverlay.classList.add('visible');
+      mskOverlay.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modo-sakoneta-activo');
+      var duracion = movimientoReducidoGlobal() ? 3200 : 5500;
+      setTimeout(function () {
+        mskOverlay.classList.remove('visible');
+        mskOverlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modo-sakoneta-activo');
+        mskActivo = false;
+      }, duracion);
+    }
+  }
 });

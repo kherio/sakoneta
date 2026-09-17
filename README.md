@@ -27,6 +27,13 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Huevo de pascua "Modo Sakoneta"** 🥚: en cualquier página, pulsar
+  ↑ ↓ ← → activa una pequeña celebración (cintas cayendo, los cinco
+  aparatos con una microanimación, el logo "bailando" y un mensaje
+  secreto) durante unos segundos, y luego todo vuelve a la normalidad.
+  Respeta la política de movimiento reducido del sitio (se ve el
+  mensaje, pero sin las animaciones de movimiento).
+
 - **Página "Únete a Sakoneta"** (`unete.php`): pensada para quien todavía no
   es del club — grupos por edad/nivel (iniciación, base, competición),
   respuestas a dónde/cuándo/qué necesitas/cómo probar/cuánto cuesta (estos

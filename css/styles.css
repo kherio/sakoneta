@@ -2479,3 +2479,106 @@ img.cargando-esqueleto {
 @media (max-width: 720px) {
   .unete-aviso-inscripcion { flex-direction: column; gap: 12px; padding: 22px; }
 }
+
+/* ---------- Huevo de pascua: Modo Sakoneta (↑ ↓ ← →) ---------- */
+.modo-sakoneta {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 24, 56, .35);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+  overflow: hidden;
+}
+.modo-sakoneta.visible { opacity: 1; pointer-events: auto; }
+
+.modo-sakoneta-tarjeta {
+  position: relative;
+  z-index: 1;
+  background: var(--degradado);
+  color: #fff;
+  border-radius: 24px;
+  padding: 36px 40px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+  transform: scale(.85);
+  opacity: 0;
+  transition: transform .5s cubic-bezier(.2,1.4,.4,1), opacity .4s ease;
+}
+.modo-sakoneta.visible .modo-sakoneta-tarjeta { transform: scale(1); opacity: 1; }
+
+.modo-sakoneta-titulo { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700; margin: 0 0 18px; line-height: 1.4; }
+.modo-sakoneta-aparatos {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.modo-sakoneta-aparatos span {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+  animation: mskAparatoRebote 1.6s ease-in-out infinite;
+  animation-delay: calc(var(--msk-i) * .12s);
+}
+@keyframes mskAparatoRebote {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.12); }
+}
+.modo-sakoneta-bienvenida { font-size: 16px; font-weight: 700; margin: 0 0 10px; }
+.modo-sakoneta-secreto { font-size: 13px; font-style: italic; color: rgba(255,255,255,.75); margin: 0; }
+
+/* Cintas decorativas cayendo */
+.modo-sakoneta-cintas { position: absolute; inset: 0; overflow: hidden; }
+.msk-cinta {
+  position: absolute;
+  top: -60px;
+  width: 8px;
+  height: 46px;
+  border-radius: 4px;
+  opacity: 0;
+  animation: mskCintaCae 2.6s ease-in infinite;
+}
+.modo-sakoneta.visible .msk-cinta { opacity: .9; }
+.msk-cinta-1 { left: 12%; background: var(--fucsia); animation-delay: 0s; }
+.msk-cinta-2 { left: 30%; background: #E8C874; animation-delay: .4s; }
+.msk-cinta-3 { left: 52%; background: #4FA8E8; animation-delay: .8s; }
+.msk-cinta-4 { left: 70%; background: #8A5CD6; animation-delay: .2s; }
+.msk-cinta-5 { left: 86%; background: #4CC38A; animation-delay: .6s; }
+@keyframes mskCintaCae {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: .9; }
+  100% { transform: translateY(110vh) rotate(340deg); opacity: 0; }
+}
+
+/* Animación especial del logo mientras el modo está activo */
+body.modo-sakoneta-activo #escudo-cabecera {
+  animation: mskLogoBaila 1s ease-in-out infinite;
+}
+@keyframes mskLogoBaila {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.08); }
+  75% { transform: rotate(8deg) scale(1.08); }
+}
+
+/* Con movimiento reducido: se ve el mensaje, pero sin cintas cayendo,
+   sin que el logo baile, y sin que los aparatos reboten. */
+:root[data-movimiento="reducido"] .msk-cinta,
+:root[data-movimiento="reducido"] .modo-sakoneta-aparatos span,
+:root[data-movimiento="reducido"] body.modo-sakoneta-activo #escudo-cabecera {
+  animation: none !important;
+}
+:root[data-movimiento="reducido"] .modo-sakoneta-tarjeta { transition: opacity .3s ease; transform: none !important; }
+
+@media (max-width: 480px) {
+  .modo-sakoneta-tarjeta { max-width: 88vw; padding: 28px 22px; }
+  .modo-sakoneta-aparatos { gap: 10px; }
+  .modo-sakoneta-aparatos span { font-size: 12px; }
+}
