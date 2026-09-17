@@ -106,6 +106,21 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
       </span>
     </a>
 
+    <?php
+    // Se muestra solo cuando la cabecera se compacta al hacer scroll
+    // (ver CSS), y solo si no estamos ya en la portada (ahí no hace
+    // falta decir "estás en Inicio"), para que la persona sepa en
+    // qué sección sigue estando aunque el logo se haya hecho pequeño.
+    $etiquetasSeccion = [
+        'noticias' => 'nav_noticias', 'gimnastas' => 'nav_gimnastas', 'competiciones' => 'nav_competiciones',
+        'sobre' => 'nav_sobre', 'contacto' => 'nav_contacto', 'buscar' => 'nav_buscar',
+    ];
+    $seccionActualTexto = $etiquetasSeccion[$paginaActual ?? ''] ?? null;
+    if ($seccionActualTexto):
+    ?>
+    <span class="cabecera-seccion-actual" aria-hidden="true"><?= t($seccionActualTexto) ?></span>
+    <?php endif; ?>
+
     <button type="button" class="btn-menu-movil" id="btn-menu-movil" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil">
       <span></span><span></span><span></span>
     </button>
