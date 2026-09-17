@@ -175,12 +175,24 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
+<section class="franja-stats animar-scroll">
+  <div class="contenedor stats-grid">
+    <?php foreach ($estadisticasPortada as $est): ?>
+    <div class="stat-item">
+      <?= iconoStat($est['icono']) ?>
+      <span class="stat-numero" data-hasta="<?= (int)$est['valor'] ?>">0</span>
+      <span class="stat-etiqueta"><?= e($est['texto']) ?></span>
+    </div>
+    <?php endforeach; ?>
+  </div>
+</section>
+
 <?php if ($ultimasCompeticiones || $proxima): ?>
 <section class="seccion linea-tiempo-competiciones-seccion">
   <div class="contenedor">
     <div class="seccion-cabecera">
       <h2><?= t('ultimas_competiciones') ?></h2>
-      <a href="competiciones.php"><?= t('ver_todas') ?></a>
+      <a href="competiciones.php"><?= t('ver_todas_competiciones') ?></a>
     </div>
     <ul class="linea-tiempo-competiciones">
       <?php foreach ($ultimasCompeticiones as $c): ?>
@@ -209,18 +221,6 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 <?php endif; ?>
-
-<section class="franja-stats animar-scroll">
-  <div class="contenedor stats-grid">
-    <?php foreach ($estadisticasPortada as $est): ?>
-    <div class="stat-item">
-      <?= iconoStat($est['icono']) ?>
-      <span class="stat-numero" data-hasta="<?= (int)$est['valor'] ?>">0</span>
-      <span class="stat-etiqueta"><?= e($est['texto']) ?></span>
-    </div>
-    <?php endforeach; ?>
-  </div>
-</section>
 
 <section class="seccion">
   <div class="contenedor">
