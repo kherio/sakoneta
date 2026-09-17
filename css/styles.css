@@ -207,6 +207,8 @@ nav.principal a.activo {
 
 .menu-movil {
   display: none;
+  position: relative;
+  z-index: 495;
   flex-direction: column;
   background: var(--morado-oscuro);
   padding: 6px 24px 14px;
