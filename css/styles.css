@@ -443,13 +443,11 @@ nav.principal a.activo {
   box-shadow: var(--sombra-chica);
   transition: transform var(--paso), box-shadow var(--paso);
 }
-.tarjeta-noticia:hover { transform: translateY(-6px); box-shadow: var(--sombra); }
 .tarjeta-noticia .marco-img { overflow: hidden; }
 .tarjeta-noticia img { border-radius: 0; aspect-ratio: 16/10; object-fit: cover; transition: transform .5s var(--paso); }
-.tarjeta-noticia:hover img { transform: scale(1.08); }
 .tarjeta-noticia .cuerpo-tarjeta { padding: 16px 18px 20px; }
 .tarjeta-noticia .fecha { color: var(--fucsia); font-size: 13px; margin: 0 0 6px; font-weight: 600; }
-.tarjeta-noticia h3 { font-size: 18px; }
+.tarjeta-noticia h3 { font-size: 18px; transition: transform var(--paso); }
 .tarjeta-noticia p { color: var(--gris-texto); font-size: 14.5px; }
 
 /* Detalle de noticia */
@@ -472,10 +470,8 @@ nav.principal a.activo {
   overflow: hidden;
   transition: transform var(--paso), box-shadow var(--paso);
 }
-.tarjeta-jugador:hover { transform: translateY(-6px); box-shadow: var(--sombra); border-color: transparent; }
 .tarjeta-jugador .marco-img { overflow: hidden; }
 .tarjeta-jugador img { aspect-ratio: 3/3.6; object-fit: cover; transition: transform .5s var(--paso); }
-.tarjeta-jugador:hover img { transform: scale(1.07); }
 .tarjeta-jugador .info { padding: 14px 16px; }
 .tarjeta-jugador .dorsal {
   display: inline-block;
@@ -486,7 +482,7 @@ nav.principal a.activo {
   border-radius: 999px;
   font-size: 12px;
 }
-.tarjeta-jugador h4 { font-size: 16px; margin: 10px 0 2px; }
+.tarjeta-jugador h4 { font-size: 16px; margin: 10px 0 2px; transition: transform var(--paso); }
 .tarjeta-jugador .posicion { font-size: 13px; color: var(--gris-texto); }
 
 /* Competiciones: tarjetas con foto de portada */
@@ -498,7 +494,6 @@ nav.principal a.activo {
   box-shadow: var(--sombra-chica);
   transition: transform var(--paso), box-shadow var(--paso);
 }
-.tarjeta-competicion:hover { transform: translateY(-6px); box-shadow: var(--sombra); }
 .tarjeta-competicion-foto { position: relative; aspect-ratio: 16/10; overflow: hidden; display: block; }
 .tarjeta-competicion-foto img {
   position: absolute; top: -14%; left: 0;
@@ -509,7 +504,6 @@ nav.principal a.activo {
   transition: transform .5s var(--paso);
   will-change: transform;
 }
-.tarjeta-competicion:hover .tarjeta-competicion-foto img { --s: 1.08; }
 .tarjeta-competicion-categoria {
   position: absolute; top: 12px; left: 12px;
   background: rgba(8,24,56,.75);
@@ -522,9 +516,75 @@ nav.principal a.activo {
 }
 .tarjeta-competicion-cuerpo { padding: 18px 20px 22px; }
 .tarjeta-competicion-cuerpo .fecha { color: var(--fucsia); font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-.tarjeta-competicion-cuerpo h3 { font-size: 19px; margin-bottom: 4px; }
+.tarjeta-competicion-cuerpo h3 { font-size: 19px; margin-bottom: 4px; transition: transform var(--paso); }
 .tarjeta-competicion-cuerpo .lugar { color: var(--gris-texto); font-size: 14px; margin: 0 0 10px; }
 .tarjeta-competicion-cuerpo .resultado { font-family: 'Fraunces', serif; font-size: 16px; color: var(--fucsia); margin-bottom: 8px; }
+
+/* ---------- Microinteracciones de tarjetas: "esto es clicable" ---------- */
+/* El "llamado a la acción" (Leer más / Ver ficha / Ver detalles) se
+   guarda siempre en el DOM (para que no salte el alto de la tarjeta
+   al aparecer) pero se queda invisible y colapsado hasta que hace
+   falta mostrarlo. */
+.tarjeta-cta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--fucsia);
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(4px);
+  transition: opacity var(--paso), transform var(--paso), height var(--paso);
+}
+.tarjeta-flecha { display: inline-block; transition: transform var(--paso); }
+
+/* Con ratón/trackpad de verdad: al pasar por encima, todo el
+   conjunto de detalles cobra vida a la vez. En táctil (pointer:
+   coarse, sin hover real) esto no se activa — ahí basta con el
+   pequeño toque al pulsar, un poco más abajo. */
+@media (hover: hover) and (pointer: fine) {
+  .tarjeta-noticia:hover,
+  .tarjeta-jugador:hover,
+  .tarjeta-competicion:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--sombra);
+  }
+  .tarjeta-jugador:hover { border-color: transparent; }
+  .tarjeta-noticia:hover img { transform: scale(1.05); }
+  .tarjeta-jugador:hover img { transform: scale(1.05); }
+  .tarjeta-competicion:hover .tarjeta-competicion-foto img { --s: 1.05; }
+  .tarjeta-noticia:hover h3,
+  .tarjeta-jugador:hover h4,
+  .tarjeta-competicion:hover .tarjeta-competicion-cuerpo h3 {
+    transform: translateX(3px);
+  }
+  .tarjeta-noticia:hover .tarjeta-cta,
+  .tarjeta-jugador:hover .tarjeta-cta,
+  .tarjeta-competicion:hover .tarjeta-cta {
+    height: 18px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tarjeta-noticia:hover .tarjeta-flecha,
+  .tarjeta-jugador:hover .tarjeta-flecha,
+  .tarjeta-competicion:hover .tarjeta-flecha {
+    transform: translateX(3px);
+  }
+}
+/* En táctil, un toque breve al pulsar confirma "esto responde",
+   sin depender de ningún estado de hover que en el móvil no
+   tendría manera limpia de desaparecer después. */
+@media (hover: none), (pointer: coarse) {
+  .tarjeta-noticia:active,
+  .tarjeta-jugador:active,
+  .tarjeta-competicion:active {
+    transform: scale(.98);
+    transition-duration: .1s;
+  }
+}
 
 /* Calendario (tabla, en desuso desde el rediseño en tarjetas, se mantiene por compatibilidad) */
 .tabla-partidos { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--superficie); border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra-chica); }

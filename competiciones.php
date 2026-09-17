@@ -86,6 +86,7 @@ require __DIR__ . '/includes/header.php';
           <?php else: ?>
             <span class="pill pendiente"><?= t('pendiente') ?></span>
           <?php endif; ?>
+          <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
         </div>
       </article>
       <?php endforeach; ?>

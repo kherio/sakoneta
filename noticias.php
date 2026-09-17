@@ -28,6 +28,7 @@ require __DIR__ . '/includes/header.php';
           <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
           <h3><?= e($n['titulo']) ?></h3>
           <p><?= e($n['resumen']) ?></p>
+          <span class="tarjeta-cta">Leer más <span class="tarjeta-flecha">→</span></span>
         </div>
       </a>
       <?php endforeach; ?>

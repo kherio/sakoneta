@@ -43,6 +43,7 @@ require __DIR__ . '/includes/header.php';
           <div class="dorsal" style="background:<?= e(colorCategoria($pdo, $g['categoria'])) ?>;"><?= e($g['categoria']) ?></div>
           <h4><?= e($g['nombre']) ?></h4>
           <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
+          <span class="tarjeta-cta">Ver ficha <span class="tarjeta-flecha">→</span></span>
         </div>
       </a>
       <?php endforeach; ?>

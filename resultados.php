@@ -72,6 +72,7 @@ require __DIR__ . '/includes/header.php';
           <p class="lugar"><?= e($c['lugar']) ?></p>
           <div class="resultado"><?= e($c['resultado'] ?: t('disputada')) ?></div>
           <span class="pill jugado"><?= t('disputada') ?></span>
+          <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
         </div>
       </article>
       <?php endforeach; ?>

@@ -148,6 +148,7 @@ require __DIR__ . '/includes/header.php';
             <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
             <h3><?= e($n['titulo']) ?></h3>
             <p><?= e($n['resumen']) ?></p>
+            <span class="tarjeta-cta">Leer más <span class="tarjeta-flecha">→</span></span>
           </div>
         </a>
         <?php endforeach; ?>
@@ -167,6 +168,7 @@ require __DIR__ . '/includes/header.php';
             <div class="dorsal"><?= e($g['categoria']) ?></div>
             <h4><?= e($g['nombre']) ?></h4>
             <div class="posicion"><?= e($g['modalidad']) ?><?= $g['aparato'] ? ' · ' . e($g['aparato']) : '' ?></div>
+            <span class="tarjeta-cta">Ver ficha <span class="tarjeta-flecha">→</span></span>
           </div>
         </a>
         <?php endforeach; ?>
@@ -188,6 +190,7 @@ require __DIR__ . '/includes/header.php';
             <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
             <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e($c['nombre']) ?></a></h3>
             <p class="lugar"><?= e($c['lugar']) ?></p>
+            <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
           </div>
         </article>
         <?php endforeach; ?>
