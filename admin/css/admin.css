@@ -103,6 +103,7 @@ a { color: inherit; }
 .admin-menu a:hover { background: rgba(255,255,255,.08); color: #fff; transform: translateX(2px); }
 .admin-menu a.activo { background: var(--degradado); color: #fff; font-weight: 600; box-shadow: var(--sombra-chica); }
 .admin-menu .salir { margin-top: 20px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 16px; color: #E9B3B3; }
+.admin-menu-separador { margin-top: 14px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 14px !important; }
 
 .admin-contenido { flex: 1; padding: 32px 40px; max-width: 980px; }
 .admin-contenido h1 { font-size: 24px; margin: 0 0 24px; }
