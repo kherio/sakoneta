@@ -27,6 +27,15 @@ ajustes generales del sitio.
 
 ## Qué incluye la web pública
 
+- **Página "Únete a Sakoneta"** (`unete.php`): pensada para quien todavía no
+  es del club — grupos por edad/nivel (iniciación, base, competición),
+  respuestas a dónde/cuándo/qué necesitas/cómo probar/cuánto cuesta (estos
+  4 últimos editables desde Ajustes, con un texto genérico de respaldo si
+  se dejan en blanco), y varios CTA "Quiero información" que enlazan al
+  formulario de contacto con el mensaje ya prerrellenado. Accesible desde
+  un botón flotante visible en cualquier página del sitio y desde el menú
+  principal.
+
 - **Contenido bilingüe de verdad (castellano/euskera)**: noticias y
   competiciones pueden tener una versión en euskera de su título,
   resumen/descripción, resultado y lugar, campo a campo y opcional.

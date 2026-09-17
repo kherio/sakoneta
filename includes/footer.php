@@ -80,6 +80,10 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
   <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?> — sitio de ejemplo generado con fines de demostración.</div>
 </footer>
 
+<?php if (($paginaActual ?? '') !== 'unete'): ?>
+<a href="unete.php" class="unete-flotante">🤸 Únete a Sakoneta</a>
+<?php endif; ?>
+
 <div class="lightbox-galeria" id="lightbox-galeria" aria-hidden="true">
   <button type="button" class="lightbox-galeria-cerrar" id="lightbox-cerrar" aria-label="Cerrar">✕</button>
   <button type="button" class="lightbox-galeria-anterior" id="lightbox-anterior" aria-label="Foto anterior">‹</button>

@@ -132,6 +132,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
       <a href="competiciones.php" class="<?= ($paginaActual ?? '') === 'competiciones' ? 'activo' : '' ?>"><?= t('nav_competiciones') ?></a>
       <a href="sobre.php" class="<?= ($paginaActual ?? '') === 'sobre' ? 'activo' : '' ?>"><?= t('nav_sobre') ?></a>
       <a href="contacto.php" class="<?= ($paginaActual ?? '') === 'contacto' ? 'activo' : '' ?>"><?= t('nav_contacto') ?></a>
+      <a href="unete.php" class="nav-unete <?= ($paginaActual ?? '') === 'unete' ? 'activo' : '' ?>"><?= t('nav_unete') ?></a>
       <a href="buscar.php" class="<?= ($paginaActual ?? '') === 'buscar' ? 'activo' : '' ?>" title="Buscar">⌕</a>
       <a href="admin/index.php" class="nav-acceso"><?= t('nav_acceso') ?></a>
     </nav>
@@ -144,6 +145,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
     <a href="competiciones.php" class="<?= ($paginaActual ?? '') === 'competiciones' ? 'activo' : '' ?>"><?= t('nav_competiciones') ?></a>
     <a href="sobre.php" class="<?= ($paginaActual ?? '') === 'sobre' ? 'activo' : '' ?>"><?= t('nav_sobre') ?></a>
     <a href="contacto.php" class="<?= ($paginaActual ?? '') === 'contacto' ? 'activo' : '' ?>"><?= t('nav_contacto') ?></a>
+    <a href="unete.php" class="nav-unete <?= ($paginaActual ?? '') === 'unete' ? 'activo' : '' ?>"><?= t('nav_unete') ?></a>
     <a href="buscar.php" class="<?= ($paginaActual ?? '') === 'buscar' ? 'activo' : '' ?>"><?= t('nav_buscar') ?></a>
     <a href="admin/index.php" class="nav-acceso"><?= t('nav_acceso') ?></a>
   </div>

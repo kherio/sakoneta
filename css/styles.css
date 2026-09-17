@@ -189,6 +189,17 @@ nav.principal a.activo {
   filter: brightness(1.08);
   transform: translateY(-2px) !important;
 }
+.nav-unete {
+  background: var(--fucsia) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  padding: 8px 18px !important;
+  border-radius: 999px;
+  transition: transform var(--paso), filter var(--paso);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-unete:hover { filter: brightness(1.1); transform: translateY(-2px); }
+}
 .btn-menu-movil {
   display: none;
   flex-direction: column;
@@ -2356,4 +2367,97 @@ img.cargando-esqueleto {
 @media (max-width: 720px) {
   .conoce-grid, .modalidades-grid { grid-template-columns: 1fr; }
   .familia-fotos { grid-template-columns: 1fr; }
+}
+
+/* ---------- Página "Únete a Sakoneta" ---------- */
+.unete-hero { text-align: center; }
+.unete-cta-grande {
+  display: inline-block;
+  margin-top: 28px;
+  font-size: 17px;
+  padding: 16px 38px;
+  box-shadow: 0 16px 34px -12px rgba(0,0,0,.4);
+}
+
+.grupos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.grupo-card {
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 30px 26px;
+  text-align: center;
+  transition: transform var(--paso), box-shadow var(--paso);
+}
+@media (hover: hover) and (pointer: fine) {
+  .grupo-card:hover { transform: translateY(-6px); box-shadow: var(--sombra); }
+}
+.grupo-card-icono { font-size: 36px; margin-bottom: 14px; }
+.grupo-card h3 { font-size: 20px; margin-bottom: 4px; }
+.grupo-card-edad { color: var(--fucsia); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 12px; }
+.grupo-card p:not(.grupo-card-edad) { color: var(--gris-texto); font-size: 14.5px; }
+
+/* Preguntas frecuentes de captación: dónde, cuándo, qué necesitas... */
+.preguntas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.pregunta-card {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  padding: 26px 24px;
+  box-shadow: var(--sombra-chica);
+}
+.pregunta-icono { font-size: 26px; margin-bottom: 10px; }
+.pregunta-card h3 { font-size: 17px; margin-bottom: 8px; }
+.pregunta-card p { color: var(--gris-texto); font-size: 14px; }
+.pregunta-pendiente { font-style: italic; }
+.pregunta-card-cta {
+  background: var(--degradado);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.pregunta-card-cta h3 { color: #fff; }
+.pregunta-card-cta p { color: rgba(255,255,255,.85); margin-bottom: 18px; }
+
+.unete-cierre {
+  background: linear-gradient(160deg, #08183A 0%, var(--morado-oscuro) 100%);
+  color: #fff;
+  text-align: center;
+  padding: 64px 0;
+}
+.unete-cierre h2 { color: #fff; font-size: clamp(24px, 3.4vw, 32px); }
+.unete-cierre p { color: rgba(255,255,255,.85); margin-bottom: 8px; }
+
+/* Botón flotante "Únete", visible en cualquier página del sitio */
+.unete-flotante {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 400;
+  background: var(--degradado);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  box-shadow: 0 14px 30px -10px rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform var(--paso);
+}
+@media (hover: hover) and (pointer: fine) {
+  .unete-flotante:hover { transform: translateY(-3px); }
+}
+
+@media (max-width: 720px) {
+  .grupos-grid, .preguntas-grid { grid-template-columns: 1fr; }
+  .unete-flotante { right: 12px; bottom: 12px; padding: 11px 18px; font-size: 13px; }
 }

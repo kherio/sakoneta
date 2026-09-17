@@ -21,6 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $splashActivo = isset($_POST['splash_activo']) ? 1 : 0;
     $inicioImagenTitulo = trim($_POST['inicio_imagen_titulo'] ?? '');
     $sobreHistoria = trim($_POST['sobre_historia'] ?? '');
+    $uneteHorarios = trim($_POST['unete_horarios'] ?? '');
+    $unetePrecio = trim($_POST['unete_precio'] ?? '');
+    $uneteRequisitos = trim($_POST['unete_requisitos'] ?? '');
+    $uneteprueba = trim($_POST['unete_prueba'] ?? '');
     $heroKicker = trim($_POST['hero_kicker'] ?? '');
     $heroTitulo = trim($_POST['hero_titulo'] ?? '');
     $heroTituloTamano = in_array((int)($_POST['hero_titulo_tamano'] ?? 100), [80, 90, 100, 115, 130, 150], true) ? (int)$_POST['hero_titulo_tamano'] : 100;
@@ -57,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=?, unete_horarios=?, unete_precio=?, unete_requisitos=?, unete_prueba=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
                 $sobreHistoria ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
@@ -66,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
                 $estadisticas['est2_valor'], $estadisticas['est2_texto'],
                 $estadisticas['est3_valor'], $estadisticas['est3_texto'],
                 $estadisticas['est4_valor'], $estadisticas['est4_texto'],
+                $uneteHorarios ?: null, $unetePrecio ?: null, $uneteRequisitos ?: null, $uneteprueba ?: null,
             ]);
 
             // Si se ha subido una foto nueva sustituyendo a una
@@ -86,6 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['splash_activo'] = $splashActivo;
     $ajustes['inicio_imagen_titulo'] = $inicioImagenTitulo;
     $ajustes['sobre_historia'] = $sobreHistoria;
+    $ajustes['unete_horarios'] = $uneteHorarios;
+    $ajustes['unete_precio'] = $unetePrecio;
+    $ajustes['unete_requisitos'] = $uneteRequisitos;
+    $ajustes['unete_prueba'] = $uneteprueba;
     $ajustes['hero_kicker'] = $heroKicker;
     $ajustes['hero_titulo'] = $heroTitulo;
     $ajustes['hero_titulo_tamano'] = $heroTituloTamano;
@@ -238,6 +247,29 @@ $defectoEst = [
     <textarea id="sobre_historia" name="sobre_historia"><?= e($ajustes['sobre_historia'] ?? '') ?></textarea>
   </div>
   <p style="font-size:13px;color:var(--gris);margin-top:-8px;">El palmarés completo del club se gestiona ahora en la página "Historia y palmarés" (accesible desde "Sobre el club" en la web pública), no aquí.</p>
+
+  <h3 style="margin-top:32px;">Página "Únete a Sakoneta"</h3>
+  <p style="font-size:13px;color:var(--gris);margin-top:-8px;">
+    Estos 4 campos son opcionales: si se dejan en blanco, la página pública
+    muestra un texto genérico invitando a escribir para pedir la información,
+    en vez de quedarse vacía.
+  </p>
+  <div class="campo">
+    <label for="unete_horarios">¿Cuándo entrenamos? (horarios)</label>
+    <textarea id="unete_horarios" name="unete_horarios" placeholder="Ej: Iniciación y Base: martes y jueves de 17:00 a 18:30. Competición: de lunes a viernes, horario según categoría."><?= e($ajustes['unete_horarios'] ?? '') ?></textarea>
+  </div>
+  <div class="campo">
+    <label for="unete_requisitos">¿Qué necesitas? (requisitos)</label>
+    <textarea id="unete_requisitos" name="unete_requisitos" placeholder="Ej: Para las primeras clases, ropa cómoda y el pelo recogido. Más adelante, maillot y material específico según el aparato."><?= e($ajustes['unete_requisitos'] ?? '') ?></textarea>
+  </div>
+  <div class="campo">
+    <label for="unete_prueba">¿Cómo se puede probar?</label>
+    <textarea id="unete_prueba" name="unete_prueba" placeholder="Ej: Escríbenos con la edad de la niña o el niño y te proponemos un día para venir a probar una clase gratuita."><?= e($ajustes['unete_prueba'] ?? '') ?></textarea>
+  </div>
+  <div class="campo">
+    <label for="unete_precio">¿Cuánto cuesta?</label>
+    <textarea id="unete_precio" name="unete_precio" placeholder="Ej: Cuota mensual de X€. Descuento a partir de la segunda gimnasta de la misma familia."><?= e($ajustes['unete_precio'] ?? '') ?></textarea>
+  </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 

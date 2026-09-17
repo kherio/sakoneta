@@ -49,6 +49,7 @@ function t(string $clave): string {
         'es' => [
             'nav_inicio' => 'Inicio', 'nav_noticias' => 'Noticias', 'nav_gimnastas' => 'Gimnastas',
             'nav_competiciones' => 'Competiciones', 'nav_sobre' => 'Sobre el club', 'nav_contacto' => 'Contacto',
+            'nav_unete' => 'Únete',
             'nav_acceso' => 'Acceso', 'nav_buscar' => 'Buscar',
             'hero_titulo' => 'Cada cinta, cada aro, cada ejercicio: un paso más hacia el podio.',
             'hero_texto' => 'Sigue la actualidad de la escuela, las gimnastas y los conjuntos del club en un único sitio, hecho por y para la familia de Sakoneta.',
@@ -79,6 +80,7 @@ function t(string $clave): string {
         'eu' => [
             'nav_inicio' => 'Hasiera', 'nav_noticias' => 'Berriak', 'nav_gimnastas' => 'Gimnastak',
             'nav_competiciones' => 'Txapelketak', 'nav_sobre' => 'Klubari buruz', 'nav_contacto' => 'Kontaktua',
+            'nav_unete' => 'Batu',
             'nav_acceso' => 'Sarbidea', 'nav_buscar' => 'Bilatu',
             'hero_titulo' => 'Zinta bakoitza, uztai bakoitza, ariketa bakoitza: urrats bat gehiago podiumerantz.',
             'hero_texto' => 'Jarraitu eskolaren, gimnasten eta taldeen berri leku bakar batean, Sakoneta familiarentzat egina.',

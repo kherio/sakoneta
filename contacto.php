@@ -61,7 +61,7 @@ require __DIR__ . '/includes/header.php';
           <input type="email" id="email" name="email" value="<?= e($_POST['email'] ?? '') ?>" maxlength="190" required>
 
           <label for="mensaje"><?= t('contacto_mensaje') ?></label>
-          <textarea id="mensaje" name="mensaje" maxlength="4000" required><?= e($_POST['mensaje'] ?? '') ?></textarea>
+          <textarea id="mensaje" name="mensaje" maxlength="4000" required><?= e($_POST['mensaje'] ?? $_GET['mensaje'] ?? '') ?></textarea>
 
           <button type="submit" class="boton oro"><?= t('contacto_enviar') ?></button>
         </form>
