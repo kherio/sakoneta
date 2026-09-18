@@ -733,6 +733,7 @@ nav.principal a.activo {
   box-shadow: var(--sombra-chica);
   transition: transform var(--paso), box-shadow var(--paso);
 }
+.tarjeta-competicion-enlace { display: block; color: inherit; text-decoration: none; }
 .tarjeta-competicion-foto { position: relative; aspect-ratio: 16/10; overflow: hidden; display: block; }
 .tarjeta-competicion-foto img {
   position: absolute; top: -14%; left: 0;

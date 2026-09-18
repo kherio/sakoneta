@@ -183,15 +183,17 @@ require __DIR__ . '/includes/header.php';
       <div class="grid-competiciones">
         <?php foreach ($resultadosCompeticiones as $c): ?>
         <article class="tarjeta-competicion">
-          <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
+          <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-enlace">
+          <div class="tarjeta-competicion-foto">
             <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" srcset="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?> 480w, img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" alt="" loading="lazy">
-          </a>
+          </div>
           <div class="tarjeta-competicion-cuerpo">
             <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
-            <h3><a href="competicion.php?id=<?= (int)$c['id'] ?>" style="color:inherit;"><?= e(campoIdioma($c, 'nombre')) ?></a></h3>
+            <h3><?= e(campoIdioma($c, 'nombre')) ?></h3>
             <p class="lugar"><?= e(campoIdioma($c, 'lugar')) ?></p>
             <span class="tarjeta-cta">Ver detalles <span class="tarjeta-flecha">→</span></span>
           </div>
+          </a>
         </article>
         <?php endforeach; ?>
       </div>
