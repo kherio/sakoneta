@@ -11,6 +11,20 @@ document.addEventListener('DOMContentLoaded', function () {
     return document.documentElement.getAttribute('data-movimiento') === 'reducido';
   }
 
+  // Bloquea el scroll del body (para el menú móvil, el lightbox y la
+  // pantalla de bienvenida) sin que la página dé un pequeño salto al
+  // desaparecer la barra de scroll: se compensa con un padding-right
+  // del mismo ancho que ocupaba esa barra.
+  function bloquearScrollBody() {
+    var anchoBarra = window.innerWidth - document.documentElement.clientWidth;
+    if (anchoBarra > 0) document.body.style.paddingRight = anchoBarra + 'px';
+    document.body.style.overflow = 'hidden';
+  }
+  function desbloquearScrollBody() {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+
   // --- Pantalla de bienvenida (splash) ---
   var splash = document.getElementById('splash');
   if (splash) {
@@ -22,10 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
       splash.remove();
       if (!yaVisto) sessionStorage.setItem('sakoneta_splash_visto', '1');
     } else {
-      document.body.style.overflow = 'hidden';
+      bloquearScrollBody();
       var cerrarSplash = function () {
         splash.classList.add('splash-oculto');
-        document.body.style.overflow = '';
+        desbloquearScrollBody();
         sessionStorage.setItem('sakoneta_splash_visto', '1');
         // Debe coincidir con la duración de la transición en CSS
         // (.splash { transition: ... 1.4s ... }); si se retira antes,
@@ -309,6 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // El contenido de detrás del menú no debe poder recibir el foco
       // por teclado (Tab) mientras el menú está abierto y lo tapa.
       fijarInertTrasMenu(true);
+      bloquearScrollBody();
     }
     function cerrarMenuMovil(devolverFoco) {
       menuMovil.classList.remove('abierto');
@@ -316,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
       botonMenu.setAttribute('aria-expanded', 'false');
       if (fondoMenuMovil) fondoMenuMovil.classList.remove('visible');
       fijarInertTrasMenu(false);
+      desbloquearScrollBody();
       if (devolverFoco) botonMenu.focus();
     }
     botonMenu.addEventListener('click', function () {
@@ -340,6 +356,39 @@ document.addEventListener('DOMContentLoaded', function () {
     menuMovil.querySelectorAll('a').forEach(function (enlace) {
       enlace.addEventListener('click', function () { cerrarMenuMovil(false); });
     });
+
+    // Deslizar hacia la izquierda sobre el propio menú también lo
+    // cierra: un gesto extra, nunca la única forma de hacerlo — el
+    // botón × y tocar fuera siguen funcionando igual. Se engancha
+    // directamente en el menú (no en el documento entero) y para la
+    // propagación, para no interferir con el swipe entre
+    // competiciones de competicion.php.
+    var swipeMenuInicioX = null, swipeMenuInicioY = null, swipeMenuEsHorizontal = null;
+    menuMovil.addEventListener('touchstart', function (e) {
+      swipeMenuInicioX = e.touches[0].clientX;
+      swipeMenuInicioY = e.touches[0].clientY;
+      swipeMenuEsHorizontal = null;
+      e.stopPropagation();
+    }, { passive: true });
+    menuMovil.addEventListener('touchmove', function (e) {
+      if (swipeMenuInicioX === null) return;
+      var deltaX = e.touches[0].clientX - swipeMenuInicioX;
+      var deltaY = e.touches[0].clientY - swipeMenuInicioY;
+      if (swipeMenuEsHorizontal === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+        swipeMenuEsHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.3;
+      }
+      e.stopPropagation();
+    }, { passive: true });
+    menuMovil.addEventListener('touchend', function (e) {
+      if (swipeMenuInicioX === null) return;
+      var deltaX = e.changedTouches[0].clientX - swipeMenuInicioX;
+      swipeMenuInicioX = null;
+      // Umbral de 60px hacia la izquierda, con el gesto confirmado
+      // como horizontal, para no cerrar el menú por un roce vertical
+      // (por ejemplo, al hacer scroll dentro del propio menú).
+      if (swipeMenuEsHorizontal && deltaX < -60) cerrarMenuMovil(false);
+      e.stopPropagation();
+    }, { passive: true });
   }
 
   // --- Cabecera compacta al hacer scroll ---
@@ -903,12 +952,12 @@ document.addEventListener('DOMContentLoaded', function () {
       lightboxSiguiente.style.display = variasFotos ? '' : 'none';
       lightboxContador.style.display = variasFotos ? '' : 'none';
       lightbox.classList.add('visible');
-      document.body.style.overflow = 'hidden';
+      bloquearScrollBody();
     }
 
     function cerrarLightbox() {
       lightbox.classList.remove('visible');
-      document.body.style.overflow = '';
+      desbloquearScrollBody();
     }
 
     document.querySelectorAll('.galeria-parallax').forEach(function (galeria) {
