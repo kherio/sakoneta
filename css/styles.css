@@ -275,7 +275,7 @@ nav.principal a.activo {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 0 14px;
+  padding: 12px 0 10px;
 }
 .menu-movil-acento {
   width: 3px;
@@ -284,7 +284,7 @@ nav.principal a.activo {
   background: #fff;
   flex-shrink: 0;
 }
-.menu-movil-logo { width: 32px; height: auto; flex-shrink: 0; }
+.menu-movil-logo { width: 30px; height: auto; flex-shrink: 0; }
 .menu-movil-marca {
   display: flex;
   flex-direction: column;
@@ -295,14 +295,6 @@ nav.principal a.activo {
   font-family: 'Fraunces', serif;
   font-size: 18px;
   color: #fff;
-}
-.menu-movil-marca span {
-  font-size: 12px;
-  color: rgba(255,255,255,.6);
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .menu-movil-cerrar {
   background: none;
@@ -322,24 +314,11 @@ nav.principal a.activo {
   display: flex;
   flex-direction: column;
 }
-.menu-movil-grupo:not(:first-child) {
-  margin-top: 6px;
-  border-top: 1px solid rgba(255,255,255,.12);
-  padding-top: 2px;
-}
-.menu-movil-titulo {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: rgba(255,255,255,.5);
-  font-weight: 700;
-  padding: 14px 8px 2px;
-}
 .menu-movil a {
   color: var(--papel);
-  padding: 13px 8px 13px 16px;
+  padding: 10px 8px 10px 16px;
   font-size: 16px;
-  min-height: 44px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   position: relative;

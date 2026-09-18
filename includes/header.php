@@ -149,29 +149,19 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
       <img src="img/logo-sakoneta.png" alt="" class="menu-movil-logo">
       <div class="menu-movil-marca">
         <strong>Sakoneta GET</strong>
-        <span><?= e(claimSitio()) ?></span>
       </div>
       <button type="button" class="menu-movil-cerrar" id="menu-movil-cerrar" aria-label="Cerrar menú">×</button>
     </div>
     <div class="menu-movil-separador"></div>
     <div class="menu-movil-grupo">
-      <span class="menu-movil-titulo">Principal</span>
       <a href="index.php" style="--i:0" <?= ($paginaActual ?? '') === 'inicio' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_inicio') ?></a>
       <a href="noticias.php" style="--i:1" <?= ($paginaActual ?? '') === 'noticias' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_noticias') ?></a>
       <a href="competiciones.php" style="--i:2" <?= ($paginaActual ?? '') === 'competiciones' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_competiciones') ?></a>
-      <a href="gimnastas.php" style="--i:3" <?= ($paginaActual ?? '') === 'gimnastas' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_gimnastas') ?></a>
-    </div>
-    <div class="menu-movil-grupo">
-      <span class="menu-movil-titulo">Sakoneta</span>
+      <a href="sobre.php" style="--i:3" <?= ($paginaActual ?? '') === 'sobre' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_sobre') ?></a>
       <a href="historia.php" style="--i:4" <?= ($paginaActual ?? '') === 'historia' ? 'class="activo" aria-current="page"' : '' ?>>Historia y palmarés</a>
-      <a href="sobre.php" style="--i:5" <?= ($paginaActual ?? '') === 'sobre' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_sobre') ?></a>
-      <a href="unete.php" class="nav-unete" style="--i:6" <?= ($paginaActual ?? '') === 'unete' ? 'aria-current="page"' : '' ?>><?= t('nav_unete') ?></a>
-    </div>
-    <div class="menu-movil-grupo">
-      <span class="menu-movil-titulo">Más</span>
-      <a href="contacto.php" style="--i:7" <?= ($paginaActual ?? '') === 'contacto' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_contacto') ?></a>
-      <a href="buscar.php" style="--i:8" <?= ($paginaActual ?? '') === 'buscar' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_buscar') ?></a>
-      <a href="admin/index.php" class="nav-acceso" style="--i:9"><?= t('nav_acceso') ?></a>
+      <a href="unete.php" class="nav-unete" style="--i:5" <?= ($paginaActual ?? '') === 'unete' ? 'aria-current="page"' : '' ?>>Únete a Sakoneta</a>
+      <a href="contacto.php" style="--i:6" <?= ($paginaActual ?? '') === 'contacto' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_contacto') ?></a>
+      <a href="buscar.php" style="--i:7" <?= ($paginaActual ?? '') === 'buscar' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_buscar') ?></a>
     </div>
   </div>
   <div class="menu-movil-fondo" id="menu-movil-fondo" aria-hidden="true"></div>
