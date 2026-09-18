@@ -15,14 +15,36 @@ document.addEventListener('DOMContentLoaded', function () {
   // pantalla de bienvenida) sin que la página dé un pequeño salto al
   // desaparecer la barra de scroll: se compensa con un padding-right
   // del mismo ancho que ocupaba esa barra.
+  var scrollGuardadoAlBloquear = 0;
   function bloquearScrollBody() {
     var anchoBarra = window.innerWidth - document.documentElement.clientWidth;
+    scrollGuardadoAlBloquear = window.scrollY || document.documentElement.scrollTop || 0;
     if (anchoBarra > 0) document.body.style.paddingRight = anchoBarra + 'px';
+    // overflow:hidden en el body por sí solo no basta para evitar el
+    // arrastre táctil en iOS Safari (fallo conocido: el scroll se
+    // sigue colando por <html> o por inercia). Fijar el body en su
+    // sitio (position:fixed, con un desplazamiento negativo igual al
+    // scroll actual) es la forma fiable de que de verdad no se pueda
+    // mover nada por detrás, en cualquier navegador.
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = -scrollGuardadoAlBloquear + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
   }
   function desbloquearScrollBody() {
+    document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    // Fijar el body con position:fixed lo mantiene visualmente en su
+    // sitio, pero el navegador ya no recuerda el scroll real: hay que
+    // devolverlo a mano al mismo punto exacto de antes de bloquear.
+    window.scrollTo(0, scrollGuardadoAlBloquear);
   }
 
   // --- Pantalla de bienvenida (splash) ---
