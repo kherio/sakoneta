@@ -580,11 +580,11 @@ nav.principal a.activo {
   font-size: 13px;
   font-weight: 700;
   margin-top: 8px;
-  height: 0;
+  height: 18px;
   opacity: 0;
   overflow: hidden;
   transform: translateY(4px);
-  transition: opacity var(--paso), transform var(--paso), height var(--paso);
+  transition: opacity var(--paso), transform var(--paso);
 }
 .tarjeta-flecha { display: inline-block; transition: transform var(--paso); }
 
@@ -611,7 +611,6 @@ nav.principal a.activo {
   .tarjeta-noticia:hover .tarjeta-cta,
   .tarjeta-jugador:hover .tarjeta-cta,
   .tarjeta-competicion:hover .tarjeta-cta {
-    height: 18px;
     opacity: 1;
     transform: translateY(0);
   }
