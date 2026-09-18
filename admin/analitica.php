@@ -62,19 +62,80 @@ foreach ($filasVisitas as $fila) {
     $ts = strtotime($fila['fecha_hora']);
     if ($fila['ip'] !== $ipActual || $sesionActual === null || ($ts - $sesionActual['fin_ts']) > $CORTE_SESION_SEGUNDOS) {
         if ($sesionActual !== null) $sesiones[] = $sesionActual;
-        $sesionActual = ['ip' => $fila['ip'], 'inicio_ts' => $ts, 'fin_ts' => $ts, 'paginas' => 1];
+        $sesionActual = ['ip' => $fila['ip'], 'inicio_ts' => $ts, 'fin_ts' => $ts, 'paginas' => 1, 'entrada' => $fila['pagina'], 'salida' => $fila['pagina']];
         $ipActual = $fila['ip'];
     } else {
         $sesionActual['fin_ts'] = $ts;
         $sesionActual['paginas']++;
+        $sesionActual['salida'] = $fila['pagina'];
     }
 }
 if ($sesionActual !== null) $sesiones[] = $sesionActual;
 
+// --- Estadísticas derivadas de las sesiones (sobre TODAS, antes de recortar a las 100 más largas para la tabla) ---
+$totalSesiones = count($sesiones);
+$sesionesDeUnaPagina = 0;
+$sumaDuraciones = 0;
+$sumaPaginas = 0;
+$entradas = [];
+$salidas = [];
+foreach ($sesiones as $s) {
+    if ($s['paginas'] === 1) $sesionesDeUnaPagina++;
+    $sumaDuraciones += ($s['fin_ts'] - $s['inicio_ts']);
+    $sumaPaginas += $s['paginas'];
+    $entradas[$s['entrada']] = ($entradas[$s['entrada']] ?? 0) + 1;
+    $salidas[$s['salida']] = ($salidas[$s['salida']] ?? 0) + 1;
+}
+$tasaRebote = $totalSesiones ? round($sesionesDeUnaPagina / $totalSesiones * 100) : 0;
+$duracionMediaSesion = $totalSesiones ? intdiv($sumaDuraciones, $totalSesiones) : 0;
+$paginasMediaSesion = $totalSesiones ? round($sumaPaginas / $totalSesiones, 1) : 0;
+arsort($entradas);
+arsort($salidas);
+$entradasTop = array_slice($entradas, 0, 8, true);
+$salidasTop = array_slice($salidas, 0, 8, true);
+
 // Las sesiones más largas (más interesantes) primero, con un límite
 // razonable para no sobrecargar la página.
 usort($sesiones, fn($a, $b) => ($b['fin_ts'] - $b['inicio_ts']) <=> ($a['fin_ts'] - $a['inicio_ts']));
-$sesiones = array_slice($sesiones, 0, 100);
+$sesionesTabla = array_slice($sesiones, 0, 100);
+
+// --- Visitantes nuevos vs. recurrentes (últimos 30 días): una IP es
+// "recurrente" si tiene visitas en más de un día distinto dentro de
+// ese periodo, "nueva" si solo aparece en un único día. ---
+$stmt = $pdo->prepare("SELECT COUNT(DISTINCT date(fecha_hora)) AS dias FROM visitas WHERE fecha_hora >= ? GROUP BY ip");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$diasPorIp = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$visitantesRecurrentes = count(array_filter($diasPorIp, fn($d) => $d > 1));
+$visitantesNuevos = count($diasPorIp) - $visitantesRecurrentes;
+
+// --- Franja horaria y día de la semana (últimos 30 días) ---
+$stmt = $pdo->prepare("SELECT CAST(strftime('%H', fecha_hora) AS INTEGER) AS hora, COUNT(*) AS total FROM visitas WHERE fecha_hora >= ? GROUP BY hora");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$visitasPorHoraRaw = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$visitasPorHora = [];
+for ($h = 0; $h < 24; $h++) $visitasPorHora[$h] = (int)($visitasPorHoraRaw[$h] ?? 0);
+$maxVisitasHora = max(1, max($visitasPorHora));
+
+$diasSemanaNombres = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+$stmt = $pdo->prepare("SELECT CAST(strftime('%w', fecha_hora) AS INTEGER) AS dia, COUNT(*) AS total FROM visitas WHERE fecha_hora >= ? GROUP BY dia");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$visitasPorDiaSemanaRaw = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$visitasPorDiaSemana = [];
+foreach ($diasSemanaNombres as $numDia => $nombreDia) {
+    $visitasPorDiaSemana[$nombreDia] = (int)($visitasPorDiaSemanaRaw[$numDia] ?? 0);
+}
+$maxVisitasDiaSemana = max(1, max($visitasPorDiaSemana));
+
+// --- Dispositivo e idioma (últimos 30 días) ---
+$stmt = $pdo->prepare("SELECT COALESCE(dispositivo, 'desconocido') AS d, COUNT(*) AS total FROM visitas WHERE fecha_hora >= ? GROUP BY d");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$visitasPorDispositivo = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$totalConDispositivo = array_sum($visitasPorDispositivo);
+
+$stmt = $pdo->prepare("SELECT COALESCE(idioma, 'es') AS i, COUNT(*) AS total FROM visitas WHERE fecha_hora >= ? GROUP BY i");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$visitasPorIdioma = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$totalConIdioma = array_sum($visitasPorIdioma);
 
 // --- Cruce de seguridad: intentos de login fallidos recientes ---
 $intentosSospechosos = $pdo->query("SELECT ip, intentos, ultimo_intento, bloqueado_hasta FROM intentos_login WHERE intentos > 2 ORDER BY ultimo_intento DESC LIMIT 20")->fetchAll();
@@ -114,6 +175,25 @@ require __DIR__ . '/includes/layout_header.php';
   <div class="analitica-tarjeta">
     <strong><?= number_format($visitas7dias, 0, ',', '.') ?></strong>
     <span>Visitas últimos 7 días</span>
+  </div>
+</div>
+
+<div class="analitica-resumen">
+  <div class="analitica-tarjeta">
+    <strong><?= $tasaRebote ?>%</strong>
+    <span>Tasa de rebote (sesiones de 1 sola página, 7 días)</span>
+  </div>
+  <div class="analitica-tarjeta">
+    <strong><?= e(formatearDuracion($duracionMediaSesion)) ?></strong>
+    <span>Duración media de sesión (7 días)</span>
+  </div>
+  <div class="analitica-tarjeta">
+    <strong><?= $paginasMediaSesion ?></strong>
+    <span>Páginas vistas por sesión, de media (7 días)</span>
+  </div>
+  <div class="analitica-tarjeta">
+    <strong><?= number_format($visitantesNuevos, 0, ',', '.') ?> / <?= number_format($visitantesRecurrentes, 0, ',', '.') ?></strong>
+    <span>Visitantes nuevos / recurrentes (30 días)</span>
   </div>
 </div>
 
@@ -163,18 +243,57 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
 </div>
 
+<div class="fila-2" style="align-items:flex-start;margin-top:32px;">
+  <div>
+    <h3>Páginas de entrada <span style="font-weight:400;color:var(--gris);font-size:13px;">(por dónde llega la gente, 7 días)</span></h3>
+    <?php if (!$entradasTop): ?>
+      <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
+    <?php else: ?>
+      <div class="analitica-lista-barras">
+        <?php $maxEntrada = max($entradasTop); foreach ($entradasTop as $pagina => $total): ?>
+          <div class="analitica-lista-fila">
+            <span class="analitica-lista-etiqueta"><?= e($pagina) ?></span>
+            <div class="analitica-lista-barra-fondo">
+              <div class="analitica-lista-barra" style="width:<?= round($total / $maxEntrada * 100) ?>%;"></div>
+            </div>
+            <span class="analitica-lista-valor"><?= $total ?></span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+  <div>
+    <h3>Páginas de salida <span style="font-weight:400;color:var(--gris);font-size:13px;">(por dónde se va la gente, 7 días)</span></h3>
+    <?php if (!$salidasTop): ?>
+      <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
+    <?php else: ?>
+      <div class="analitica-lista-barras">
+        <?php $maxSalida = max($salidasTop); foreach ($salidasTop as $pagina => $total): ?>
+          <div class="analitica-lista-fila">
+            <span class="analitica-lista-etiqueta"><?= e($pagina) ?></span>
+            <div class="analitica-lista-barra-fondo">
+              <div class="analitica-lista-barra" style="width:<?= round($total / $maxSalida * 100) ?>%;"></div>
+            </div>
+            <span class="analitica-lista-valor"><?= $total ?></span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+</div>
+
 <h3 style="margin-top:36px;">Sesiones de navegación por IP <span style="font-weight:400;color:var(--gris);font-size:13px;">(últimos 7 días, las más largas primero)</span></h3>
 <p style="color:var(--gris);font-size:13px;max-width:70ch;margin-top:-8px;">
   Una "sesión" agrupa las páginas vistas seguidas desde la misma IP: si
   pasan más de 30 minutos sin actividad, se considera que empieza una
   sesión nueva.
 </p>
-<?php if (!$sesiones): ?>
+<?php if (!$sesionesTabla): ?>
   <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
 <?php else: ?>
 <table class="admin-tabla">
   <tr><th>IP</th><th>Inicio</th><th>Fin</th><th>Duración</th><th>Páginas vistas</th></tr>
-  <?php foreach ($sesiones as $s): ?>
+  <?php foreach ($sesionesTabla as $s): ?>
   <tr>
     <td><code><?= e($s['ip']) ?></code></td>
     <td><?= e(date('d/m/Y H:i', $s['inicio_ts'])) ?></td>
@@ -185,6 +304,80 @@ require __DIR__ . '/includes/layout_header.php';
   <?php endforeach; ?>
 </table>
 <?php endif; ?>
+
+<h3 style="margin-top:36px;">¿Cuándo se visita la web? <span style="font-weight:400;color:var(--gris);font-size:13px;">(30 días)</span></h3>
+<div class="fila-2" style="align-items:flex-start;">
+  <div>
+    <p style="color:var(--gris);font-size:13px;margin-top:-6px;">Por hora del día</p>
+    <div class="analitica-grafico" style="height:110px;">
+      <?php foreach ($visitasPorHora as $hora => $total): ?>
+        <div class="analitica-barra-columna" title="<?= $hora ?>:00 — <?= $total ?> visitas">
+          <div class="analitica-barra" style="height:<?= $total > 0 ? max(4, round($total / $maxVisitasHora * 100)) : 2 ?>%;"></div>
+          <span class="analitica-barra-etiqueta" style="writing-mode:initial;transform:none;font-size:8px;"><?= $hora % 3 === 0 ? $hora : '' ?></span>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <div>
+    <p style="color:var(--gris);font-size:13px;margin-top:-6px;">Por día de la semana</p>
+    <div class="analitica-lista-barras">
+      <?php foreach ($visitasPorDiaSemana as $nombreDia => $total): ?>
+        <div class="analitica-lista-fila">
+          <span class="analitica-lista-etiqueta"><?= e($nombreDia) ?></span>
+          <div class="analitica-lista-barra-fondo">
+            <div class="analitica-lista-barra" style="width:<?= round($total / $maxVisitasDiaSemana * 100) ?>%;"></div>
+          </div>
+          <span class="analitica-lista-valor"><?= $total ?></span>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top:36px;">Dispositivo e idioma <span style="font-weight:400;color:var(--gris);font-size:13px;">(30 días)</span></h3>
+<p style="color:var(--gris);font-size:12.5px;margin-top:-8px;">Estos dos datos solo se registran desde que se activó esta función: las visitas anteriores a esa fecha se cuentan aquí como castellano/desconocido por defecto.</p>
+<div class="fila-2" style="align-items:flex-start;">
+  <div>
+    <p style="color:var(--gris);font-size:13px;margin-top:-6px;">Dispositivo</p>
+    <?php if (!$totalConDispositivo): ?>
+      <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
+    <?php else: ?>
+      <div class="analitica-lista-barras">
+        <?php foreach ($visitasPorDispositivo as $tipo => $total):
+          $etiquetas = ['movil' => '📱 Móvil', 'escritorio' => '🖥️ Escritorio', 'desconocido' => '❔ Desconocido'];
+        ?>
+          <div class="analitica-lista-fila">
+            <span class="analitica-lista-etiqueta"><?= e($etiquetas[$tipo] ?? $tipo) ?></span>
+            <div class="analitica-lista-barra-fondo">
+              <div class="analitica-lista-barra" style="width:<?= round($total / $totalConDispositivo * 100) ?>%;"></div>
+            </div>
+            <span class="analitica-lista-valor"><?= round($total / $totalConDispositivo * 100) ?>%</span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+  <div>
+    <p style="color:var(--gris);font-size:13px;margin-top:-6px;">Idioma de la visita</p>
+    <?php if (!$totalConIdioma): ?>
+      <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
+    <?php else: ?>
+      <div class="analitica-lista-barras">
+        <?php foreach ($visitasPorIdioma as $idiomaVisita => $total):
+          $etiquetasIdioma = ['es' => '🇪🇸 Castellano', 'eu' => 'Euskera'];
+        ?>
+          <div class="analitica-lista-fila">
+            <span class="analitica-lista-etiqueta"><?= e($etiquetasIdioma[$idiomaVisita] ?? $idiomaVisita) ?></span>
+            <div class="analitica-lista-barra-fondo">
+              <div class="analitica-lista-barra" style="width:<?= round($total / $totalConIdioma * 100) ?>%;"></div>
+            </div>
+            <span class="analitica-lista-valor"><?= round($total / $totalConIdioma * 100) ?>%</span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+</div>
 
 <h3 style="margin-top:36px;">⚠️ IPs con varios intentos de acceso fallidos</h3>
 <?php if (!$intentosSospechosos): ?>

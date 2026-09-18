@@ -350,16 +350,20 @@ instala el sitio, para cargar los datos de ejemplo (`init_db.php`).
 
 - **Analítica avanzada con permiso propio** (`admin/analitica.php`): IPs
   de visitantes, sesiones de navegación (páginas vistas seguidas desde
-  la misma IP, con duración calculada), páginas más visitadas,
-  referentes y un cruce con los intentos de login fallidos. Acceso
-  restringido por un permiso especial (`es_tecnico`), independiente de
-  los roles habituales, que solo un administrador puede activar
-  cuenta a cuenta desde "Usuarios". Nunca registra la actividad del
-  propio panel de administración, solo la web pública. Retención de
-  90 días: los registros más antiguos se purgan solos. **Nota**: al
-  ser un dato personal bajo el RGPD, si el sitio tiene o llega a tener
-  una política de privacidad, conviene mencionar ahí que se registran
-  IPs con fines estadísticos y de seguridad, con esa retención.
+  la misma IP, con duración calculada), tasa de rebote, páginas de
+  entrada y de salida, visitantes nuevos frente a recurrentes, franja
+  horaria y día de la semana con más tráfico, dispositivo (móvil o
+  escritorio, por el user-agent) e idioma de la visita, páginas más
+  visitadas, referentes y un cruce con los intentos de login fallidos.
+  Acceso restringido por un permiso especial (`es_tecnico`),
+  independiente de los roles habituales, que solo un administrador
+  puede activar cuenta a cuenta desde "Usuarios". Nunca registra la
+  actividad del propio panel de administración, solo la web pública.
+  Retención de 90 días: los registros más antiguos se purgan solos.
+  **Nota**: al ser un dato personal bajo el RGPD, si el sitio tiene o
+  llega a tener una política de privacidad, conviene mencionar ahí que
+  se registran IPs con fines estadísticos y de seguridad, con esa
+  retención.
 
 - **HTTPS forzado a nivel de aplicación**: si `SITE_URL` empieza por
   `https://` (lo normal en producción) y una petición llega por HTTP,

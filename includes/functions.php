@@ -208,7 +208,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 12;
+const VERSION_ESQUEMA_SAKONETA = 13;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -403,6 +403,8 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
     )");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_visitas_ip ON visitas(ip)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_visitas_fecha ON visitas(fecha_hora)");
+    agregarColumnaSiFalta($pdo, 'visitas', 'dispositivo', 'TEXT');
+    agregarColumnaSiFalta($pdo, 'visitas', 'idioma', 'TEXT');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS comentarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1170,13 +1172,24 @@ function registrarVisita(PDO $pdo, string $pagina): void {
         }
     }
 
-    $pdo->prepare('INSERT INTO visitas (ip, pagina, referente, fecha_hora) VALUES (?, ?, ?, ?)')
-        ->execute([$ip, $pagina, $referente, date('Y-m-d H:i:s')]);
+    $pdo->prepare('INSERT INTO visitas (ip, pagina, referente, fecha_hora, dispositivo, idioma) VALUES (?, ?, ?, ?, ?, ?)')
+        ->execute([$ip, $pagina, $referente, date('Y-m-d H:i:s'), dispositivoVisitante(), idiomaActual()]);
 
     if (mt_rand(1, 200) === 1) {
         $limite = date('Y-m-d H:i:s', strtotime('-90 days'));
         $pdo->prepare('DELETE FROM visitas WHERE fecha_hora < ?')->execute([$limite]);
     }
+}
+
+/**
+ * Detección simple de dispositivo a partir del user-agent, sin
+ * ninguna librería externa: suficiente para saber a grandes rasgos
+ * si una visita fue desde el móvil o desde un ordenador de mesa.
+ */
+function dispositivoVisitante(): string {
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    if ($ua === '') return 'desconocido';
+    return preg_match('/Mobi|Android|iPhone|iPad|iPod/i', $ua) ? 'movil' : 'escritorio';
 }
 
 /**
