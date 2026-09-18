@@ -178,6 +178,17 @@ body {
   color: var(--tinta);
   background: var(--papel);
   line-height: 1.55;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+/* Los campos de formulario necesitan selección normal para poder
+   escribir y editar con comodidad (seleccionar una palabra, un
+   campo entero, etc.) */
+input, textarea, select, [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
 }
 
 h1, h2, h3, h4 {

@@ -1011,4 +1011,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }, duracion);
     }
   }
+
+  // Bloquear el menú contextual del clic derecho en la web pública
+  // (no en el panel de administración, donde haría falta para
+  // trabajar con comodidad: inspeccionar, abrir en otra pestaña...).
+  if (window.location.pathname.indexOf('/admin/') === -1) {
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+  }
 });
