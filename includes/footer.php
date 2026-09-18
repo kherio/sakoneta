@@ -77,7 +77,7 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
       </form>
     </div>
   </div>
-  <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?></div>
+  <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?> · Leioa, Bizkaia. Todos los derechos reservados.</div>
 </footer>
 
 <?php if (($paginaActual ?? '') !== 'unete'): ?>
