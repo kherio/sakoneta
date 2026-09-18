@@ -98,7 +98,7 @@ require __DIR__ . '/includes/header.php';
   <?php endforeach; ?>
   <div class="hero-evento-capa"></div>
   <div class="contenedor hero-evento-contenido">
-    <div class="hero-evento-etiqueta">¡Ya casi está aquí!</div>
+    <div class="hero-evento-etiqueta"><?= e($ajustes['evento_etiqueta'] ?: '¡Ya casi está aquí!') ?></div>
     <h1><?= e($proxima['nombre']) ?></h1>
     <p class="hero-evento-detalle"><?= e($proxima['categoria']) ?> · <?= e(formatearFecha($proxima['fecha'])) ?><?= !empty($proxima['hora']) ? ' a las ' . e($proxima['hora']) : '' ?> · <?= e($proxima['lugar']) ?></p>
 
@@ -203,10 +203,10 @@ require __DIR__ . '/includes/header.php';
 <section class="seccion franja-club-teaser">
   <div class="contenedor franja-club-teaser-caja">
     <div>
-      <h2 style="margin-bottom:6px;">Conoce la historia del club</h2>
-      <p style="color:var(--gris-texto);margin:0;">Fundado en 1987, con equipos en todas las categorías. Descubre nuestra trayectoria y palmarés.</p>
+      <h2 style="margin-bottom:6px;"><?= e($ajustes['club_teaser_titulo'] ?: 'Conoce la historia del club') ?></h2>
+      <p style="color:var(--gris-texto);margin:0;"><?= e($ajustes['club_teaser_texto'] ?: 'Fundado en 1987, con equipos en todas las categorías. Descubre nuestra trayectoria y palmarés.') ?></p>
     </div>
-    <a href="sobre.php" class="boton oro" style="flex-shrink:0;">Sobre el club →</a>
+    <a href="sobre.php" class="boton oro" style="flex-shrink:0;"><?= e($ajustes['club_teaser_boton'] ?: 'Sobre el club →') ?></a>
   </div>
 </section>
 

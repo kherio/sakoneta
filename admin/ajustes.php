@@ -26,6 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $uneteRequisitos = trim($_POST['unete_requisitos'] ?? '');
     $uneteprueba = trim($_POST['unete_prueba'] ?? '');
     $heroKicker = trim($_POST['hero_kicker'] ?? '');
+    $eventoEtiqueta = trim($_POST['evento_etiqueta'] ?? '');
+    $clubTeaserTitulo = trim($_POST['club_teaser_titulo'] ?? '');
+    $clubTeaserTexto = trim($_POST['club_teaser_texto'] ?? '');
+    $clubTeaserBoton = trim($_POST['club_teaser_boton'] ?? '');
     $heroTitulo = trim($_POST['hero_titulo'] ?? '');
     $heroTituloTamano = in_array((int)($_POST['hero_titulo_tamano'] ?? 100), [80, 90, 100, 115, 130, 150], true) ? (int)$_POST['hero_titulo_tamano'] : 100;
     $heroTexto = trim($_POST['hero_texto'] ?? '');
@@ -61,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
         } else {
             $inicioImagenFinal = $nuevaInicio ?: $ajustes['inicio_imagen'];
 
-            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=?, unete_horarios=?, unete_precio=?, unete_requisitos=?, unete_prueba=? WHERE id=1');
+            $stmt = $pdo->prepare('UPDATE ajustes SET splash_activo=?, splash_imagen=?, inicio_imagen=?, inicio_imagen_titulo=?, sobre_historia=?, hero_kicker=?, hero_titulo=?, hero_texto=?, hero_titulo_tamano=?, nombre_sitio=?, eslogan_sitio=?, pie_titulo=?, pie_texto=?, modo_evento_dias=?, est1_valor=?, est1_texto=?, est2_valor=?, est2_texto=?, est3_valor=?, est3_texto=?, est4_valor=?, est4_texto=?, unete_horarios=?, unete_precio=?, unete_requisitos=?, unete_prueba=?, evento_etiqueta=?, club_teaser_titulo=?, club_teaser_texto=?, club_teaser_boton=? WHERE id=1');
             $stmt->execute([
                 $splashActivo, $splashImagenFinal, $inicioImagenFinal, $inicioImagenTitulo ?: null,
                 $sobreHistoria ?: null, $heroKicker ?: null, $heroTitulo ?: null, $heroTexto ?: null, $heroTituloTamano,
@@ -71,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
                 $estadisticas['est3_valor'], $estadisticas['est3_texto'],
                 $estadisticas['est4_valor'], $estadisticas['est4_texto'],
                 $uneteHorarios ?: null, $unetePrecio ?: null, $uneteRequisitos ?: null, $uneteprueba ?: null,
+                $eventoEtiqueta ?: null, $clubTeaserTitulo ?: null, $clubTeaserTexto ?: null, $clubTeaserBoton ?: null,
             ]);
 
             // Si se ha subido una foto nueva sustituyendo a una
@@ -95,6 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && subidaDemasiadoGrande()) {
     $ajustes['unete_precio'] = $unetePrecio;
     $ajustes['unete_requisitos'] = $uneteRequisitos;
     $ajustes['unete_prueba'] = $uneteprueba;
+    $ajustes['evento_etiqueta'] = $eventoEtiqueta;
+    $ajustes['club_teaser_titulo'] = $clubTeaserTitulo;
+    $ajustes['club_teaser_texto'] = $clubTeaserTexto;
+    $ajustes['club_teaser_boton'] = $clubTeaserBoton;
     $ajustes['hero_kicker'] = $heroKicker;
     $ajustes['hero_titulo'] = $heroTitulo;
     $ajustes['hero_titulo_tamano'] = $heroTituloTamano;
@@ -196,6 +205,18 @@ $defectoEst = [
     <label for="hero_texto">Texto de presentación</label>
     <textarea id="hero_texto" name="hero_texto" placeholder="Ej: Sigue la actualidad de la escuela, las gimnastas y los conjuntos del club..."><?= e($ajustes['hero_texto'] ?? '') ?></textarea>
   </div>
+  <div class="campo">
+    <label for="club_teaser_titulo">Título de la franja "Conoce el club"</label>
+    <input type="text" id="club_teaser_titulo" name="club_teaser_titulo" value="<?= e($ajustes['club_teaser_titulo'] ?? '') ?>" placeholder="Ej: Conoce la historia del club">
+  </div>
+  <div class="campo">
+    <label for="club_teaser_texto">Texto de esa misma franja</label>
+    <input type="text" id="club_teaser_texto" name="club_teaser_texto" value="<?= e($ajustes['club_teaser_texto'] ?? '') ?>" placeholder="Ej: Fundado en 1987, con equipos en todas las categorías...">
+  </div>
+  <div class="campo">
+    <label for="club_teaser_boton">Texto del botón de esa franja</label>
+    <input type="text" id="club_teaser_boton" name="club_teaser_boton" value="<?= e($ajustes['club_teaser_boton'] ?? '') ?>" placeholder="Ej: Sobre el club →" style="max-width:280px;">
+  </div>
 
   <hr style="border:none;border-top:1px solid var(--borde);margin:28px 0;">
 
@@ -211,6 +232,10 @@ $defectoEst = [
     <label for="modo_evento_dias">Activarlo cuando falten estos días o menos</label>
     <input type="number" id="modo_evento_dias" name="modo_evento_dias" min="0" max="14" style="max-width:120px;" value="<?= e((string)($ajustes['modo_evento_dias'] ?? 2)) ?>">
     <p style="font-size:12.5px;color:var(--gris);margin-top:4px;">Por defecto, 2 días. Pon 0 para desactivarlo del todo.</p>
+  </div>
+  <div class="campo">
+    <label for="evento_etiqueta">Etiqueta que aparece sobre la cuenta atrás</label>
+    <input type="text" id="evento_etiqueta" name="evento_etiqueta" value="<?= e($ajustes['evento_etiqueta'] ?? '') ?>" placeholder="Ej: ¡Ya casi está aquí!" style="max-width:280px;">
   </div>
 
   <h3>Foto de fondo de la portada</h3>
