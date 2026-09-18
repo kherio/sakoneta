@@ -1727,9 +1727,53 @@ img.cargando-esqueleto {
   background-position: center;
   will-change: transform, opacity;
   opacity: 0;
-  animation-name: heroEventoPase;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+}
+/* El pase de fotos del modo evento admite entre 2 y 5 fotos (nunca
+   más, ver $fotosModoEvento en index.php), así que en vez de generar
+   el @keyframes a medida en cada carga de página según el número
+   exacto de fotos, aquí hay uno ya calculado para cada posible
+   cantidad: la plantilla solo tiene que poner la clase que toque
+   (.hero-evento-pase-2 a .hero-evento-pase-5) según cuántas fotos
+   tenga esa competición en concreto. El "hueco" que le toca a cada
+   foto dentro del ciclo completo es 100% ÷ número de fotos, y estos
+   son esos mismos cálculos ya hechos:
+   - 2 fotos: hueco del 50% cada una.
+   - 3 fotos: hueco del 33,33% cada una.
+   - 4 fotos: hueco del 25% cada una.
+   - 5 fotos: hueco del 20% cada una. */
+.hero-evento-pase-2 { animation-name: heroEventoPase2; }
+.hero-evento-pase-3 { animation-name: heroEventoPase3; }
+.hero-evento-pase-4 { animation-name: heroEventoPase4; }
+.hero-evento-pase-5 { animation-name: heroEventoPase5; }
+@keyframes heroEventoPase2 {
+  0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
+  5.5% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
+  42.5% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
+  50% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
+  100% { opacity: 0; }
+}
+@keyframes heroEventoPase3 {
+  0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
+  3.67% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
+  28.33% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
+  33.33% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
+  100% { opacity: 0; }
+}
+@keyframes heroEventoPase4 {
+  0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
+  2.75% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
+  21.25% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
+  25% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
+  100% { opacity: 0; }
+}
+@keyframes heroEventoPase5 {
+  0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
+  2.2% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
+  17% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
+  20% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
+  100% { opacity: 0; }
 }
 /* Con una sola foto no hay pase que animar: se queda fija y visible,
    para no parpadear entrando y saliendo sin ninguna otra foto que

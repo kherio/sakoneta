@@ -83,27 +83,16 @@ require __DIR__ . '/includes/header.php';
   <?php
   $numFotosEvento = count($fotosModoEvento);
   $unaSolaFoto = $numFotosEvento <= 1;
-  if (!$unaSolaFoto):
-      // El hueco que ocupa cada foto dentro del ciclo completo depende
-      // de cuántas fotos haya (100% ÷ número de fotos): con esto se
-      // genera la animación de fundido a medida, para que se sucedan
-      // una detrás de otra sin ningún hueco ni solape entre ellas.
-      $huecoPorFoto = 100 / $numFotosEvento;
-      $duracionPorFoto = 6; // segundos que cada foto está "en primer plano"
-      $duracionTotal = $numFotosEvento * $duracionPorFoto;
+  $duracionPorFoto = 6; // segundos que cada foto está "en primer plano"
+  $duracionTotal = $numFotosEvento * $duracionPorFoto;
+  // La lógica de "cuánto dura el fundido según cuántas fotos haya" ya
+  // no se genera aquí: vive como CSS estático en styles.css
+  // (.hero-evento-pase-2 a .hero-evento-pase-5), esta clase solo dice
+  // cuál de esos cálculos ya hechos le corresponde a esta carga.
+  $claseNumFotos = $unaSolaFoto ? '' : ' hero-evento-pase-' . $numFotosEvento;
   ?>
-  <style>
-    @keyframes heroEventoPase {
-      0% { opacity: 0; transform: translateX(calc(var(--dir) * 7%)) scale(1.14) rotate(calc(var(--dir) * 2.2deg)); }
-      <?= round($huecoPorFoto * 0.11, 2) ?>% { opacity: 1; transform: translateX(0) scale(1.03) rotate(0deg); }
-      <?= round($huecoPorFoto * 0.85, 2) ?>% { opacity: 1; transform: translateX(calc(var(--dir) * -1.5%)) scale(1) rotate(0deg); }
-      <?= round($huecoPorFoto, 2) ?>% { opacity: 0; transform: translateX(calc(var(--dir) * -7%)) scale(1.1) rotate(calc(var(--dir) * -2.2deg)); }
-      100% { opacity: 0; }
-    }
-  </style>
-  <?php endif; ?>
   <?php foreach ($fotosModoEvento as $i => $fotoEvento): ?>
-    <div class="hero-evento-foto<?= $unaSolaFoto ? ' hero-evento-foto-fija' : '' ?>"
+    <div class="hero-evento-foto<?= $unaSolaFoto ? ' hero-evento-foto-fija' : $claseNumFotos ?>"
          style="background-image:url('img/<?= e($fotoEvento) ?>');
                 <?= $unaSolaFoto ? '' : '--dir:' . ($i % 2 === 0 ? '1' : '-1') . '; animation-duration:' . $duracionTotal . 's; animation-delay:-' . ($i * $duracionPorFoto) . 's;' ?>"></div>
   <?php endforeach; ?>
