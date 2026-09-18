@@ -146,6 +146,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
   <div class="menu-movil" id="menu-movil">
     <div class="menu-movil-cabecera">
       <span class="menu-movil-acento" aria-hidden="true"></span>
+      <img src="img/logo-sakoneta.png" alt="" class="menu-movil-logo">
       <div class="menu-movil-marca">
         <strong>Sakoneta GET</strong>
         <span><?= e(claimSitio()) ?></span>

@@ -163,23 +163,27 @@ img { max-width: 100%; display: block; }
   gap: 20px;
   padding-top: 14px;
   padding-bottom: 14px;
+  max-height: 200px;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height var(--paso), opacity var(--paso), padding var(--paso);
+}
+/* Mientras el menú móvil está abierto, toda esta barra (logo, menú de
+   escritorio y el propio botón de abrir/cerrar) se colapsa: ya se
+   repite en la cabecera propia del menú (ver .menu-movil-cabecera),
+   y dejarla visible aquí vacía, con una segunda × superpuesta a la
+   del menú, quedaba raro. */
+.cabecera.oculta-marca .contenedor {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
 }
 .marca {
   display: flex;
   align-items: center;
   gap: 12px;
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--paso), transform var(--paso);
-}
-/* Mientras el menú móvil está abierto, el logo y el nombre de la
-   cabecera del sitio se ocultan: ya se repiten en la propia cabecera
-   del menú (ver .menu-movil-cabecera), y verlos dos veces a la vez
-   quedaba raro. */
-.cabecera.oculta-marca .marca {
-  opacity: 0;
-  transform: translateY(-6px);
-  pointer-events: none;
 }
 .marca img { width: 46px; height: auto; }
 .marca-texto { color: var(--papel); }
@@ -280,6 +284,7 @@ nav.principal a.activo {
   background: #fff;
   flex-shrink: 0;
 }
+.menu-movil-logo { width: 32px; height: auto; flex-shrink: 0; }
 .menu-movil-marca {
   display: flex;
   flex-direction: column;

@@ -317,6 +317,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!el) return;
         if (bloqueado) el.setAttribute('inert', ''); else el.removeAttribute('inert');
       });
+      // El propio botón de abrir/cerrar queda oculto junto con el
+      // resto de la barra superior mientras el menú está abierto (su
+      // función la asume el botón × propio de la cabecera del menú),
+      // así que tampoco debe poder recibir el foco por teclado.
+      if (bloqueado) botonMenu.setAttribute('inert', ''); else botonMenu.removeAttribute('inert');
     }
     function abrirMenuMovil() {
       menuMovil.classList.add('abierto');
