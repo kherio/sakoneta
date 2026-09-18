@@ -77,7 +77,7 @@ $pieTexto = $ajustesPie['pie_texto'] ?? '';
       </form>
     </div>
   </div>
-  <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?> — sitio de ejemplo generado con fines de demostración.</div>
+  <div class="footer-nota">© <?= date('Y') ?> <?= e(nombreSitio()) ?></div>
 </footer>
 
 <?php if (($paginaActual ?? '') !== 'unete'): ?>
