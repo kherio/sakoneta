@@ -307,11 +307,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var menuMovil = document.getElementById('menu-movil');
   var fondoMenuMovil = document.getElementById('menu-movil-fondo');
   var botonCerrarMenuMovil = document.getElementById('menu-movil-cerrar');
+  var cabeceraParaMenu = document.getElementById('cabecera-principal');
   var contenidoTrasMenu = document.getElementById('contenido-pagina');
   var pieTrasMenu = document.querySelector('footer');
+  var logoTrasMenu = document.getElementById('logo-cabecera');
   if (botonMenu && menuMovil) {
     function fijarInertTrasMenu(bloqueado) {
-      [contenidoTrasMenu, pieTrasMenu].forEach(function (el) {
+      [contenidoTrasMenu, pieTrasMenu, logoTrasMenu].forEach(function (el) {
         if (!el) return;
         if (bloqueado) el.setAttribute('inert', ''); else el.removeAttribute('inert');
       });
@@ -321,6 +323,10 @@ document.addEventListener('DOMContentLoaded', function () {
       botonMenu.classList.add('activo');
       botonMenu.setAttribute('aria-expanded', 'true');
       if (fondoMenuMovil) fondoMenuMovil.classList.add('visible');
+      // El logo y el nombre de la cabecera del sitio se ocultan
+      // mientras el menú está abierto: ya se repiten en la propia
+      // cabecera del menú, y verlos dos veces a la vez quedaba raro.
+      if (cabeceraParaMenu) cabeceraParaMenu.classList.add('oculta-marca');
       // El contenido de detrás del menú no debe poder recibir el foco
       // por teclado (Tab) mientras el menú está abierto y lo tapa.
       fijarInertTrasMenu(true);
@@ -331,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
       botonMenu.classList.remove('activo');
       botonMenu.setAttribute('aria-expanded', 'false');
       if (fondoMenuMovil) fondoMenuMovil.classList.remove('visible');
+      if (cabeceraParaMenu) cabeceraParaMenu.classList.remove('oculta-marca');
       fijarInertTrasMenu(false);
       desbloquearScrollBody();
       if (devolverFoco) botonMenu.focus();

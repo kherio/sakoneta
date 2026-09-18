@@ -103,7 +103,7 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
 
 <header class="cabecera" id="cabecera-principal">
   <div class="contenedor">
-    <a href="index.php" class="marca">
+    <a href="index.php" class="marca" id="logo-cabecera">
       <img src="img/logo-sakoneta.png" alt="Emblema de <?= e(nombreSitio()) ?>" id="escudo-cabecera">
       <span class="marca-texto">
         <strong>Sakoneta GET</strong>

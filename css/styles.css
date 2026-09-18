@@ -168,6 +168,18 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   gap: 12px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--paso), transform var(--paso);
+}
+/* Mientras el menú móvil está abierto, el logo y el nombre de la
+   cabecera del sitio se ocultan: ya se repiten en la propia cabecera
+   del menú (ver .menu-movil-cabecera), y verlos dos veces a la vez
+   quedaba raro. */
+.cabecera.oculta-marca .marca {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
 }
 .marca img { width: 46px; height: auto; }
 .marca-texto { color: var(--papel); }
