@@ -115,6 +115,20 @@
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
+/* Variante con dirección, para cuando se navega deslizando entre
+   competiciones (ver el swipe en competicion.php): en vez del fundido
+   vertical de siempre, la página vieja sale hacia el lado contrario
+   de la nueva, y la nueva entra desde el lado que se deslizó — un
+   único movimiento continuo, resuelto por el propio navegador en
+   vez de con una vista previa dibujada a mano por JavaScript. */
+:root[data-transicion="izquierda"]::view-transition-old(root) { animation: salida-izquierda .32s cubic-bezier(.4,0,.2,1) both; }
+:root[data-transicion="izquierda"]::view-transition-new(root) { animation: entrada-derecha .32s cubic-bezier(.2,.7,.3,1) both; }
+:root[data-transicion="derecha"]::view-transition-old(root) { animation: salida-derecha .32s cubic-bezier(.4,0,.2,1) both; }
+:root[data-transicion="derecha"]::view-transition-new(root) { animation: entrada-izquierda .32s cubic-bezier(.2,.7,.3,1) both; }
+@keyframes salida-izquierda { to { opacity: 0; transform: translateX(-30%); } }
+@keyframes entrada-derecha { from { opacity: 0; transform: translateX(30%); } }
+@keyframes salida-derecha { to { opacity: 0; transform: translateX(30%); } }
+@keyframes entrada-izquierda { from { opacity: 0; transform: translateX(-30%); } }
 
 * { box-sizing: border-box; }
 
@@ -905,57 +919,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   html, body { overflow-x: clip; }
 }
 
-/* ---------- Vista previa deslizante de la otra competición (swipe) ---------- */
-.vista-previa-swipe {
-  display: none;
-  position: fixed;
-  /* top y height los fija JavaScript en cada gesto, para empezar
-     justo debajo de la cabecera real del sitio (que se queda fija,
-     nunca se desplaza ni se tapa) */
-  left: 0;
-  right: 0;
-  width: 100vw;
-  z-index: 9000;
-  background-color: var(--papel);
-  pointer-events: none;
-  overflow: hidden;
-}
-.vista-previa-swipe.visible { display: block; }
-.vista-previa-swipe-anterior { transform: translateX(-100%); box-shadow: 10px 0 28px rgba(0,0,0,.4); }
-.vista-previa-swipe-siguiente { transform: translateX(100%); box-shadow: -10px 0 28px rgba(0,0,0,.4); }
-.vista-previa-swipe-cabecera-foto {
-  position: relative;
-  width: 100%;
-  min-height: 380px;
-  height: min(56vh, 560px);
-  overflow: hidden;
-}
-.vista-previa-swipe-foto {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-color: var(--morado-oscuro);
-}
-.vista-previa-swipe-foto::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg,
-    rgba(8,24,56,.85) 0%,
-    rgba(8,24,56,.5) 32%,
-    rgba(8,24,56,.18) 62%,
-    rgba(8,24,56,0) 88%);
-}
-.vista-previa-swipe-texto {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 1;
-  padding: 24px 24px 22px;
-}
-.vista-previa-swipe-texto h2 { color: #fff; font-size: clamp(24px, 3vw, 34px); margin: 0 0 6px; }
 .aviso-swipe {
   display: none;
 }
@@ -1172,25 +1135,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
 .franja-hero-foto {
   background-size: 108% auto;
   animation: kenBurnsNoticia 9s ease-out forwards;
-}
-/* Ver el script temprano en includes/header.php: si se ha llegado
-   deslizando desde otra competición/noticia, el hero aparece
-   directamente asentado en el punto final del zoom, en vez de
-   reiniciar la animación desde el principio — ese reinicio se vería
-   como un salto justo después de un deslizamiento que ya iba suave. */
-:root[data-llegada="swipe"] .franja-noticia-imagen,
-:root[data-llegada="swipe"] .franja-hero-foto {
-  animation: none;
-  background-size: 124% auto;
-}
-/* La sección del hero también lleva su propia animación de aparición
-   al hacer scroll (animar-scroll: fundido + desplazamiento hacia
-   arriba en cada carga), que la vista previa del swipe no hace. Sin
-   esto, se veía como un segundo salto justo después del anterior. */
-:root[data-llegada="swipe"] .franja-portada.animar-scroll {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
 }
 .franja-competicion.franja-portada {
   height: min(56vh, 560px);

@@ -168,138 +168,55 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // --- Swipe entre competiciones (solo móvil/táctil), con la otra
-  // competición entrando de verdad en tiempo real ---
+  // --- Swipe entre competiciones (solo móvil/táctil) ---
+  // Antes esto dibujaba a mano una "vista previa" deslizante con
+  // capas propias, que tenía que coincidir a pixel con la página real
+  // (altura, foto, animaciones...) para no dar la sensación de un
+  // salto al terminar de cargar. Bastaba con que algo no encajase
+  // exactamente (un nombre más largo, una animación de entrada) para
+  // que se notara. Ahora se apoya en la View Transition nativa del
+  // navegador (ver @view-transition en styles.css): solo hace falta
+  // detectar el gesto y su dirección, marcarla en <html>, y navegar
+  // de verdad — el propio navegador se encarga de capturar cómo
+  // queda la página vieja y cómo empieza la nueva, sin necesidad de
+  // que nada coincida a mano.
   var datosSwipe = document.getElementById('swipe-competicion');
   if (datosSwipe && window.matchMedia('(max-width: 860px) and (pointer: coarse)').matches) {
     var urlAnterior = datosSwipe.getAttribute('data-anterior');
     var urlSiguiente = datosSwipe.getAttribute('data-siguiente');
-    var capaAnterior = document.getElementById('vista-previa-anterior');
-    var capaSiguiente = document.getElementById('vista-previa-siguiente');
-    // Solo se desplaza el contenido propio de la página (noticia,
-    // galería, etc.), nunca la cabecera del sitio: la cabecera es
-    // igual en todas las páginas, así que se queda fija arriba en
-    // todo momento, como en la página real.
-    var contenido = document.getElementById('contenido-pagina');
-    var cabeceraSitio = document.getElementById('cabecera-principal');
-    // Importante: si se mueven o quedan como hijas del contenedor que
-    // recibe el transform, en cuanto ese contenedor lo reciba pasaría
-    // a ser el punto de referencia de sus position:fixed, y dejarían
-    // de estar anclados de verdad a la pantalla — se verían mal,
-    // movidos y solapados de forma incorrecta. Se sacan a <html> para
-    // evitarlo, y su posición (justo debajo de la cabecera) se
-    // calcula por JavaScript en cada gesto.
-    if (capaAnterior) document.documentElement.appendChild(capaAnterior);
-    if (capaSiguiente) document.documentElement.appendChild(capaSiguiente);
-
-    // El servidor ya ha rellenado estas capas con la foto y el texto
-    // reales de la anterior/siguiente competición directamente en el
-    // HTML de la página (ver competicion.php); no hace falta pedir
-    // nada más por red al vuelo. "Hay vista previa" se sabe solo con
-    // mirar si el servidor llegó a poner contenido dentro de la capa.
-    var hayPreviewAnterior = !!(capaAnterior && capaAnterior.querySelector('.vista-previa-swipe-foto'));
-    var hayPreviewSiguiente = !!(capaSiguiente && capaSiguiente.querySelector('.vista-previa-swipe-foto'));
-
-    var inicioX = null, inicioY = null, arrastrando = false, esHorizontal = null, navegando = false, vaASiguiente = null;
-    var anchoPantalla = window.innerWidth;
-
-    function posicionarCapasBajoCabecera() {
-      // .bottom da directamente dónde termina la cabecera en la
-      // pantalla ahora mismo; es más fiable que reconstruirlo a
-      // partir de su altura, porque no depende de que su "top" sea
-      // exactamente 0 (barra de estado, notch, etc.).
-      var finCabecera = cabeceraSitio ? cabeceraSitio.getBoundingClientRect().bottom : 0;
-      [capaAnterior, capaSiguiente].forEach(function (capa) {
-        if (!capa) return;
-        capa.style.top = finCabecera + 'px';
-        capa.style.height = 'calc(100% - ' + finCabecera + 'px)';
-      });
-    }
-
-    function ocultarCapas() {
-      [capaAnterior, capaSiguiente].forEach(function (capa) {
-        capa.classList.remove('visible');
-        capa.style.transform = '';
-      });
-    }
+    var swipeInicioX = null, swipeInicioY = null, swipeEsHorizontal = null, swipeVaASiguiente = null;
 
     document.addEventListener('touchstart', function (e) {
-      if (navegando) return;
-      inicioX = e.touches[0].clientX;
-      inicioY = e.touches[0].clientY;
-      arrastrando = true;
-      esHorizontal = null;
-      vaASiguiente = null;
-      posicionarCapasBajoCabecera();
-      contenido.style.transition = 'none';
-      capaAnterior.style.transition = 'none';
-      capaSiguiente.style.transition = 'none';
+      swipeInicioX = e.touches[0].clientX;
+      swipeInicioY = e.touches[0].clientY;
+      swipeEsHorizontal = null;
+      swipeVaASiguiente = null;
     }, { passive: true });
 
     document.addEventListener('touchmove', function (e) {
-      if (!arrastrando || inicioX === null) return;
-      var deltaX = e.touches[0].clientX - inicioX;
-      var deltaY = e.touches[0].clientY - inicioY;
-
-      if (esHorizontal === null && (Math.abs(deltaX) > 12 || Math.abs(deltaY) > 12)) {
-        esHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.3;
-        // La dirección se decide UNA sola vez, al confirmarse el gesto
-        // horizontal, y ya no cambia durante el resto del arrastre
-        // (si no, un pequeño temblor cerca del centro hacía parpadear
-        // la vista previa de un lado a otro).
-        if (esHorizontal) vaASiguiente = deltaX < 0;
+      if (swipeInicioX === null) return;
+      var deltaX = e.touches[0].clientX - swipeInicioX;
+      var deltaY = e.touches[0].clientY - swipeInicioY;
+      if (swipeEsHorizontal === null && (Math.abs(deltaX) > 12 || Math.abs(deltaY) > 12)) {
+        swipeEsHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.3;
+        if (swipeEsHorizontal) swipeVaASiguiente = deltaX < 0;
       }
-      if (!esHorizontal) return;
-      posicionarCapasBajoCabecera();
-
-      var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
-      var desplazamiento = tieneDestino ? deltaX : deltaX / 4;
-
-      contenido.style.transform = 'translateX(' + desplazamiento + 'px)';
-
-      var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
-      if (tieneDestino) {
-        capaActiva.classList.add('visible');
-        var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
-        capaActiva.style.transform = 'translateX(' + (base + desplazamiento) + 'px)';
-      }
-      e.preventDefault();
-    }, { passive: false });
+    }, { passive: true });
 
     document.addEventListener('touchend', function (e) {
-      if (!arrastrando || inicioX === null) { arrastrando = false; return; }
-      arrastrando = false;
-      var deltaX = e.changedTouches[0].clientX - inicioX;
-      inicioX = null;
-      if (!esHorizontal || vaASiguiente === null) { ocultarCapas(); return; }
+      if (swipeInicioX === null) return;
+      var deltaX = e.changedTouches[0].clientX - swipeInicioX;
+      swipeInicioX = null;
+      if (!swipeEsHorizontal || swipeVaASiguiente === null) return;
 
-      var tieneDestino = (vaASiguiente && hayPreviewSiguiente) || (!vaASiguiente && hayPreviewAnterior);
-      var umbralSuperado = tieneDestino && Math.abs(deltaX) > anchoPantalla * 0.22;
-      var destino = vaASiguiente ? urlSiguiente : urlAnterior;
-      var capaActiva = vaASiguiente ? capaSiguiente : capaAnterior;
+      var destino = swipeVaASiguiente ? urlSiguiente : urlAnterior;
+      if (!destino) return;
 
-      var transicion = 'transform .28s cubic-bezier(.32,.72,0,1)';
-      contenido.style.transition = transicion;
-      capaActiva.style.transition = transicion;
+      var umbralSuperado = Math.abs(deltaX) > window.innerWidth * 0.22;
+      if (!umbralSuperado) return;
 
-      if (umbralSuperado) {
-        navegando = true;
-        var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
-        contenido.style.transform = 'translateX(' + destinoX + 'px)';
-        capaActiva.style.transform = 'translateX(0)';
-        // La página de destino, nada más cargar, sabrá por esto que
-        // se ha llegado deslizando y no debe repetir la animación de
-        // entrada de su propio hero (el Ken Burns) desde el principio
-        // — si lo hiciera, se vería como un salto/reinicio justo
-        // después de un deslizamiento que ya iba suave.
-        try { sessionStorage.setItem('sakoneta_llegada_swipe', '1'); } catch (err) {}
-        setTimeout(function () { window.location.href = destino; }, 260);
-      } else {
-        contenido.style.transform = 'translateX(0)';
-        var base = vaASiguiente ? anchoPantalla : -anchoPantalla;
-        capaActiva.style.transform = 'translateX(' + base + 'px)';
-        setTimeout(ocultarCapas, 290);
-      }
+      document.documentElement.setAttribute('data-transicion', swipeVaASiguiente ? 'izquierda' : 'derecha');
+      window.location.href = destino;
     }, { passive: true });
 
     var avisoSwipe = document.getElementById('aviso-swipe');
@@ -307,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
       setTimeout(function () { avisoSwipe.remove(); }, 4200);
     }
   }
+
 
   // --- Menú móvil ---
   var botonMenu = document.getElementById('btn-menu-movil');

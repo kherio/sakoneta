@@ -45,19 +45,6 @@ if (isset($pdo)) {
       document.documentElement.setAttribute('data-movimiento', 'reducido');
     }
   } catch (e) {}
-
-  // Si se ha llegado a esta página deslizando desde otra (ver el
-  // swipe entre competiciones en main.js), el hero no debe repetir su
-  // animación de entrada (el Ken Burns) desde el principio: se vería
-  // como un salto justo después de un deslizamiento que ya iba suave.
-  // Se marca aquí, antes de pintar, y se borra al momento para que
-  // solo afecte a esta carga en concreto, no a visitas normales.
-  try {
-    if (sessionStorage.getItem('sakoneta_llegada_swipe') === '1') {
-      document.documentElement.setAttribute('data-llegada', 'swipe');
-      sessionStorage.removeItem('sakoneta_llegada_swipe');
-    }
-  } catch (e) {}
 </script>
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . nombreSitio() : nombreSitio() ?></title>
 <meta name="description" content="<?= e($descripcionOG ?? claimSitio()) ?>">

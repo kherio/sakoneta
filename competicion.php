@@ -39,15 +39,6 @@ $stmtAnterior = $pdo->prepare('SELECT id FROM competiciones WHERE fecha < ? ORDE
 $stmtAnterior->execute([$competicion['fecha']]);
 $idAnterior = $stmtAnterior->fetchColumn();
 
-// Datos de la anterior/siguiente calculados aquí mismo, en el
-// servidor, para incrustarlos directamente en la página (ver más
-// abajo). Antes se pedían por una petición de red aparte (fetch) justo
-// al cargar la página; si esa petición no llegaba a tiempo o fallaba
-// en una conexión móvil floja, el swipe mostraba la foto (que carga
-// por CSS normal) pero nunca llegaba a rellenar el texto.
-$previaAnterior = $idAnterior ? datosVistaPreviaCompeticion($pdo, (int)$idAnterior) : null;
-$previaSiguiente = $idSiguiente ? datosVistaPreviaCompeticion($pdo, (int)$idSiguiente) : null;
-
 $esResultadoPodio = $competicion['disputada'] && $competicion['resultado']
     && preg_match('/\b(oro|plata|bronce|campe[oó]n|medalla|1º|1ª|primer[oa]?)\b/i', $competicion['resultado']);
 
@@ -195,37 +186,6 @@ require __DIR__ . '/includes/header.php';
      data-anterior="<?= $idAnterior ? 'competicion.php?id=' . (int)$idAnterior : '' ?>"
      data-siguiente="<?= $idSiguiente ? 'competicion.php?id=' . (int)$idSiguiente : '' ?>"
      style="display:none;" aria-hidden="true"></div>
-
-<?php foreach (['anterior' => $previaAnterior, 'siguiente' => $previaSiguiente] as $lado => $previa): ?>
-<div class="vista-previa-swipe vista-previa-swipe-<?= $lado ?>" id="vista-previa-<?= $lado ?>" aria-hidden="true">
-  <?php if ($previa): ?>
-  <nav class="migas-pan vista-previa-swipe-migas">
-    <div class="contenedor">
-      <a href="index.php"><?= t('nav_inicio') ?></a>
-      <span class="migas-separador">›</span>
-      <a href="competiciones.php"><?= t('nav_competiciones') ?></a>
-      <span class="migas-separador">›</span>
-      <span class="migas-actual"><?= e($previa['nombre']) ?></span>
-    </div>
-  </nav>
-  <div class="vista-previa-swipe-cabecera-foto">
-    <div class="vista-previa-swipe-foto" style="background-image:url('<?= e($previa['imagen']) ?>');background-position:<?= e($previa['posicion']) ?>;"></div>
-    <div class="vista-previa-swipe-texto">
-      <div class="franja-competicion-subtitulo">
-        <span class="tarjeta-competicion-categoria" style="position:static;display:inline-block;"><?= e(implode(' · ', $previa['categorias'])) ?></span>
-        · <?= e(formatearFecha($previa['fecha'])) ?><?= !empty($previa['hora']) ? ' a las ' . e($previa['hora']) : '' ?> · <?= e($previa['lugar']) ?>
-        <?php if ($previa['disputada']): ?>
-          · <?= e($previa['resultado'] ?: t('disputada')) ?>
-        <?php else: ?>
-          · <?= t('pendiente') ?>
-        <?php endif; ?>
-      </div>
-      <h2><?= e($previa['nombre']) ?></h2>
-    </div>
-  </div>
-  <?php endif; ?>
-</div>
-<?php endforeach; ?>
 
 <?php if ($idAnterior || $idSiguiente): ?>
 <div class="aviso-swipe" id="aviso-swipe">
