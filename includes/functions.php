@@ -945,17 +945,24 @@ function eliminarArchivoSiNoSeUsa(PDO $pdo, ?string $ruta): void {
  * servidor, no hace nada (la imagen se queda en su tamaño original).
  */
 /**
- * Redimensiona una imagen si hace falta, y de paso la convierte a
- * WebP para ahorrar peso (suele pesar un 25-35% menos que JPG/PNG con
- * una calidad visual prácticamente idéntica). Devuelve el nombre de
- * archivo final: puede cambiar de extensión si se convierte a WebP,
- * o quedarse igual si el servidor no tiene soporte de WebP (en ese
- * caso, se guarda igualmente redimensionada, en su formato original).
+ * Redimensiona una imagen si hace falta, la convierte a WebP para
+ * ahorrar peso (suele pesar un 25-35% menos que JPG/PNG con una
+ * calidad visual prácticamente idéntica), y genera además una
+ * miniatura de 480px de lado máximo, pensada para listados y
+ * tarjetas donde no hace falta la imagen a tamaño completo (se guarda
+ * como "nombre-thumb.ext", junto al archivo grande). Devuelve el
+ * nombre de archivo final de la imagen GRANDE: puede cambiar de
+ * extensión si se convierte a WebP, o quedarse igual si el servidor
+ * no tiene soporte de WebP (en ese caso, se guarda igualmente
+ * redimensionada, en su formato original, y sin miniatura).
  *
  * No toca las imágenes que ya hubiera subidas antes de este cambio:
- * solo afecta a subidas nuevas.
+ * solo afecta a subidas nuevas. Las plantillas que quieran usar la
+ * miniatura deben pasar el nombre guardado en la base de datos por
+ * rutaMiniatura(), que ya sabe recurrir a la imagen grande si esa
+ * foto en concreto no tiene miniatura generada.
  */
-function optimizarImagenSubida(string $rutaCompleta, string $extension, int $maximoPx = 1600): string {
+function optimizarImagenSubida(string $rutaCompleta, string $extension, int $maximoPx = 1600, int $maximoPxMiniatura = 480): string {
     $nombreOriginal = basename($rutaCompleta);
     if (!function_exists('imagecreatefromjpeg')) return $nombreOriginal;
 
@@ -980,31 +987,74 @@ function optimizarImagenSubida(string $rutaCompleta, string $extension, int $max
         $origen = $destino;
     }
 
-    // Si el servidor sabe generar WebP y la imagen no lo era ya, se
-    // convierte y se borra el archivo original en su formato viejo.
-    if ($extension !== 'webp' && function_exists('imagewebp')) {
-        $nuevaRuta = preg_replace('/\.[^.]+$/', '.webp', $rutaCompleta);
-        imagealphablending($origen, false);
-        imagesavealpha($origen, true);
-        if (@imagewebp($origen, $nuevaRuta, 82)) {
-            imagedestroy($origen);
-            @unlink($rutaCompleta);
-            return basename($nuevaRuta);
-        }
-    }
+    // ¿En qué formato se va a guardar todo (grande y miniatura)? Si
+    // el servidor sabe generar WebP se usa siempre, para que ambos
+    // archivos compartan el mismo formato final.
+    $formatoFinal = (!function_exists('imagewebp')) ? $extension : 'webp';
+    $rutaBase = preg_replace('/\.[^.\/]+$/', '', $rutaCompleta);
+    $rutaFinal = $rutaBase . '.' . $formatoFinal;
+    $rutaMiniaturaCompleta = $rutaBase . '-thumb.' . $formatoFinal;
 
-    // No se ha convertido (ya era WebP, o el servidor no lo soporta):
-    // se guarda igualmente, redimensionada, en su formato original.
-    $guardar = ['jpg' => 'imagejpeg', 'png' => 'imagepng', 'webp' => 'imagewebp'];
-    if ($extension === 'jpg') {
-        $guardar[$extension]($origen, $rutaCompleta, 85);
-    } elseif ($extension === 'webp') {
-        $guardar[$extension]($origen, $rutaCompleta, 82);
-    } else {
-        $guardar[$extension]($origen, $rutaCompleta, 6);
+    // Miniatura, a partir de la imagen ya redimensionada al tamaño
+    // grande (nunca hace falta partir de una resolución mayor).
+    $anchoActual = imagesx($origen);
+    $altoActual = imagesy($origen);
+    if (max($anchoActual, $altoActual) > $maximoPxMiniatura) {
+        $ratioMin = $maximoPxMiniatura / max($anchoActual, $altoActual);
+        $anchoMin = max(1, (int)round($anchoActual * $ratioMin));
+        $altoMin = max(1, (int)round($altoActual * $ratioMin));
+        $miniatura = imagecreatetruecolor($anchoMin, $altoMin);
+        imagealphablending($miniatura, false);
+        imagesavealpha($miniatura, true);
+        imagecopyresampled($miniatura, $origen, 0, 0, 0, 0, $anchoMin, $altoMin, $anchoActual, $altoActual);
+        guardarImagenEnFormato($miniatura, $rutaMiniaturaCompleta, $formatoFinal, 78);
+        imagedestroy($miniatura);
     }
+    // Si la imagen grande ya es más pequeña que el tamaño de
+    // miniatura, no tiene sentido generar una "miniatura" aparte: se
+    // usa la imagen grande tal cual (rutaMiniatura() ya lo resuelve).
+
+    guardarImagenEnFormato($origen, $rutaFinal, $formatoFinal, $formatoFinal === 'jpg' ? 85 : 82);
     imagedestroy($origen);
-    return $nombreOriginal;
+
+    if ($rutaFinal !== $rutaCompleta) {
+        @unlink($rutaCompleta);
+    }
+    return basename($rutaFinal);
+}
+
+/**
+ * Guarda un recurso de imagen GD en disco, en el formato indicado.
+ * Pequeña utilidad interna para no repetir el mismo switch de
+ * formato en varios sitios de optimizarImagenSubida().
+ */
+function guardarImagenEnFormato($recurso, string $ruta, string $formato, int $calidad): void {
+    if ($formato === 'jpg') {
+        imagejpeg($recurso, $ruta, $calidad);
+    } elseif ($formato === 'webp') {
+        imagewebp($recurso, $ruta, $calidad);
+    } else {
+        imagepng($recurso, $ruta, 7);
+    }
+}
+
+/**
+ * Dado el nombre de archivo de una foto tal como se guarda en la
+ * base de datos (ej. "subidas/subida-xxxx.webp"), devuelve la ruta de
+ * su miniatura si existe, o la imagen original si esa foto en
+ * concreto no tiene ninguna miniatura generada (por ejemplo, por
+ * haberse subido antes de que existiera esta mejora). Pensada para
+ * listados y tarjetas, donde no hace falta la imagen a tamaño
+ * completo.
+ */
+function rutaMiniatura(?string $archivo): string {
+    $archivo = (string)$archivo;
+    if ($archivo === '') return $archivo;
+    $conMiniatura = preg_replace('/\.([^.\/]+)$/', '-thumb.$1', $archivo);
+    if ($conMiniatura !== null && $conMiniatura !== $archivo && is_file(__DIR__ . '/../img/' . $conMiniatura)) {
+        return $conMiniatura;
+    }
+    return $archivo;
 }
 
 /**

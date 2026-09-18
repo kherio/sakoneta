@@ -59,7 +59,7 @@ require __DIR__ . '/includes/header.php';
           </div>
         <?php else: ?>
           <div class="galeria-parallax-item marco-parallax animar-scroll">
-            <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
+            <img src="img/<?= e(rutaMiniatura($f['archivo'])) ?>" data-full="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
           </div>
         <?php endif; ?>
       <?php endforeach; ?>

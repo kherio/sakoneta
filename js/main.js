@@ -895,7 +895,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!fotosGaleria.length) return;
       indiceActual = (indice + fotosGaleria.length) % fotosGaleria.length;
       var foto = fotosGaleria[indiceActual];
-      lightboxImg.src = foto.src;
+      lightboxImg.src = foto.full || foto.src;
       lightboxImg.alt = foto.alt || '';
       lightboxContador.textContent = (indiceActual + 1) + ' / ' + fotosGaleria.length;
       var variasFotos = fotosGaleria.length > 1;
@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.galeria-parallax').forEach(function (galeria) {
       var imagenes = Array.from(galeria.querySelectorAll('.galeria-parallax-item img'));
       if (!imagenes.length) return;
-      var listaDeEstaGaleria = imagenes.map(function (img) { return { src: img.src, alt: img.alt }; });
+      var listaDeEstaGaleria = imagenes.map(function (img) { return { src: img.src, full: img.getAttribute('data-full'), alt: img.alt }; });
 
       imagenes.forEach(function (img, i) {
         img.addEventListener('click', function () {

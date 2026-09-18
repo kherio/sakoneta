@@ -143,7 +143,7 @@ require __DIR__ . '/includes/header.php';
       <div class="pagina-noticias">
         <?php foreach ($resultadosNoticias as $n): ?>
         <a href="noticia.php?id=<?= (int)$n['id'] ?>" class="tarjeta-noticia">
-          <div class="marco-img"><img src="img/<?= e($n['imagen'] ?: 'competicion.svg') ?>" alt="" loading="lazy"></div>
+          <div class="marco-img"><img src="img/<?= e(rutaMiniatura($n['imagen']) ?: 'competicion.svg') ?>" alt="" loading="lazy"></div>
           <div class="cuerpo-tarjeta">
             <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
             <h3><?= e(campoIdioma($n, 'titulo')) ?></h3>
@@ -163,7 +163,7 @@ require __DIR__ . '/includes/header.php';
       <div class="grid-plantilla">
         <?php foreach ($resultadosGimnastas as $g): ?>
         <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador" style="display:block;">
-          <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>" loading="lazy"></div>
+          <div class="marco-img"><img src="img/<?= e(rutaMiniatura($g['foto']) ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>" loading="lazy"></div>
           <div class="info">
             <div class="dorsal"><?= e($g['categoria']) ?></div>
             <h4><?= e($g['nombre']) ?></h4>
@@ -184,7 +184,7 @@ require __DIR__ . '/includes/header.php';
         <?php foreach ($resultadosCompeticiones as $c): ?>
         <article class="tarjeta-competicion">
           <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
-            <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" loading="lazy">
+            <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" alt="" loading="lazy">
           </a>
           <div class="tarjeta-competicion-cuerpo">
             <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
