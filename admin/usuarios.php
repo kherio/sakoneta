@@ -48,6 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Ya existe un usuario con ese nombre de acceso.';
             }
         }
+    } elseif (isset($_POST['cambiar_tecnico'])) {
+        $id = (int)$_POST['id'];
+        $valor = !empty($_POST['es_tecnico']) ? 1 : 0;
+        $pdo->prepare('UPDATE usuarios SET es_tecnico = ? WHERE id = ?')->execute([$valor, $id]);
+        if ($id === (int)($_SESSION['admin_usuario_id'] ?? 0)) {
+            // Si te lo cambias a ti mismo, que se note en tu sesión
+            // actual sin tener que salir y volver a entrar.
+            $_SESSION['es_tecnico'] = $valor;
+        }
+        redirigir('usuarios.php?ok=1');
     } elseif (isset($_POST['cambiar_rol'])) {
         $id = (int)$_POST['id'];
         $rol = $_POST['rol'] ?? '';
@@ -145,7 +155,7 @@ require __DIR__ . '/includes/layout_header.php';
 <h3>Usuarios actuales</h3>
 <table class="admin-tabla">
   <thead>
-    <tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th></th></tr>
+    <tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Técnico</th><th>Estado</th><th></th></tr>
   </thead>
   <tbody>
     <?php foreach ($usuarios as $u): ?>
@@ -167,6 +177,14 @@ require __DIR__ . '/includes/layout_header.php';
           <input type="hidden" name="cambiar_rol" value="1">
         </form>
         <?php endif; ?>
+      </td>
+      <td>
+        <form method="post" title="Da acceso a la página de estadísticas avanzadas (IPs, tiempo de navegación), aparte del rol habitual.">
+          <?= campoCsrf() ?>
+          <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+          <input type="hidden" name="cambiar_tecnico" value="1">
+          <input type="checkbox" name="es_tecnico" value="1" onchange="this.form.submit()" style="width:auto;" <?= $u['es_tecnico'] ? 'checked' : '' ?>>
+        </form>
       </td>
       <td><?= $u['activo'] ? 'Activo' : 'Desactivado' ?></td>
       <td class="acciones">

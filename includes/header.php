@@ -1,4 +1,9 @@
-<?php require_once __DIR__ . '/i18n.php'; ?>
+<?php
+require_once __DIR__ . '/i18n.php';
+if (isset($pdo)) {
+    registrarVisita($pdo, $paginaActual ?? ($_SERVER['REQUEST_URI'] ?? 'desconocida'));
+}
+?>
 <!DOCTYPE html>
 <html lang="<?= idiomaActual() === 'eu' ? 'eu' : 'es' ?>">
 <head>

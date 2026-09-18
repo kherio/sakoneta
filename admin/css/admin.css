@@ -254,3 +254,60 @@ table.admin-tabla tr[draggable="true"]:active .asa-arrastrar { cursor: grabbing;
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ---------- Analítica avanzada ---------- */
+.analitica-resumen {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0 32px;
+}
+.analitica-tarjeta {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.analitica-tarjeta strong { font-size: 26px; font-family: 'Fraunces', serif; color: var(--morado); }
+.analitica-tarjeta span { font-size: 12.5px; color: var(--gris); }
+
+.analitica-grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 140px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde);
+}
+.analitica-barra-columna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 4px;
+}
+.analitica-barra {
+  width: 100%;
+  background: var(--degradado);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: opacity .15s;
+}
+.analitica-barra-columna:hover .analitica-barra { opacity: .75; }
+.analitica-barra-etiqueta { font-size: 9px; color: var(--gris); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+
+.analitica-lista-barras { display: flex; flex-direction: column; gap: 10px; }
+.analitica-lista-fila { display: flex; align-items: center; gap: 10px; }
+.analitica-lista-etiqueta { width: 130px; flex-shrink: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.analitica-lista-barra-fondo { flex: 1; background: var(--papel); border-radius: 999px; height: 10px; overflow: hidden; }
+.analitica-lista-barra { height: 100%; background: var(--degradado); border-radius: 999px; }
+.analitica-lista-valor { width: 34px; text-align: right; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+
+@media (max-width: 860px) {
+  .analitica-resumen { grid-template-columns: repeat(2, 1fr); }
+}

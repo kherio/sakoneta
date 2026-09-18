@@ -208,7 +208,7 @@ function intentarLogin(PDO $pdo, string $ip, string $usuario, callable $verifica
 // se ejecuta con código nuevo, y no en cada petición: en el caso
 // normal, se limita a una única consulta muy barata (PRAGMA
 // user_version) y sale enseguida.
-const VERSION_ESQUEMA_SAKONETA = 11;
+const VERSION_ESQUEMA_SAKONETA = 12;
 
 function ejecutarMigracionesEsquema(PDO $pdo): void {
     $versionActual = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
@@ -390,6 +390,20 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         PRIMARY KEY (ip, tipo)
     )");
 
+    // Registro de visitas a la web pública (no al panel), solo para
+    // estadísticas: de qué IP, a qué página y cuándo. Con retención
+    // limitada (se purgan solas las más antiguas de 90 días, ver
+    // registrarVisita()) para no acumular datos personales sin límite.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS visitas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip TEXT NOT NULL,
+        pagina TEXT NOT NULL,
+        referente TEXT,
+        fecha_hora TEXT NOT NULL
+    )");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_visitas_ip ON visitas(ip)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_visitas_fecha ON visitas(fecha_hora)");
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS comentarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         noticia_id INTEGER NOT NULL,
@@ -411,6 +425,12 @@ function ejecutarMigracionesEsquema(PDO $pdo): void {
         session_version INTEGER NOT NULL DEFAULT 1
     )");
     agregarColumnaSiFalta($pdo, 'usuarios', 'session_version', 'INTEGER NOT NULL DEFAULT 1');
+    // Permiso especial, aparte de los roles habituales: da acceso a
+    // la página de estadísticas avanzadas (IPs, tiempo de navegación).
+    // Se activa a mano, cuenta por cuenta, desde el propio listado de
+    // usuarios — no es un rol más, es un interruptor extra sobre una
+    // cuenta ya existente.
+    agregarColumnaSiFalta($pdo, 'usuarios', 'es_tecnico', 'INTEGER NOT NULL DEFAULT 0');
 
     // Igual que las tablas y columnas, el primer usuario administrador
     // también se crea solo, sin depender de que alguien ejecute
@@ -1122,6 +1142,56 @@ function superaLimiteEnvios(PDO $pdo, string $tipo, int $maxIntentos, int $minut
     $stmt = $pdo->prepare('SELECT intentos FROM limite_envios WHERE ip = ? AND tipo = ?');
     $stmt->execute([$ip, $tipo]);
     return (int)$stmt->fetchColumn() > $maxIntentos;
+}
+
+/**
+ * Registra una visita a la web pública, con fines puramente
+ * estadísticos, para la página de analítica avanzada (solo accesible
+ * a quien tenga el permiso especial "técnico"). Se llama una vez por
+ * página vista, desde includes/header.php — nunca desde el panel de
+ * administración, para no mezclar la actividad del propio equipo con
+ * la de las visitas reales.
+ *
+ * Retención limitada a propósito: en cada llamada hay una pequeña
+ * probabilidad de purgar los registros de más de 90 días, para no
+ * acumular datos personales (la IP lo es, bajo el RGPD) sin límite
+ * de tiempo.
+ */
+function registrarVisita(PDO $pdo, string $pagina): void {
+    $ip = ipVisitante();
+    if ($ip === '') return;
+
+    $referente = $_SERVER['HTTP_REFERER'] ?? null;
+    if ($referente !== null) {
+        if (stripos($referente, SITE_URL) === 0) {
+            $referente = null;
+        } elseif (strlen($referente) > 300) {
+            $referente = substr($referente, 0, 300);
+        }
+    }
+
+    $pdo->prepare('INSERT INTO visitas (ip, pagina, referente, fecha_hora) VALUES (?, ?, ?, ?)')
+        ->execute([$ip, $pagina, $referente, date('Y-m-d H:i:s')]);
+
+    if (mt_rand(1, 200) === 1) {
+        $limite = date('Y-m-d H:i:s', strtotime('-90 days'));
+        $pdo->prepare('DELETE FROM visitas WHERE fecha_hora < ?')->execute([$limite]);
+    }
+}
+
+/**
+ * Exige el permiso especial de "técnico" (ver columna es_tecnico en
+ * usuarios): no es un rol más, es un interruptor aparte que un
+ * administrador activa cuenta a cuenta, pensado para dar acceso a la
+ * página de estadísticas avanzadas sin mezclarlo con los roles
+ * habituales del panel.
+ */
+function exigirTecnico(): void {
+    exigirAutenticacion();
+    if (empty($_SESSION['es_tecnico'])) {
+        http_response_code(403);
+        die('Acceso restringido.');
+    }
 }
 
 /**

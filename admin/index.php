@@ -37,6 +37,7 @@ if ($minutosRestantes > 0) {
         $_SESSION['admin_nombre'] = $filaUsuario['nombre'];
         $_SESSION['admin_rol'] = $filaUsuario['rol'];
         $_SESSION['admin_session_version'] = (int)$filaUsuario['session_version'];
+        $_SESSION['es_tecnico'] = (bool)($filaUsuario['es_tecnico'] ?? false);
         unset($_SESSION['csrf_token']);
         header('Location: dashboard.php');
         exit;

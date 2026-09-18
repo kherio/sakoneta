@@ -44,6 +44,11 @@
     <a href="ajustes.php" class="<?= ($seccionActual ?? '') === 'ajustes' ? 'activo' : '' ?>">Ajustes del sitio</a>
     <?php endif; ?>
 
+    <?php // --- Permiso especial, aparte de los roles habituales --- ?>
+    <?php if (!empty($_SESSION['es_tecnico'])): ?>
+    <a href="analitica.php" class="admin-menu-separador <?= ($seccionActual ?? '') === 'analitica' ? 'activo' : '' ?>">📊 Analítica avanzada</a>
+    <?php endif; ?>
+
     <?php // --- Cuenta --- ?>
     <a href="../index.php" target="_blank" class="admin-menu-separador">Ver sitio web ↗</a>
     <a href="cambiar_clave.php" class="<?= ($seccionActual ?? '') === 'cambiar_clave' ? 'activo' : '' ?>">Cambiar contraseña</a>
