@@ -633,6 +633,7 @@ nav.principal a.activo {
   border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
   overflow: hidden;
+  box-shadow: var(--sombra-chica);
   transition: transform var(--paso), box-shadow var(--paso);
 }
 .tarjeta-jugador .marco-img { overflow: hidden; }
@@ -1155,7 +1156,6 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   text-shadow: 0 2px 10px rgba(0,0,0,.4);
 }
 .franja-competicion-subtitulo .tarjeta-competicion-categoria { text-transform: none; letter-spacing: normal; }
-.franja-competicion { min-height: 380px; }
 
 /* ---------- Foto de fondo grande con zoom, usada en noticia, gimnasta y competición ---------- */
 @keyframes kenBurnsNoticia {
@@ -2224,9 +2224,9 @@ img.cargando-esqueleto {
 }
 .conjunto-card {
   background: var(--superficie);
+  border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
-  padding: 24px 26px;
-  box-shadow: var(--sombra-chica);
+  padding: 26px 28px;
 }
 .conjunto-anio {
   font-family: 'Fraunces', serif;
@@ -2358,7 +2358,7 @@ img.cargando-esqueleto {
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(232,200,116,.35);
   border-radius: var(--radio);
-  padding: 26px 24px;
+  padding: 26px 28px;
 }
 .seleccion-anio {
   display: inline-block;
@@ -2500,6 +2500,7 @@ img.cargando-esqueleto {
 }
 .modalidad-card {
   background: var(--papel);
+  border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
   padding: 26px 28px;
 }
@@ -2555,7 +2556,7 @@ img.cargando-esqueleto {
   background: var(--superficie);
   border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
-  padding: 30px 26px;
+  padding: 26px 28px;
   text-align: center;
   transition: transform var(--paso), box-shadow var(--paso);
 }
@@ -2575,9 +2576,9 @@ img.cargando-esqueleto {
 }
 .pregunta-card {
   background: var(--superficie);
+  border: 1px solid var(--borde-suave);
   border-radius: var(--radio);
-  padding: 26px 24px;
-  box-shadow: var(--sombra-chica);
+  padding: 26px 28px;
 }
 .pregunta-icono { font-size: 26px; margin-bottom: 10px; }
 .pregunta-card h3 { font-size: 17px; margin-bottom: 8px; }
@@ -2585,6 +2586,7 @@ img.cargando-esqueleto {
 .pregunta-pendiente { font-style: italic; }
 .pregunta-card-cta {
   background: var(--degradado);
+  border-color: transparent;
   color: #fff;
   display: flex;
   flex-direction: column;
