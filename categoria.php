@@ -62,7 +62,7 @@ require __DIR__ . '/includes/header.php';
     <div class="grid-plantilla">
       <?php foreach ($gimnastas as $g): ?>
       <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;">
-        <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>"></div>
+        <div class="marco-img"><img src="img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>" loading="lazy"></div>
         <div class="info">
           <div class="dorsal"><?= e($g['categoria']) ?></div>
           <h4><?= e($g['nombre']) ?></h4>
@@ -85,7 +85,7 @@ require __DIR__ . '/includes/header.php';
       <?php foreach ($competiciones as $c): ?>
       <article class="tarjeta-competicion animar-scroll">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
-          <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="">
+          <img src="img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?>" alt="" loading="lazy">
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
@@ -118,7 +118,7 @@ require __DIR__ . '/includes/header.php';
           </div>
         <?php else: ?>
           <div class="galeria-parallax-item marco-parallax animar-scroll">
-            <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22">
+            <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
           </div>
         <?php endif; ?>
       <?php endforeach; ?>

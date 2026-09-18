@@ -695,13 +695,13 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
         if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
             if ($esImagen) {
                 try {
-                    redimensionarImagenSiHaceFalta($rutaFinal, $extensionFinal);
+                    $nombreFinal = optimizarImagenSubida($rutaFinal, $extensionFinal);
                 } catch (Throwable $e) {
-                    // Un fallo al redimensionar no es motivo para
-                    // perder el resto del envío: se queda con el
-                    // archivo original (ya validado y dentro de
-                    // límites), sin redimensionar.
-                    error_log('Sakoneta: no se pudo redimensionar ' . $rutaFinal . ': ' . $e->getMessage());
+                    // Un fallo al optimizar no es motivo para perder
+                    // el resto del envío: se queda con el archivo
+                    // original (ya validado y dentro de límites),
+                    // sin redimensionar ni convertir.
+                    error_log('Sakoneta: no se pudo optimizar ' . $rutaFinal . ': ' . $e->getMessage());
                 }
             }
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
@@ -944,45 +944,67 @@ function eliminarArchivoSiNoSeUsa(PDO $pdo, ?string $ruta): void {
  * tamaño completo. Si la extensión GD no está disponible en el
  * servidor, no hace nada (la imagen se queda en su tamaño original).
  */
-function redimensionarImagenSiHaceFalta(string $rutaCompleta, string $extension, int $maximoPx = 1600): void {
-    if (!function_exists('imagecreatefromjpeg')) return;
+/**
+ * Redimensiona una imagen si hace falta, y de paso la convierte a
+ * WebP para ahorrar peso (suele pesar un 25-35% menos que JPG/PNG con
+ * una calidad visual prácticamente idéntica). Devuelve el nombre de
+ * archivo final: puede cambiar de extensión si se convierte a WebP,
+ * o quedarse igual si el servidor no tiene soporte de WebP (en ese
+ * caso, se guarda igualmente redimensionada, en su formato original).
+ *
+ * No toca las imágenes que ya hubiera subidas antes de este cambio:
+ * solo afecta a subidas nuevas.
+ */
+function optimizarImagenSubida(string $rutaCompleta, string $extension, int $maximoPx = 1600): string {
+    $nombreOriginal = basename($rutaCompleta);
+    if (!function_exists('imagecreatefromjpeg')) return $nombreOriginal;
 
     $cargar = ['jpg' => 'imagecreatefromjpeg', 'png' => 'imagecreatefrompng', 'webp' => 'imagecreatefromwebp'];
-    $guardar = ['jpg' => 'imagejpeg', 'png' => 'imagepng', 'webp' => 'imagewebp'];
-    if (!isset($cargar[$extension]) || !function_exists($cargar[$extension])) return;
+    if (!isset($cargar[$extension]) || !function_exists($cargar[$extension])) return $nombreOriginal;
 
     $origen = @$cargar[$extension]($rutaCompleta);
-    if (!$origen) return;
+    if (!$origen) return $nombreOriginal;
 
     $anchoOriginal = imagesx($origen);
     $altoOriginal = imagesy($origen);
 
-    if (max($anchoOriginal, $altoOriginal) <= $maximoPx) {
-        imagedestroy($origen);
-        return;
-    }
-
-    $ratio = $maximoPx / max($anchoOriginal, $altoOriginal);
-    $anchoNuevo = (int)round($anchoOriginal * $ratio);
-    $altoNuevo = (int)round($altoOriginal * $ratio);
-
-    $destino = imagecreatetruecolor($anchoNuevo, $altoNuevo);
-    if ($extension === 'png' || $extension === 'webp') {
+    if (max($anchoOriginal, $altoOriginal) > $maximoPx) {
+        $ratio = $maximoPx / max($anchoOriginal, $altoOriginal);
+        $anchoNuevo = (int)round($anchoOriginal * $ratio);
+        $altoNuevo = (int)round($altoOriginal * $ratio);
+        $destino = imagecreatetruecolor($anchoNuevo, $altoNuevo);
         imagealphablending($destino, false);
         imagesavealpha($destino, true);
+        imagecopyresampled($destino, $origen, 0, 0, 0, 0, $anchoNuevo, $altoNuevo, $anchoOriginal, $altoOriginal);
+        imagedestroy($origen);
+        $origen = $destino;
     }
-    imagecopyresampled($destino, $origen, 0, 0, 0, 0, $anchoNuevo, $altoNuevo, $anchoOriginal, $altoOriginal);
 
+    // Si el servidor sabe generar WebP y la imagen no lo era ya, se
+    // convierte y se borra el archivo original en su formato viejo.
+    if ($extension !== 'webp' && function_exists('imagewebp')) {
+        $nuevaRuta = preg_replace('/\.[^.]+$/', '.webp', $rutaCompleta);
+        imagealphablending($origen, false);
+        imagesavealpha($origen, true);
+        if (@imagewebp($origen, $nuevaRuta, 82)) {
+            imagedestroy($origen);
+            @unlink($rutaCompleta);
+            return basename($nuevaRuta);
+        }
+    }
+
+    // No se ha convertido (ya era WebP, o el servidor no lo soporta):
+    // se guarda igualmente, redimensionada, en su formato original.
+    $guardar = ['jpg' => 'imagejpeg', 'png' => 'imagepng', 'webp' => 'imagewebp'];
     if ($extension === 'jpg') {
-        $guardar[$extension]($destino, $rutaCompleta, 85);
+        $guardar[$extension]($origen, $rutaCompleta, 85);
     } elseif ($extension === 'webp') {
-        $guardar[$extension]($destino, $rutaCompleta, 82);
+        $guardar[$extension]($origen, $rutaCompleta, 82);
     } else {
-        $guardar[$extension]($destino, $rutaCompleta, 6);
+        $guardar[$extension]($origen, $rutaCompleta, 6);
     }
-
     imagedestroy($origen);
-    imagedestroy($destino);
+    return $nombreOriginal;
 }
 
 /**
@@ -1746,7 +1768,7 @@ function procesarImagenSubida(string $campo, ?string &$error = null): ?string {
         $error = 'No se ha podido guardar el archivo en el servidor.';
         return null;
     }
-    redimensionarImagenSiHaceFalta($rutaFinal, $extensionesValidas[$extensionOriginal]);
+    $nombreFinal = optimizarImagenSubida($rutaFinal, $extensionesValidas[$extensionOriginal]);
 
     return 'subidas/' . $nombreFinal;
 }

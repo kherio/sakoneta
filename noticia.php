@@ -86,7 +86,7 @@ require __DIR__ . '/includes/header.php';
               </div>
             <?php else: ?>
               <div class="galeria-parallax-item marco-parallax animar-scroll">
-                <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.06" data-parallax-limite="18">
+                <img src="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.06" data-parallax-limite="18" loading="lazy">
               </div>
             <?php endif; ?>
           <?php endforeach; ?>

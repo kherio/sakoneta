@@ -183,7 +183,7 @@ require __DIR__ . '/includes/header.php';
     <?php if ($destacada): ?>
     <div class="grid-noticias">
       <a href="noticia.php?id=<?= (int)$destacada['id'] ?>" class="noticia-destacada animar-scroll">
-        <img src="img/<?= e($destacada['imagen'] ?: 'competicion.svg') ?>" alt="">
+        <img src="img/<?= e($destacada['imagen'] ?: 'competicion.svg') ?>" alt="" loading="lazy">
         <div class="cuerpo-overlay">
           <div class="fecha"><?= e(formatearFecha($destacada['fecha'])) ?></div>
           <h3><?= e(campoIdioma($destacada, 'titulo')) ?></h3>
@@ -195,7 +195,7 @@ require __DIR__ . '/includes/header.php';
         <?php foreach ($restoNoticias as $n): ?>
         <li>
           <a href="noticia.php?id=<?= (int)$n['id'] ?>" class="animar-scroll" style="display:flex;gap:14px;">
-            <img src="img/<?= e($n['imagen'] ?: 'cantera.svg') ?>" alt="">
+            <img src="img/<?= e($n['imagen'] ?: 'cantera.svg') ?>" alt="" loading="lazy">
             <span>
               <span class="fecha"><?= e(formatearFecha($n['fecha'])) ?></span>
               <h4><?= e(campoIdioma($n, 'titulo')) ?></h4>
