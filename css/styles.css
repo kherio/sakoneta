@@ -11,13 +11,41 @@
   --borde-suave: #DCEAFB;
   --tinta: #0A1930;
   --gris-texto: #4E5D74;
-  --radio: 14px;
-  --radio-chico: 8px;
+  --gris: #4E5D74;
   --ancho-maximo: 1120px;
   --degradado: linear-gradient(135deg, var(--acento) 0%, var(--morado) 100%);
-  --sombra: 0 10px 30px -12px rgba(6, 27, 66, 0.35);
-  --sombra-chica: 0 6px 16px -8px rgba(6, 27, 66, 0.3);
-  --paso: 220ms cubic-bezier(.2,.7,.3,1);
+
+  /* ---------- Sistema de diseño ----------
+     Estas son las variables de referencia para cualquier CSS nuevo
+     que se añada al sitio: usar SIEMPRE una de estas en vez de un
+     número suelto, para que noticia.php, competicion.php,
+     gimnasta.php, etc. no acaben derivando en pequeñas diferencias
+     entre sí con el tiempo.
+
+     Las de radio/sombra/transición son alias de --radio, --radio-
+     chico, --sombra, --sombra-chica y --paso (los nombres históricos,
+     que se usan en cientos de sitios del CSS y se mantienen para no
+     arriesgar una reescritura masiva) — cualquiera de los dos nombres
+     vale, son el mismo valor. */
+  --espacio-xs: 8px;
+  --espacio-sm: 16px;
+  --espacio-md: 24px;
+  --espacio-lg: 40px;
+  --espacio-xl: 64px;
+
+  --radio-sm: 8px;
+  --radio-md: 14px;
+  --radio-lg: 24px;
+  --radio: var(--radio-md);
+  --radio-chico: var(--radio-sm);
+
+  --sombra-card: 0 6px 16px -8px rgba(6, 27, 66, 0.3);
+  --sombra-hover: 0 10px 30px -12px rgba(6, 27, 66, 0.35);
+  --sombra: var(--sombra-hover);
+  --sombra-chica: var(--sombra-card);
+
+  --transicion-suave: 220ms cubic-bezier(.2,.7,.3,1);
+  --paso: var(--transicion-suave);
 }
 
 /* Modo oscuro: se activa solo si la persona lo elige a mano con el
@@ -30,8 +58,11 @@
   --borde-suave: #223049;
   --tinta: #EAF1FB;
   --gris-texto: #9FB0C9;
+  --gris: #9FB0C9;
   --sombra: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
   --sombra-chica: 0 6px 16px -8px rgba(0, 0, 0, 0.55);
+  --sombra-hover: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  --sombra-card: 0 6px 16px -8px rgba(0, 0, 0, 0.55);
 }
 :root[data-tema="oscuro"] h1, :root[data-tema="oscuro"] h2, :root[data-tema="oscuro"] h3, :root[data-tema="oscuro"] h4 { color: var(--acento-suave); }
 :root[data-tema="oscuro"] img:not(.stat-icono) { filter: brightness(.92); }

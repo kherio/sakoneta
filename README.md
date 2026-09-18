@@ -25,6 +25,27 @@ ajustes generales del sitio.
 > `css/styles.css` y `admin/css/admin.css` (variables `--acento`,
 > `--morado`, etc.).
 
+## Sistema de diseño
+
+`css/styles.css` (sitio público) y `admin/css/admin.css` (panel) definen,
+cada uno en su propio `:root`, el mismo conjunto de variables de
+referencia — cualquier CSS nuevo debe usar una de estas en vez de un
+número suelto, para que distintas páginas no acaben derivando en
+pequeñas diferencias entre sí con el tiempo:
+
+- **Espaciado**: `--espacio-xs` (8px) a `--espacio-xl` (64px).
+- **Radios**: `--radio-sm` (8px), `--radio-md` (14px), `--radio-lg` (24px).
+- **Sombras**: `--sombra-card`, `--sombra-hover`.
+- **Transición**: `--transicion-suave` (220ms).
+
+Los nombres históricos (`--radio`, `--radio-chico`, `--sombra`,
+`--sombra-chica`, `--paso`) se mantienen como alias de los de arriba,
+porque se usan en cientos de sitios del CSS ya existente — cualquiera
+de los dos nombres vale, son el mismo valor. Si algún día se cambia un
+valor en un archivo, hay que cambiarlo también en el otro (no
+comparten archivo porque el panel y el sitio público cargan hojas de
+estilo independientes).
+
 ## Qué incluye la web pública
 
 - **Huevo de pascua "Modo Sakoneta"** 🥚: en cualquier página, pulsar

@@ -7,12 +7,32 @@
   --gris: #4E5D74;
   --borde: #DCEAFB;
   --rojo: #B23A3A;
-  --radio: 14px;
-  --radio-chico: 8px;
   --degradado: linear-gradient(135deg, var(--acento) 0%, var(--morado) 100%);
-  --sombra: 0 10px 30px -12px rgba(6,27,66,.35);
-  --sombra-chica: 0 6px 16px -8px rgba(6,27,66,.3);
-  --paso: 200ms cubic-bezier(.2,.7,.3,1);
+
+  /* Mismo sistema de diseño que css/styles.css (sitio público): ver
+     ahí el porqué de cada variable. Aquí se repite en vez de
+     compartir archivo porque el panel y el sitio público cargan
+     hojas de estilo separadas, pero los valores deben ser siempre
+     los mismos — si se cambia uno aquí, cambiar también el otro. */
+  --espacio-xs: 8px;
+  --espacio-sm: 16px;
+  --espacio-md: 24px;
+  --espacio-lg: 40px;
+  --espacio-xl: 64px;
+
+  --radio-sm: 8px;
+  --radio-md: 14px;
+  --radio-lg: 24px;
+  --radio: var(--radio-md);
+  --radio-chico: var(--radio-sm);
+
+  --sombra-card: 0 6px 16px -8px rgba(6,27,66,.3);
+  --sombra-hover: 0 10px 30px -12px rgba(6,27,66,.35);
+  --sombra: var(--sombra-hover);
+  --sombra-chica: var(--sombra-card);
+
+  --transicion-suave: 220ms cubic-bezier(.2,.7,.3,1);
+  --paso: var(--transicion-suave);
 }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--papel); color: #1B1B16; }
