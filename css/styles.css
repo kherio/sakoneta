@@ -1,4 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+/* Fuentes servidas en local (fonts/), en vez de un @import externo a
+   Google Fonts: evita una petición de red bloqueante a un dominio
+   externo justo al principio de la carga, con el mismo aspecto final
+   (mismos pesos, mismo subconjunto de caracteres que se usaba antes).
+   font-display:swap para no dejar el texto invisible mientras carga. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/inter-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/inter-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/inter-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/fraunces-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  src: url('fonts/fraunces-latin-ext-wght-normal.woff2') format('woff2-variations');
+}
 
 :root {
   --morado-oscuro: #0A2A66;
@@ -416,6 +456,7 @@ nav.principal a.activo {
   inset: -20px;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   --py: 0px;
   transform: translateY(var(--py));
   will-change: transform;
@@ -1095,6 +1136,7 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   inset: 0;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   will-change: transform;
   --py: 0px;
   transform: translateY(var(--py));
@@ -1788,6 +1830,7 @@ img.cargando-esqueleto {
   inset: 0;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   will-change: transform, opacity;
   opacity: 0;
   animation-timing-function: ease-in-out;
