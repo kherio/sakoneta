@@ -270,6 +270,10 @@ nav.principal a.activo {
   flex-direction: column;
   background: var(--morado-oscuro);
   padding: 0 24px 18px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 320ms ease, opacity 220ms ease, padding-top 320ms ease;
 }
 .menu-movil-cabecera {
   display: flex;
@@ -337,7 +341,9 @@ nav.principal a.activo {
   border-radius: 2px;
   background: var(--acento-suave);
 }
-.menu-movil.abierto { display: flex; }
+.menu-movil.abierto, .menu-movil.cerrando { display: flex; }
+.menu-movil.abierto { max-height: 700px; opacity: 1; padding-top: 0; }
+:root[data-movimiento="reducido"] .menu-movil { transition: none; }
 /* Entrada escalonada: cada enlace aparece un poco después que el
    anterior (según --i, puesto en línea en cada uno), en vez de que
    aparezca todo el bloque de golpe. */

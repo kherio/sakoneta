@@ -330,6 +330,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (bloqueado) botonMenu.setAttribute('inert', ''); else botonMenu.removeAttribute('inert');
     }
     function abrirMenuMovil() {
+      if (cierreMenuPendiente) { clearTimeout(cierreMenuPendiente); cierreMenuPendiente = null; }
+      menuMovil.classList.remove('cerrando');
       menuMovil.classList.add('abierto');
       botonMenu.classList.add('activo');
       botonMenu.setAttribute('aria-expanded', 'true');
@@ -343,8 +345,10 @@ document.addEventListener('DOMContentLoaded', function () {
       fijarInertTrasMenu(true);
       bloquearScrollBody();
     }
+    var cierreMenuPendiente = null;
     function cerrarMenuMovil(devolverFoco) {
       menuMovil.classList.remove('abierto');
+      menuMovil.classList.add('cerrando');
       botonMenu.classList.remove('activo');
       botonMenu.setAttribute('aria-expanded', 'false');
       if (fondoMenuMovil) fondoMenuMovil.classList.remove('visible');
@@ -352,6 +356,14 @@ document.addEventListener('DOMContentLoaded', function () {
       fijarInertTrasMenu(false);
       desbloquearScrollBody();
       if (devolverFoco) botonMenu.focus();
+      // Se mantiene .cerrando (y por tanto display:flex) mientras dura
+      // la transición de repliegue; pasado ese tiempo, se retira del
+      // todo para volver a display:none.
+      if (cierreMenuPendiente) clearTimeout(cierreMenuPendiente);
+      cierreMenuPendiente = setTimeout(function () {
+        menuMovil.classList.remove('cerrando');
+        cierreMenuPendiente = null;
+      }, 320);
     }
     botonMenu.addEventListener('click', function () {
       if (menuMovil.classList.contains('abierto')) cerrarMenuMovil(false);
