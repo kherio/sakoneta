@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var botonMenu = document.getElementById('btn-menu-movil');
   var menuMovil = document.getElementById('menu-movil');
   var fondoMenuMovil = document.getElementById('menu-movil-fondo');
+  var botonCerrarMenuMovil = document.getElementById('menu-movil-cerrar');
   var contenidoTrasMenu = document.getElementById('contenido-pagina');
   var pieTrasMenu = document.querySelector('footer');
   if (botonMenu && menuMovil) {
@@ -344,6 +345,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // falta este fondo aparte —no inert— para poder recibir ese clic.
     if (fondoMenuMovil) {
       fondoMenuMovil.addEventListener('click', function () { cerrarMenuMovil(false); });
+    }
+    if (botonCerrarMenuMovil) {
+      botonCerrarMenuMovil.addEventListener('click', function () { cerrarMenuMovil(true); });
     }
     // Escape cierra el menú y devuelve el foco al botón que lo abrió,
     // esté el foco donde esté en ese momento (no solo dentro del menú).

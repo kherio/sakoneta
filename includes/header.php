@@ -144,6 +144,15 @@ $origenSeguro = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL
   </div>
 
   <div class="menu-movil" id="menu-movil">
+    <div class="menu-movil-cabecera">
+      <span class="menu-movil-acento" aria-hidden="true"></span>
+      <div class="menu-movil-marca">
+        <strong>Sakoneta GET</strong>
+        <span><?= e(claimSitio()) ?></span>
+      </div>
+      <button type="button" class="menu-movil-cerrar" id="menu-movil-cerrar" aria-label="Cerrar menú">×</button>
+    </div>
+    <div class="menu-movil-separador"></div>
     <div class="menu-movil-grupo">
       <span class="menu-movil-titulo">Principal</span>
       <a href="index.php" style="--i:0" <?= ($paginaActual ?? '') === 'inicio' ? 'class="activo" aria-current="page"' : '' ?>><?= t('nav_inicio') ?></a>

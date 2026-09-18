@@ -253,8 +253,54 @@ nav.principal a.activo {
   z-index: 495;
   flex-direction: column;
   background: var(--morado-oscuro);
-  padding: 10px 24px 18px;
+  padding: 0 24px 18px;
 }
+.menu-movil-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 14px;
+}
+.menu-movil-acento {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 2px;
+  background: #fff;
+  flex-shrink: 0;
+}
+.menu-movil-marca {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.menu-movil-marca strong {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  color: #fff;
+}
+.menu-movil-marca span {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu-movil-cerrar {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.menu-movil-cerrar:hover { background: rgba(255,255,255,.1); }
+.menu-movil-separador { height: 1px; background: rgba(255,255,255,.15); margin-bottom: 4px; }
 .menu-movil-grupo {
   display: flex;
   flex-direction: column;
