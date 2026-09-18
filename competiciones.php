@@ -72,7 +72,7 @@ require __DIR__ . '/includes/header.php';
       <?php foreach ($competiciones as $c): ?>
       <article class="tarjeta-competicion animar-scroll" data-categoria="<?= e($c['categorias_lista'] ?? '') ?>">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
-          <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" alt="" data-parallax="0.05" data-parallax-limite="16" loading="lazy">
+          <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" srcset="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?> 480w, img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" alt="" data-parallax="0.05" data-parallax-limite="16" loading="lazy">
           <span class="tarjeta-competicion-categoria" style="background:<?= e(colorCategoria($pdo, explode(',', $c['categorias_lista'] ?? '')[0] ?? null)) ?>;"><?= e(str_replace(',', ' · ', $c['categorias_lista'] ?? '')) ?></span>
           <?php if ($c['tiene_pdf']): ?><span class="tarjeta-competicion-pdf">PDF</span><?php endif; ?>
         </a>

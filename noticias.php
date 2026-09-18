@@ -23,7 +23,7 @@ require __DIR__ . '/includes/header.php';
     <div class="pagina-noticias">
       <?php foreach ($noticias as $n): ?>
       <a href="noticia.php?id=<?= (int)$n['id'] ?>" class="tarjeta-noticia animar-scroll">
-        <div class="marco-img"><img src="img/<?= e(rutaMiniatura($n['imagen']) ?: 'competicion.svg') ?>" alt="" loading="lazy"></div>
+        <div class="marco-img"><img src="img/<?= e(rutaMiniatura($n['imagen']) ?: 'competicion.svg') ?>" srcset="img/<?= e(rutaMiniatura($n['imagen']) ?: 'competicion.svg') ?> 480w, img/<?= e($n['imagen'] ?: 'competicion.svg') ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" alt="" loading="lazy"></div>
         <div class="cuerpo-tarjeta">
           <div class="fecha"><?= e(formatearFecha($n['fecha'])) ?></div>
           <h3><?= e(campoIdioma($n, 'titulo')) ?></h3>

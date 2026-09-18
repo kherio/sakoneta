@@ -62,7 +62,7 @@ require __DIR__ . '/includes/header.php';
     <div class="grid-plantilla">
       <?php foreach ($gimnastas as $g): ?>
       <a href="gimnasta.php?id=<?= (int)$g['id'] ?>" class="tarjeta-jugador animar-scroll" style="display:block;">
-        <div class="marco-img"><img src="img/<?= e(rutaMiniatura($g['foto']) ?: 'gimnasta-placeholder.svg') ?>" alt="<?= e($g['nombre']) ?>" loading="lazy"></div>
+        <div class="marco-img"><img src="img/<?= e(rutaMiniatura($g['foto']) ?: 'gimnasta-placeholder.svg') ?>" srcset="img/<?= e(rutaMiniatura($g['foto']) ?: 'gimnasta-placeholder.svg') ?> 480w, img/<?= e($g['foto'] ?: 'gimnasta-placeholder.svg') ?> 1600w" sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 260px" alt="<?= e($g['nombre']) ?>" loading="lazy"></div>
         <div class="info">
           <div class="dorsal"><?= e($g['categoria']) ?></div>
           <h4><?= e($g['nombre']) ?></h4>
@@ -85,7 +85,7 @@ require __DIR__ . '/includes/header.php';
       <?php foreach ($competiciones as $c): ?>
       <article class="tarjeta-competicion animar-scroll">
         <a href="competicion.php?id=<?= (int)$c['id'] ?>" class="tarjeta-competicion-foto">
-          <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" alt="" loading="lazy">
+          <img src="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?>" srcset="img/<?= e(rutaMiniatura($c['imagen_portada']) ?: 'competicion.svg') ?> 480w, img/<?= e($c['imagen_portada'] ?: 'competicion.svg') ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" alt="" loading="lazy">
         </a>
         <div class="tarjeta-competicion-cuerpo">
           <div class="fecha"><?= e(formatearFecha($c['fecha'])) ?></div>
@@ -118,7 +118,7 @@ require __DIR__ . '/includes/header.php';
           </div>
         <?php else: ?>
           <div class="galeria-parallax-item marco-parallax animar-scroll">
-            <img src="img/<?= e(rutaMiniatura($f['archivo'])) ?>" data-full="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
+            <img src="img/<?= e(rutaMiniatura($f['archivo'])) ?>" srcset="img/<?= e(rutaMiniatura($f['archivo'])) ?> 480w, img/<?= e($f['archivo']) ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" data-full="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
           </div>
         <?php endif; ?>
       <?php endforeach; ?>

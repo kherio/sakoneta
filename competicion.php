@@ -165,7 +165,7 @@ require __DIR__ . '/includes/header.php';
           </div>
         <?php else: ?>
           <div class="galeria-parallax-item marco-parallax animar-scroll">
-            <img src="img/<?= e(rutaMiniatura($f['archivo'])) ?>" data-full="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
+            <img src="img/<?= e(rutaMiniatura($f['archivo'])) ?>" srcset="img/<?= e(rutaMiniatura($f['archivo'])) ?> 480w, img/<?= e($f['archivo']) ?> 1600w" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px" data-full="img/<?= e($f['archivo']) ?>" alt="" data-parallax="0.07" data-parallax-limite="22" loading="lazy">
           </div>
         <?php endif; ?>
       <?php endforeach; ?>

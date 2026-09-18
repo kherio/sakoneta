@@ -183,7 +183,7 @@ require __DIR__ . '/includes/header.php';
     <?php if ($destacada): ?>
     <div class="grid-noticias">
       <a href="noticia.php?id=<?= (int)$destacada['id'] ?>" class="noticia-destacada animar-scroll">
-        <img src="img/<?= e(rutaMiniatura($destacada['imagen']) ?: 'competicion.svg') ?>" alt="" loading="lazy">
+        <img src="img/<?= e(rutaMiniatura($destacada['imagen']) ?: 'competicion.svg') ?>" srcset="img/<?= e(rutaMiniatura($destacada['imagen']) ?: 'competicion.svg') ?> 480w, img/<?= e($destacada['imagen'] ?: 'competicion.svg') ?> 1600w" sizes="(max-width: 860px) 90vw, 55vw" alt="" loading="lazy">
         <div class="cuerpo-overlay">
           <div class="fecha"><?= e(formatearFecha($destacada['fecha'])) ?></div>
           <h3><?= e(campoIdioma($destacada, 'titulo')) ?></h3>
