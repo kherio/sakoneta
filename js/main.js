@@ -287,6 +287,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var destinoX = vaASiguiente ? -anchoPantalla : anchoPantalla;
         contenido.style.transform = 'translateX(' + destinoX + 'px)';
         capaActiva.style.transform = 'translateX(0)';
+        // La página de destino, nada más cargar, sabrá por esto que
+        // se ha llegado deslizando y no debe repetir la animación de
+        // entrada de su propio hero (el Ken Burns) desde el principio
+        // — si lo hiciera, se vería como un salto/reinicio justo
+        // después de un deslizamiento que ya iba suave.
+        try { sessionStorage.setItem('sakoneta_llegada_swipe', '1'); } catch (err) {}
         setTimeout(function () { window.location.href = destino; }, 260);
       } else {
         contenido.style.transform = 'translateX(0)';

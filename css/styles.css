@@ -1168,6 +1168,16 @@ footer a:hover { color: #fff; transform: translateX(3px); }
   background-size: 108% auto;
   animation: kenBurnsNoticia 9s ease-out forwards;
 }
+/* Ver el script temprano en includes/header.php: si se ha llegado
+   deslizando desde otra competición/noticia, el hero aparece
+   directamente asentado en el punto final del zoom, en vez de
+   reiniciar la animación desde el principio — ese reinicio se vería
+   como un salto justo después de un deslizamiento que ya iba suave. */
+:root[data-llegada="swipe"] .franja-noticia-imagen,
+:root[data-llegada="swipe"] .franja-hero-foto {
+  animation: none;
+  background-size: 124% auto;
+}
 .franja-competicion.franja-portada {
   min-height: 56vh;
   max-height: 560px;
