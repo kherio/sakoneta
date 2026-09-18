@@ -137,6 +137,11 @@ $stmt->execute([$hace30dias . ' 00:00:00']);
 $visitasPorIdioma = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 $totalConIdioma = array_sum($visitasPorIdioma);
 
+// --- Resumen: páginas visitadas por IP (últimos 30 días) ---
+$stmt = $pdo->prepare("SELECT ip, COUNT(*) AS total_paginas, COUNT(DISTINCT pagina) AS paginas_distintas, MIN(fecha_hora) AS primera, MAX(fecha_hora) AS ultima FROM visitas WHERE fecha_hora >= ? GROUP BY ip ORDER BY total_paginas DESC LIMIT 100");
+$stmt->execute([$hace30dias . ' 00:00:00']);
+$resumenPorIp = $stmt->fetchAll();
+
 // --- Cruce de seguridad: intentos de login fallidos recientes ---
 $intentosSospechosos = $pdo->query("SELECT ip, intentos, ultimo_intento, bloqueado_hasta FROM intentos_login WHERE intentos > 2 ORDER BY ultimo_intento DESC LIMIT 20")->fetchAll();
 
@@ -281,6 +286,24 @@ require __DIR__ . '/includes/layout_header.php';
     <?php endif; ?>
   </div>
 </div>
+
+<h3 style="margin-top:36px;">Resumen de páginas visitadas por IP <span style="font-weight:400;color:var(--gris);font-size:13px;">(últimos 30 días, las más activas primero)</span></h3>
+<?php if (!$resumenPorIp): ?>
+  <p style="color:var(--gris);">Todavía no hay suficientes datos.</p>
+<?php else: ?>
+<table class="admin-tabla">
+  <tr><th>IP</th><th>Páginas vistas</th><th>Páginas distintas</th><th>Primera visita</th><th>Última visita</th></tr>
+  <?php foreach ($resumenPorIp as $r): ?>
+  <tr>
+    <td><code><?= e($r['ip']) ?></code></td>
+    <td><?= (int)$r['total_paginas'] ?></td>
+    <td><?= (int)$r['paginas_distintas'] ?></td>
+    <td><?= e(date('d/m/Y H:i', strtotime($r['primera']))) ?></td>
+    <td><?= e(date('d/m/Y H:i', strtotime($r['ultima']))) ?></td>
+  </tr>
+  <?php endforeach; ?>
+</table>
+<?php endif; ?>
 
 <h3 style="margin-top:36px;">Sesiones de navegación por IP <span style="font-weight:400;color:var(--gris);font-size:13px;">(últimos 7 días, las más largas primero)</span></h3>
 <p style="color:var(--gris);font-size:13px;max-width:70ch;margin-top:-8px;">
