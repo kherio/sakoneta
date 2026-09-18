@@ -45,6 +45,32 @@ if (isset($pdo)) {
       document.documentElement.setAttribute('data-movimiento', 'reducido');
     }
   } catch (e) {}
+
+  // Si se ha llegado deslizando desde otra competición (ver el swipe
+  // en main.js), la página de origen ya sabe hacia qué lado se ha
+  // deslizado, pero esta página es una carga nueva e independiente:
+  // sin esto, su parte de la transición (la entrada) usaría el
+  // fundido por defecto en vez de deslizarse en la misma dirección,
+  // perdiendo la sensación de movimiento continuo entre una
+  // competición y la siguiente. Se recoge aquí, antes de pintar, y se
+  // borra al momento para que solo afecte a esta carga en concreto.
+  try {
+    var transicionSwipe = sessionStorage.getItem('sakoneta_transicion');
+    if (transicionSwipe) {
+      document.documentElement.setAttribute('data-transicion', transicionSwipe);
+      sessionStorage.removeItem('sakoneta_transicion');
+      // Solo debe afectar a la transición de ENTRADA de esta carga en
+      // concreto: si se deja puesto, la siguiente navegación desde
+      // esta misma página (un enlace cualquiera, sin relación con el
+      // swipe) heredaría el mismo deslizamiento en vez del fundido
+      // normal. El propio arranque de la transición ya ha capturado
+      // el atributo para entonces, así que quitarlo enseguida no
+      // afecta a la animación de esta carga.
+      setTimeout(function () {
+        document.documentElement.removeAttribute('data-transicion');
+      }, 500);
+    }
+  } catch (e) {}
 </script>
 <title><?= isset($tituloPagina) ? e($tituloPagina) . ' · ' . nombreSitio() : nombreSitio() ?></title>
 <meta name="description" content="<?= e($descripcionOG ?? claimSitio()) ?>">

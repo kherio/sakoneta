@@ -215,7 +215,16 @@ document.addEventListener('DOMContentLoaded', function () {
       var umbralSuperado = Math.abs(deltaX) > window.innerWidth * 0.22;
       if (!umbralSuperado) return;
 
-      document.documentElement.setAttribute('data-transicion', swipeVaASiguiente ? 'izquierda' : 'derecha');
+      var direccion = swipeVaASiguiente ? 'izquierda' : 'derecha';
+      document.documentElement.setAttribute('data-transicion', direccion);
+      // La página de destino es una carga nueva e independiente: este
+      // atributo puesto aquí solo vale para animar la SALIDA de la
+      // página actual. Para que la ENTRADA de la nueva también sea
+      // direccional (y no el fundido por defecto), hace falta que
+      // ella también lo sepa — se le pasa por sessionStorage, y la
+      // recoge muy pronto, antes de pintar, en includes/header.php.
+      try { sessionStorage.setItem('sakoneta_transicion', direccion); } catch (err) {}
+      setTimeout(function () { document.documentElement.removeAttribute('data-transicion'); }, 1000);
       window.location.href = destino;
     }, { passive: true });
 
