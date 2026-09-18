@@ -68,7 +68,7 @@ if (isset($pdo)) {
       // afecta a la animación de esta carga.
       setTimeout(function () {
         document.documentElement.removeAttribute('data-transicion');
-      }, 500);
+      }, 2000);
     }
   } catch (e) {}
 </script>
