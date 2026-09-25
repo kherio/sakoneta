@@ -706,6 +706,10 @@ function procesarImagenesMultiples(string $campo, array &$errores = []): array {
             }
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'tipo' => $esImagen ? 'imagen' : 'video'];
         } else {
+            $errorPhp = error_get_last();
+            error_log('Sakoneta: move_uploaded_file ha fallado para "' . $_FILES[$campo]['name'][$i] . '" hacia ' . $rutaFinal
+                . ' (carpeta destino escribible: ' . (is_writable($carpetaDestino) ? 'si' : 'NO') . ', espacio libre: ' . (@disk_free_space($carpetaDestino) ?: 'desconocido')
+                . ', error PHP: ' . ($errorPhp['message'] ?? 'ninguno') . ')');
             $errores[] = 'No se ha podido guardar "' . $_FILES[$campo]['name'][$i] . '".';
         }
     }
@@ -806,6 +810,10 @@ function procesarDocumentosMultiples(string $campo, array &$errores = []): array
         if (move_uploaded_file($_FILES[$campo]['tmp_name'][$i], $rutaFinal)) {
             $guardados[] = ['archivo' => 'subidas/' . $nombreFinal, 'nombre_original' => $nombreOriginal];
         } else {
+            $errorPhp = error_get_last();
+            error_log('Sakoneta: move_uploaded_file ha fallado para "' . $nombreOriginal . '" hacia ' . $rutaFinal
+                . ' (carpeta destino escribible: ' . (is_writable($carpetaDestino) ? 'si' : 'NO') . ', espacio libre: ' . (@disk_free_space($carpetaDestino) ?: 'desconocido')
+                . ', error PHP: ' . ($errorPhp['message'] ?? 'ninguno') . ')');
             $errores[] = 'No se ha podido guardar "' . $nombreOriginal . '".';
         }
     }
@@ -1815,6 +1823,10 @@ function procesarImagenSubida(string $campo, ?string &$error = null): ?string {
     $rutaFinal = $carpetaDestino . '/' . $nombreFinal;
 
     if (!move_uploaded_file($archivo['tmp_name'], $rutaFinal)) {
+        $errorPhp = error_get_last();
+        error_log('Sakoneta: move_uploaded_file ha fallado para "' . $archivo['name'] . '" hacia ' . $rutaFinal
+            . ' (carpeta destino escribible: ' . (is_writable($carpetaDestino) ? 'si' : 'NO') . ', espacio libre: ' . (@disk_free_space($carpetaDestino) ?: 'desconocido')
+            . ', error PHP: ' . ($errorPhp['message'] ?? 'ninguno') . ')');
         $error = 'No se ha podido guardar el archivo en el servidor.';
         return null;
     }
