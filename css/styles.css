@@ -591,6 +591,8 @@ nav.principal a.activo {
 
 /* ---------- Secciones generales ---------- */
 .seccion { padding: 64px 0; }
+.seccion-competiciones { padding-top: 28px; }
+.seccion-competiciones .seccion-cabecera { margin-bottom: 16px; }
 .seccion-cabecera {
   display: flex;
   justify-content: space-between;
@@ -1587,6 +1589,7 @@ img.cargando-esqueleto {
 }
 
 /* ---------- Interruptor lista/calendario y calendario de competiciones ---------- */
+.seccion-competiciones .vista-cambio { margin-bottom: 14px; }
 .vista-cambio {
   display: inline-flex;
   position: relative;

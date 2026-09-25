@@ -35,7 +35,7 @@ foreach ($competiciones as $c) {
 require __DIR__ . '/includes/header.php';
 ?>
 
-<section class="seccion">
+<section class="seccion seccion-competiciones">
   <div class="contenedor">
     <div class="seccion-cabecera">
       <h2><?= t('seccion_competiciones') ?></h2>
